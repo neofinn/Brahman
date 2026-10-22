@@ -1,15 +1,16 @@
 {
   "name": "brahman",
-  "version": "0.1.0",
+  "version": "0.1.0-beta.1",
   "private": true,
-  "description": "Brahman — a Sanatan Dharma priest app: scripture-grounded guidance, panchang, kundli and puja vidhi.",
+  "description": "Brahman \u2014 a Sanatan Dharma priest app: scripture-grounded guidance, panchang, kundli and puja vidhi.",
   "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/*.test.ts"
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "build:beta": "node beta/build.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.1.0",
@@ -25,6 +26,7 @@
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "esbuild": "^0.25.12",
     "typescript": "^7.0.2"
   }
 }

@@ -111,8 +111,16 @@ interface Recognition {
   stop(): void;
 }
 
+/** True in the single-file beta, which runs without the server (no AI, no shared knowledge, no microphone). */
+export function isStaticBuild(): boolean {
+  return typeof window !== "undefined" && Boolean((window as unknown as { __BRAHMAN_STATIC__?: boolean }).__BRAHMAN_STATIC__);
+}
+
 export function listeningSupported(): boolean {
-  return typeof window !== "undefined" && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+  if (typeof window === "undefined") return false;
+  // The hosted beta runs in a frame without microphone access.
+  if (isStaticBuild()) return false;
+  return "SpeechRecognition" in window || "webkitSpeechRecognition" in window;
 }
 
 /** Listens once. `lang` "hi-IN" understands Hindi and Hinglish; "en-IN" Indian English. */

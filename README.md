@@ -60,6 +60,15 @@ To keep this under control:
 
 Users never need a key. Without one, the app works fully from its built-in knowledge, just without learning.
 
+## Beta (0.1.0-beta.1)
+
+`npm run build:beta` bundles the browser side of the app into one self-contained page (`dist-beta/index.html`, about 850 KB). It includes:
+- the finder, puja and hawan guides with personal sankalpa
+- the katha library, kundli and reading, panchang, and prayers
+- Brahman's voice
+
+It needs no server. The beta leaves out three things that need the server or a microphone: AI search and learned knowledge, the conversational AI kundli reading, and speech input. Deep links use plain hash tokens, e.g. `#kriyas.navagraha-shanti` or `#katha.dhruva`.
+
 ## Getting started
 
 Requires Node.js 20+.
@@ -75,6 +84,7 @@ npm run dev                  # http://localhost:3000
 | `npm run dev` | Development server |
 | `npm run build` / `npm start` | Production build and server |
 | `npm run lint` | Type-check |
+| `npm run build:beta` | Single-file beta page in `dist-beta/` |
 | `npm test` | Tests for the panchang and kundli maths (known dates), the reading engine, the birth-details parser, the finder (English, Hinglish and Devanagari), support and crisis detection, learned knowledge and the store, and voice segmentation |
 
 ## Project layout

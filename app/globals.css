@@ -17,7 +17,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #1a120c;
     --surface: #241911;
     --surface-2: #2e2016;
@@ -34,6 +34,22 @@
     color-scheme: dark;
   }
 }
+:root[data-theme="dark"] {
+    --bg: #1a120c;
+    --surface: #241911;
+    --surface-2: #2e2016;
+    --text: #f6e9dc;
+    --muted: #c4a68e;
+    --border: #3d2b1e;
+    --saffron: #ff9a3c;
+    --saffron-strong: #ffb366;
+    --maroon: #f0a3a3;
+    --gold: #e6b84c;
+    --good: #7bc67e;
+    --bad: #f28b82;
+    --shadow: none;
+    color-scheme: dark;
+  }
 
 * { box-sizing: border-box; }
 
@@ -50,7 +66,7 @@ a { color: var(--saffron-strong); }
 
 .deva { font-family: "Noto Serif Devanagari", "Noto Sans Devanagari", "Nirmala UI", "Mangal", serif; }
 
-.container { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+.container { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 
 /* Header */
 .site-header {
@@ -263,3 +279,5 @@ ul.samagri { padding-left: 18px; margin: 0; }
 .ancestors { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); padding: 12px; border: 1px dashed var(--border); border-radius: var(--radius); }
 .ancestors .sub { grid-column: 1 / -1; margin: 0; }
 .sankalpa-setup { margin-top: 10px; padding: 14px; border-radius: var(--radius); background: var(--surface-2); }
+
+.beta-badge { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--saffron-strong); border: 1px solid var(--border); border-radius: 999px; padding: 1px 7px; margin-left: 2px; }

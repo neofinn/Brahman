@@ -25,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/" className="brand">
               <span className="om deva" aria-hidden>ॐ</span>
               Brahman
+              <span className="beta-badge" title="Beta version — feedback welcome">Beta</span>
             </Link>
             <Nav />
           </div>

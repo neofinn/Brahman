@@ -20,7 +20,7 @@ import { computeKundli } from "@/lib/jyotish";
 import { getKriya } from "@/lib/kriyas";
 import type { LearnedEntry } from "@/lib/learned";
 import { KUNDLI_HANDOFF_KEY } from "@/lib/handoff";
-import { listen, listeningSupported, speak, speechSupported } from "@/lib/speech";
+import { isStaticBuild, listen, listeningSupported, speak, speechSupported } from "@/lib/speech";
 import { speechForCard } from "@/lib/voice";
 import { zonedToUtc } from "@/lib/time";
 
@@ -134,6 +134,7 @@ export function Chat() {
   const [canSpeak, setCanSpeak] = useState(false);
   const [canListen, setCanListen] = useState(false);
   const [listening, setListening] = useState(false);
+  const [listenError, setListenError] = useState<string | null>(null);
   const [listenLang, setListenLang] = useState("hi-IN");
   const [speakingIndex, setSpeakingIndex] = useState<number | null>(null);
   const [, setKnowledgeVersion] = useState(0);
@@ -285,7 +286,7 @@ export function Chat() {
     setMessages(saved.messages);
     setState(saved.state);
     stateRef.current = saved.state;
-    fetch("/api/knowledge")
+    (isStaticBuild() ? Promise.resolve({ ok: false } as Response) : fetch("/api/knowledge"))
       .then((r) => (r.ok ? r.json() : { entries: [] }))
       .then((d: { entries?: LearnedEntry[] }) => learnKnowledge(d.entries ?? []))
       .catch(() => undefined)
@@ -342,6 +343,7 @@ export function Chat() {
       return;
     }
     stopSpeechRef.current?.();
+    setListenError(null);
     setListening(true);
     let heard = "";
     stopListenRef.current = listen(
@@ -360,7 +362,7 @@ export function Chat() {
         stopListenRef.current = null;
         if (error && error !== "aborted" && error !== "no-speech" && !heard) {
           setInput("");
-          alert(error === "not-allowed" ? "Please allow microphone access to speak to Brahman." : `Could not hear clearly (${error}). Please try again.`);
+          setListenError(error === "not-allowed" ? "Please allow microphone access to speak to Brahman." : `Could not hear clearly (${error}). Please try again.`);
         }
       },
     );
@@ -476,6 +478,7 @@ export function Chat() {
             <button type="submit" className="btn" disabled={!input.trim()}>Ask</button>
           )}
         </form>
+        {listenError && <p className="bad" role="alert" style={{ margin: "6px 0 0" }}>{listenError}</p>}
         <div className="voice-bar">
           {canSpeak && (
             <button type="button" className={`chip${voice ? " on" : ""}`} onClick={toggleVoice} aria-pressed={voice}>
