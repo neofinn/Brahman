@@ -1,5 +1,6 @@
 // Pulls birth details (date, time, place) out of free text in English or Hinglish.
 import { transliterate } from "./devanagari.ts";
+import { findPlaceInText } from "./places.ts";
 import { GAZETTEER, type Place } from "./time.ts";
 
 export interface BirthDetails {
@@ -109,7 +110,10 @@ export function findPlace(text: string): Place | undefined {
       }
     }
   }
-  return best?.place;
+  if (best) return best.place;
+  // Otherwise any town in the offline gazetteer ("born in Haridwar", "Ratlam").
+  const found = findPlaceInText(text);
+  return found && { name: found.name, latitude: found.latitude, longitude: found.longitude, timeZone: found.timeZone, region: found.region };
 }
 
 function extractName(text: string): string | undefined {

@@ -31,12 +31,15 @@ export function KundliView() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [place, setPlace] = useState<Place>(PLACES[1]);
+  const [gender, setGender] = useState<"" | "m" | "f">("");
+  const [computed, setComputed] = useState<{ date: string; time: string; place: Place; gender?: "m" | "f" } | null>(null);
   const [kundli, setKundli] = useState<Kundli | null>(null);
 
   const compute = (e: React.FormEvent) => {
     e.preventDefault();
     if (!date || !time) return;
     setKundli(computeKundli(zonedToUtc(date, time, place.timeZone), place));
+    setComputed({ date, time, place, gender: gender || undefined });
   };
 
   const askAi = () => {
@@ -50,8 +53,9 @@ export function KundliView() {
       <div className="container">
         <h1>Janma Kundli</h1>
         <p className="lede">
-          Enter your birth details and Brahman prepares your sidereal birth chart with a full reading — lagna, rashi,
-          nakshatra, yogas, doshas, dashas and remedies. Everything is computed on your device.
+          Enter your birth details and search your birthplace. Brahman draws your chart in North or South Indian style and reads it
+          in four systems — Parashari (Brihat Parashara Hora Shastra, with all 16 divisional charts), KP, Bhrigu Nandi Nadi and
+          Chaldean numerology. Everything is computed on your device.
         </p>
 
         <form className="form-row" onSubmit={compute}>
@@ -67,13 +71,21 @@ export function KundliView() {
             Time of birth
             <input type="time" required value={time} onChange={(e) => setTime(e.target.value)} />
           </label>
+          <label>
+            Gender (for Nadi reading)
+            <select value={gender} onChange={(e) => setGender(e.target.value as "" | "m" | "f")}>
+              <option value="">Prefer not to say</option>
+              <option value="m">Male</option>
+              <option value="f">Female</option>
+            </select>
+          </label>
           <PlacePicker value={place} onChange={setPlace} label="Place of birth" />
           <button type="submit" className="btn">Create kundli</button>
         </form>
 
         {kundli && (
           <>
-            <KundliReport kundli={kundli} name={name} />
+            <KundliReport kundli={kundli} name={name} birth={computed ?? undefined} />
             {ai && (
               <p><button className="btn secondary" onClick={askAi}>✨ Ask AI for a conversational reading</button></p>
             )}

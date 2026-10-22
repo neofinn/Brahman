@@ -51,7 +51,7 @@ function KundliCard({ card, onRitual }: { card: Extract<Card, { type: "kundli" }
     () => computeKundli(zonedToUtc(card.date, card.time, card.place.timeZone), card.place),
     [card.date, card.time, card.place],
   );
-  return <KundliReport kundli={kundli} name={card.name} onRitual={onRitual} />;
+  return <KundliReport kundli={kundli} name={card.name} birth={{ date: card.date, time: card.time, place: card.place }} onRitual={onRitual} />;
 }
 
 function CardView({ card, voice, onRitual, onSend, onKatha }: { card: Card; voice: boolean; onRitual: (id: string) => void; onSend: (text: string) => void; onKatha: (id: string) => void }) {

@@ -281,3 +281,29 @@ ul.samagri { padding-left: 18px; margin: 0; }
 .sankalpa-setup { margin-top: 10px; padding: 14px; border-radius: var(--radius); background: var(--surface-2); }
 
 .beta-badge { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--saffron-strong); border: 1px solid var(--border); border-radius: 999px; padding: 1px 7px; margin-left: 2px; }
+
+/* Place search */
+.place-search { flex: 2 1 280px; display: grid; gap: 4px; min-width: 0; font-size: 0.9rem; color: var(--muted); }
+.combo { position: relative; }
+.combo input { width: 100%; }
+.combo-list { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); max-height: 300px; overflow-y: auto; }
+.combo-list li { padding: 8px 10px; border-radius: 8px; cursor: pointer; color: var(--text); display: flex; gap: 6px; flex-wrap: wrap; align-items: baseline; }
+.combo-list li.active { background: var(--surface-2); }
+.combo-list li.empty { cursor: default; color: var(--muted); }
+.place-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.manual-coords { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+
+/* North Indian chart */
+.north-chart { width: 100%; max-width: 460px; height: auto; display: block; background: var(--surface); border-radius: 6px; }
+.nc-frame { fill: var(--surface); stroke: var(--maroon); stroke-width: 2.5; }
+.nc-line { stroke: var(--maroon); stroke-width: 1.5; }
+.nc-sign { fill: var(--muted); font-size: 13px; font-family: inherit; }
+.nc-sign.lagna { fill: var(--saffron-strong); font-weight: 700; }
+.nc-planet { fill: var(--text); font-size: 12.5px; font-weight: 600; font-family: inherit; }
+.nc-asc { fill: var(--saffron-strong); font-size: 11px; font-weight: 700; font-family: inherit; }
+.chart-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0 12px; }
+.chart-tools select { font-size: 0.9rem; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--border); margin: 8px 0 16px; }
+.tabs button { font: inherit; background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 12px; color: var(--muted); cursor: pointer; }
+.tabs button.on { color: var(--saffron-strong); border-bottom-color: var(--saffron); font-weight: 600; }
+.lords { font-size: 0.85rem; }

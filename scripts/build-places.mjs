@@ -1,0 +1,99 @@
+// Generates lib/places-data.ts, the offline gazetteer used by place search.
+// Usage: node scripts/build-places.mjs <path to all-the-cities/index.js> <path to city-timezones cityMap.json>
+// Sources: GeoNames (via the all-the-cities npm package, CC BY 4.0) and city-timezones (MIT).
+import { createRequire } from "node:module";
+import { readFileSync, writeFileSync } from "node:fs";
+
+const require = createRequire(import.meta.url);
+const [atcPath, ctPath] = process.argv.slice(2);
+const cities = require(atcPath);
+const ct = JSON.parse(readFileSync(ctPath, "utf8"));
+
+const DIASPORA = new Set(["US", "GB", "CA", "AU", "NZ", "MU", "FJ", "TT", "GY", "SR", "ZA", "KE", "AE", "SG", "MY", "QA", "OM", "KW", "BH", "SA", "NL", "DE"]);
+const SOUTH_ASIA = new Set(["NP", "LK", "BD", "PK", "BT"]);
+const FIXED_TZ = { IN: "Asia/Kolkata", NP: "Asia/Kathmandu", LK: "Asia/Colombo", BD: "Asia/Dhaka", PK: "Asia/Karachi", BT: "Asia/Thimphu" };
+
+const keep = cities.filter((c) =>
+  c.country === "IN" || c.country === "NP" ||
+  (SOUTH_ASIA.has(c.country) && c.population >= 20000) ||
+  (DIASPORA.has(c.country) && c.population >= 30000) ||
+  c.population >= 100000,
+);
+
+const rad = (d) => (d * Math.PI) / 180;
+function km(aLat, aLon, bLat, bLon) {
+  const x = Math.sin(rad(bLat - aLat) / 2) ** 2 + Math.cos(rad(aLat)) * Math.cos(rad(bLat)) * Math.sin(rad(bLon - aLon) / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(x));
+}
+const byCountry = new Map();
+for (const e of ct) {
+  if (!byCountry.has(e.iso2)) byCountry.set(e.iso2, []);
+  byCountry.get(e.iso2).push(e);
+}
+const countryName = new Map(ct.map((e) => [e.iso2, e.country]));
+
+// Region names come only from official codes (India's states, US states); elsewhere the country alone is shown,
+// because matching names across datasets mislabels too many places.
+const adminName = new Map();
+const US_STATES = {
+  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado", CT: "Connecticut", DE: "Delaware",
+  DC: "District of Columbia", FL: "Florida", GA: "Georgia", HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa",
+  KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland", MA: "Massachusetts", MI: "Michigan", MN: "Minnesota",
+  MS: "Mississippi", MO: "Missouri", MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
+  NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio", OK: "Oklahoma", OR: "Oregon",
+  PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina", SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah",
+  VT: "Vermont", VA: "Virginia", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming", PR: "Puerto Rico",
+};
+for (const [code, name] of Object.entries(US_STATES)) adminName.set(`US.${code}`, name);
+// India's GeoNames admin1 codes, set explicitly (name matching mislabels several states).
+const INDIA_STATES = {
+  "01": "Andaman and Nicobar Islands", "02": "Andhra Pradesh", "03": "Assam", "05": "Chandigarh", "06": "Dadra and Nagar Haveli",
+  "07": "Delhi", "09": "Gujarat", "10": "Haryana", "11": "Himachal Pradesh", "12": "Jammu and Kashmir", "13": "Kerala",
+  "14": "Lakshadweep", "16": "Maharashtra", "17": "Manipur", "18": "Meghalaya", "19": "Karnataka", "20": "Nagaland",
+  "21": "Odisha", "22": "Puducherry", "23": "Punjab", "24": "Rajasthan", "25": "Tamil Nadu", "26": "Tripura",
+  "28": "West Bengal", "29": "Sikkim", "30": "Arunachal Pradesh", "31": "Mizoram", "32": "Daman and Diu", "33": "Goa",
+  "34": "Bihar", "35": "Madhya Pradesh", "36": "Uttar Pradesh", "37": "Chhattisgarh", "38": "Jharkhand",
+  "39": "Uttarakhand", "40": "Telangana", "41": "Ladakh",
+};
+for (const [code, name] of Object.entries(INDIA_STATES)) adminName.set(`IN.${code}`, name);
+
+function timezone(c) {
+  if (FIXED_TZ[c.country]) return FIXED_TZ[c.country];
+  const [lon, lat] = c.loc.coordinates;
+  let best = null;
+  for (const e of byCountry.get(c.country) ?? []) {
+    const d = km(lat, lon, e.lat, e.lng);
+    if (!best || d < best.d) best = { d, tz: e.timezone };
+  }
+  return best?.tz ?? null;
+}
+
+const tzs = [];
+const regions = [];
+const idx = (arr, v) => {
+  let i = arr.indexOf(v);
+  if (i < 0) i = arr.push(v) - 1;
+  return i;
+};
+const rows = [];
+for (const c of keep.sort((a, b) => b.population - a.population)) {
+  const tz = timezone(c);
+  if (!tz) continue;
+  const region = [adminName.get(`${c.country}.${c.adminCode}`) ?? "", (countryName.get(c.country) ?? c.country).replace("United States of America", "USA")]
+    .filter(Boolean)
+    .join(", ");
+  const [lon, lat] = c.loc.coordinates;
+  const name = c.name.replace(/[|\n]/g, " ");
+  const alt = (c.altName || "").split(",").map((s) => s.trim()).filter((s) => s && s !== name && /^[\p{L} .'-]+$/u.test(s)).slice(0, 2).join(";");
+  rows.push([name, idx(regions, region), lat.toFixed(3), lon.toFixed(3), idx(tzs, tz), Math.round(c.population / 1000), alt].join("|"));
+}
+
+const out = `// Generated by scripts/build-places.mjs — do not edit by hand.
+// Places from GeoNames (CC BY 4.0, via all-the-cities) with time zones from city-timezones (MIT).
+// Row format: name|regionIndex|lat|lon|timeZoneIndex|populationInThousands|altNames(;)
+export const TIME_ZONES: string[] = ${JSON.stringify(tzs)};
+export const REGIONS: string[] = ${JSON.stringify(regions)};
+export const PLACE_ROWS = ${JSON.stringify(rows.join("\n"))};
+`;
+writeFileSync(new URL("../lib/places-data.ts", import.meta.url), out);
+console.log(`${rows.length} places, ${regions.length} regions, ${tzs.length} time zones, ${(out.length / 1024).toFixed(0)} KB`);

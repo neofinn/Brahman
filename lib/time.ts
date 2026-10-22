@@ -5,6 +5,8 @@ export interface Place {
   latitude: number;
   longitude: number;
   timeZone: string;
+  /** State and country, for telling places of the same name apart. */
+  region?: string;
 }
 
 export const PLACES: Place[] = [

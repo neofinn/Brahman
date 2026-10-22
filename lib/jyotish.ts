@@ -59,7 +59,7 @@ export function lahiriAyanamsa(date: Date): number {
   return 23.853 + (50.2788 / 3600) * years;
 }
 
-function tropicalLongitude(body: Astronomy.Body, date: Date): number {
+export function tropicalLongitude(body: Astronomy.Body, date: Date): number {
   if (body === Astronomy.Body.Moon) return Astronomy.EclipticGeoMoon(date).lon;
   if (body === Astronomy.Body.Sun) return Astronomy.SunPosition(date).elon;
   return Astronomy.Ecliptic(Astronomy.GeoVector(body, date, true)).elon;
@@ -71,17 +71,36 @@ export function siderealLongitude(body: Astronomy.Body, date: Date): number {
 
 /** Mean lunar node (Rahu), sidereal. */
 export function rahuLongitude(date: Date): number {
-  const T = (date.getTime() - Date.UTC(2000, 0, 1, 12)) / (36525 * 86400000);
-  const omega = 125.04452 - 1934.136261 * T + 0.0020708 * T * T + (T * T * T) / 450000;
-  return norm360(omega - lahiriAyanamsa(date));
+  return norm360(tropicalRahu(date) - lahiriAyanamsa(date));
+}
+
+/** Mean obliquity of the ecliptic, in degrees. */
+export function obliquity(date: Date): number {
+  return 23.4392911 - (0.0130042 * (date.getTime() - Date.UTC(2000, 0, 1, 12))) / (36525 * 86400000);
+}
+
+/** Right ascension of the meridian (local sidereal time in degrees). */
+export function ramc(date: Date, longitude: number): number {
+  return norm360(Astronomy.SiderealTime(date) * 15 + longitude);
+}
+
+/** Tropical ascendant for a place and instant. */
+export function tropicalAscendant(date: Date, latitude: number, longitude: number): number {
+  const r = ramc(date, longitude) * DEG;
+  const eps = obliquity(date) * DEG;
+  const asc = Math.atan2(Math.cos(r), -(Math.sin(r) * Math.cos(eps) + Math.tan(latitude * DEG) * Math.sin(eps)));
+  return norm360(asc / DEG);
 }
 
 /** Sidereal ascendant (lagna) for a place and instant. */
 export function ascendant(date: Date, latitude: number, longitude: number): number {
-  const ramc = norm360(Astronomy.SiderealTime(date) * 15 + longitude) * DEG;
-  const eps = 23.4392911 * DEG - (0.0130042 * DEG * (date.getTime() - Date.UTC(2000, 0, 1, 12))) / (36525 * 86400000);
-  const asc = Math.atan2(Math.cos(ramc), -(Math.sin(ramc) * Math.cos(eps) + Math.tan(latitude * DEG) * Math.sin(eps)));
-  return norm360(asc / DEG - lahiriAyanamsa(date));
+  return norm360(tropicalAscendant(date, latitude, longitude) - lahiriAyanamsa(date));
+}
+
+/** Tropical mean lunar node (Rahu). */
+export function tropicalRahu(date: Date): number {
+  const T = (date.getTime() - Date.UTC(2000, 0, 1, 12)) / (36525 * 86400000);
+  return norm360(125.04452 - 1934.136261 * T + 0.0020708 * T * T + (T * T * T) / 450000);
 }
 
 export function rashiOf(lon: number) {
