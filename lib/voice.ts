@@ -27,7 +27,7 @@ const list = (items: string[]) => items.join(", ").replace(/, ([^,]*)$/, " and $
 
 export function stepSpeech(step: Step, index: number): string[] {
   const out = [`Step ${index + 1}. ${step.title}. ${step.detail}`];
-  if (step.mantra) out.push(`Recite with me: ${step.mantra.devanagari}`);
+  if (step.mantra) out.push("Recite with me:", step.mantra.devanagari);
   return out;
 }
 
@@ -112,7 +112,8 @@ export function speechForCard(card: Card): string[] {
         w.comfort.replace(/^🙏\s*/, ""),
         "Let us pray together.",
         w.prayer,
-        `Now chant with me: ${first.devanagari}`,
+        "Now chant with me:",
+        first.devanagari,
         `As Shri Krishna says in the Gita: ${w.situation.verse.meaning}`,
       ];
     }

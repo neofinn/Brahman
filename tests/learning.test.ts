@@ -87,3 +87,15 @@ test("knowledge store adds, de-duplicates ids and removes", async () => {
   assert.equal(await store.removeLearned("missing"), false);
   assert.deepEqual((await store.listLearned()).map((e) => e.id), [b.id]);
 });
+
+test("every recited mantra is collected for recording", async () => {
+  const { allMantraTexts } = await import("../lib/mantra-texts.ts");
+  const { isChant, mantraKey } = await import("../lib/speech.ts");
+  const texts = allMantraTexts();
+  assert.ok(texts.length > 100);
+  assert.ok(texts.includes(mantraKey("ॐ भूर्भुवः स्वः। तत्सवितुर्वरेण्यं भर्गो देवस्य धीमहि। धियो यो नः प्रचोदयात्॥")));
+  assert.equal(new Set(texts).size, texts.length);
+  assert.ok(isChant("ॐ नमः शिवाय") && !isChant("भक्तों, आइए कथा सुनते हैं।"));
+  const { azureSsml } = await import("../lib/tts.ts");
+  assert.ok(azureSsml("ॐ नमः शिवाय॥", "hi", "chant").includes('rate="-20%"'));
+});

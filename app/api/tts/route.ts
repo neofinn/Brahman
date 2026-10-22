@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { ttsProvider, type TtsLang } from "@/lib/tts";
+import { ttsProvider, type TtsLang, type TtsStyle } from "@/lib/tts";
 
 export const runtime = "nodejs";
 
@@ -22,7 +22,7 @@ export function GET() {
 export async function POST(req: Request) {
   const provider = ttsProvider();
   if (!provider) return Response.json({ error: "Natural voice is not configured." }, { status: 503 });
-  let body: { text?: unknown; lang?: unknown };
+  let body: { text?: unknown; lang?: unknown; style?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -30,9 +30,10 @@ export async function POST(req: Request) {
   }
   const text = typeof body.text === "string" ? body.text.trim() : "";
   const lang: TtsLang = body.lang === "en" ? "en" : "hi";
+  const style: TtsStyle = body.style === "chant" ? "chant" : "speech";
   if (!text || text.length > MAX_CHARS) return Response.json({ error: "Text is empty or too long." }, { status: 400 });
 
-  const key = createHash("sha256").update(`${provider.name}:${lang}:${text}`).digest("hex");
+  const key = createHash("sha256").update(`${provider.name}:${lang}:${style}:${text}`).digest("hex");
   let audio = cache.get(key);
   if (!audio) {
     const client = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
     recent.set(client, [...times, now]);
     daily.chars += text.length;
     try {
-      audio = await provider.synthesize(text, lang);
+      audio = await provider.synthesize(text, lang, style);
     } catch (err) {
       console.error("Brahman TTS error:", err);
       return Response.json({ error: "Voice service unavailable." }, { status: 502 });

@@ -33,6 +33,21 @@ const result = await build({
 const js = result.outputFiles[0].text.replace(/<\/script/gi, "<\\/script");
 const css = (await readFile(path.join(root, "app/globals.css"), "utf8")).replace(/<\/style/gi, "");
 
+// Recorded mantras (npm run build:voice) are embedded so the beta recites them in the natural voice offline.
+let voice = "";
+try {
+  const manifest = JSON.parse(await readFile(path.join(root, "public/voice/manifest.json"), "utf8"));
+  const urls = {};
+  let bytes = 0;
+  for (const [text, file] of Object.entries(manifest)) {
+    const data = await readFile(path.join(root, "public/voice", file));
+    bytes += data.length;
+    urls[text] = `data:audio/mpeg;base64,${data.toString("base64")}`;
+  }
+  if (bytes < 9 * 1024 * 1024) voice = `<script>window.__BRAHMAN_VOICE__=${JSON.stringify(urls).replace(/<\//g, "<\\/")};</script>`;
+  else console.warn(`Recorded mantras (${(bytes / 1048576).toFixed(1)} MB) are too large to embed; the beta will use the device voice.`);
+} catch {}
+
 const html = `<title>Brahman</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Brahman ${pkg.version} — your Sanatan Dharma purohit: puja and hawan guides, kathas, kundli, panchang and prayers.">
@@ -43,8 +58,8 @@ html, body { background: var(--bg); color: var(--text); }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
 </style>
 <div id="brahman-root"><main><div class="container"><p style="padding:40px 0;text-align:center">ॐ Loading Brahman…</p></div></main></div>
-<script>${js}</script>
+${voice}<script>${js}</script>
 `;
 await mkdir(path.join(root, "dist-beta"), { recursive: true });
 await writeFile(path.join(root, "dist-beta/index.html"), html);
-console.log(`dist-beta/index.html — ${(html.length / 1024).toFixed(0)} KB (Brahman ${pkg.version})`);
+console.log(`dist-beta/index.html — ${(html.length / 1024).toFixed(0)} KB (Brahman ${pkg.version})${voice ? ", with recorded mantras" : ""}`);

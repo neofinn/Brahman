@@ -77,6 +77,39 @@ export function chunks(text: string, max = 220): string[] {
   return out;
 }
 
+// --- Recorded mantras -------------------------------------------------------------
+
+/** The text key a recording is stored under: the Devanagari, with whitespace normalised. */
+export function mantraKey(devanagari: string): string {
+  return devanagari.replace(/\s+/g, " ").trim();
+}
+
+/** Mantra-like Devanagari (Om, a double danda, svaha or namah) is chanted rather than spoken. */
+export function isChant(text: string): boolean {
+  return /ॐ|॥|स्वाहा|नमः|नमो/.test(text);
+}
+
+let recorded: Promise<Record<string, string>> | null = null;
+
+/** Mantras recorded once with the natural voice (npm run build:voice): text → audio URL. */
+function recordings(): Promise<Record<string, string>> {
+  if (typeof window === "undefined") return Promise.resolve({});
+  recorded ??= (async () => {
+    const embedded = (window as unknown as { __BRAHMAN_VOICE__?: Record<string, string> }).__BRAHMAN_VOICE__;
+    if (embedded) return embedded;
+    if (isStaticBuild()) return {};
+    try {
+      const r = await fetch("/voice/manifest.json");
+      if (!r.ok) return {};
+      const files = (await r.json()) as Record<string, string>;
+      return Object.fromEntries(Object.entries(files).map(([k, f]) => [k, `/voice/${f}`]));
+    } catch {
+      return {};
+    }
+  })();
+  return recorded;
+}
+
 // --- Natural voice (server neural TTS) ----------------------------------------------
 
 let natural: Promise<boolean> | null = null;
@@ -93,10 +126,11 @@ export function naturalVoiceAvailable(): Promise<boolean> {
 }
 
 function naturalAudio(text: string, lang: "hi" | "en"): Promise<string> {
-  const key = `${lang}:${text}`;
+  const style = lang === "hi" && isChant(text) ? "chant" : "speech";
+  const key = `${lang}:${style}:${text}`;
   let url = audioCache.get(key);
   if (!url) {
-    url = fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, lang }) }).then(async (r) => {
+    url = fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, lang, style }) }).then(async (r) => {
       if (!r.ok) throw new Error(`tts ${r.status}`);
       return URL.createObjectURL(await r.blob());
     });
@@ -125,37 +159,40 @@ export function speak(texts: string[], onDone?: () => void, onItem?: (index: num
     finished = true;
     onDone?.();
   };
-  const queue = texts.flatMap((t, index) => segments(t).flatMap((s) => chunks(s.text, s.lang === "hi" ? 260 : 300).map((text) => ({ text, lang: s.lang, index }))));
+  type Item = { text: string; lang: "hi" | "en"; index: number; url?: string };
+  let queue: Item[] = [];
   let i = 0;
   let useNatural = false;
 
-  const deviceSay = (item: (typeof queue)[number]) => {
+  const playUrl = (url: string, onFail: () => void) => {
+    if (id !== session) return finish();
+    const audio = new Audio(url);
+    currentAudio = audio;
+    audio.onended = () => setTimeout(next, 150);
+    audio.onerror = onFail;
+    audio.play().catch(onFail);
+  };
+
+  const deviceSay = (item: Item) => {
     if (!synth) return next();
     const u = new SpeechSynthesisUtterance(item.text);
     const voice = pickVoice(item.lang);
     if (voice) u.voice = voice;
     u.lang = voice?.lang ?? (item.lang === "hi" ? "hi-IN" : "en-IN");
-    u.rate = item.lang === "hi" ? 0.88 : 0.92;
-    u.pitch = 0.9;
+    const chant = item.lang === "hi" && isChant(item.text);
+    u.rate = chant ? 0.78 : item.lang === "hi" ? 0.88 : 0.92;
+    u.pitch = chant ? 0.75 : 0.9;
     u.onend = () => setTimeout(next, item.lang === "hi" ? 180 : 120); // a breath between sentences
     u.onerror = () => finish();
     synth.speak(u);
   };
 
-  const naturalSay = (item: (typeof queue)[number]) => {
+  const naturalSay = (item: Item) => {
     const ahead = queue[i];
     if (ahead) naturalAudio(ahead.text, ahead.lang).catch(() => {}); // prefetch the next sentence
     naturalAudio(item.text, item.lang)
       .then((url) => {
-        if (id !== session) return finish();
-        const audio = new Audio(url);
-        currentAudio = audio;
-        audio.onended = () => setTimeout(next, 150);
-        audio.onerror = () => {
-          useNatural = false;
-          deviceSay(item);
-        };
-        audio.play().catch(() => {
+        playUrl(url, () => {
           useNatural = false;
           deviceSay(item);
         });
@@ -172,12 +209,21 @@ export function speak(texts: string[], onDone?: () => void, onItem?: (index: num
     if (i >= queue.length) return finish();
     const item = queue[i++];
     onItem?.(item.index);
-    if (useNatural) naturalSay(item);
+    if (item.url) {
+      const recordedItem = item;
+      // A recorded mantra; if it cannot play, say it with the natural or device voice instead.
+      playUrl(item.url, () => (useNatural ? naturalSay({ ...recordedItem, url: undefined }) : deviceSay(recordedItem)));
+    } else if (useNatural) naturalSay(item);
     else deviceSay(item);
   };
 
-  naturalVoiceAvailable().then((ok) => {
+  Promise.all([naturalVoiceAvailable(), recordings()]).then(([ok, rec]) => {
     useNatural = ok;
+    queue = texts.flatMap((t, index) => {
+      const url = rec[mantraKey(t)];
+      if (url) return [{ text: mantraKey(t), lang: "hi" as const, index, url }];
+      return segments(t).flatMap((s) => chunks(s.text, s.lang === "hi" ? 260 : 300).map((text) => ({ text, lang: s.lang, index })));
+    });
     next();
   });
   return () => {

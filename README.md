@@ -45,6 +45,7 @@ Everything — panchang, kundli, readings and search — runs on the user's devi
 ### Brahman's voice
 
 - **Natural human-like voice (optional, server).** Set `AZURE_SPEECH_KEY` + `AZURE_SPEECH_REGION` (Azure neural voices `hi-IN-MadhurNeural` and `en-IN-PrabhatNeural`, Indian male; the free tier covers 0.5M characters a month) or `GOOGLE_TTS_API_KEY` (`hi-IN-Neural2-B`). `/api/tts` synthesises sentence by sentence with a calm, slightly slower pandit delivery and pauses at each danda, caches repeats, and has per-minute and daily (`TTS_DAILY_CHAR_LIMIT`) guards. Users never need a key; without one, or if the service fails, the device voice is used.
+- **Recorded mantras.** With a voice key set, `npm run build:voice` records every mantra the app recites (about 140, ~10k characters — well inside the free tier) once, as a slow, deep chant, into `public/voice/`. Recordings are played first everywhere, and `npm run build:beta` embeds them, so mantras in hawans and kriyas are recited in the human-like male voice even in the beta and offline, with no key at runtime.
 - **Device voice.** Otherwise the best installed Hindi male voice is chosen (Edge's "Madhur Online (Natural)" first). Listeners can pick any installed voice and hear a sample under **My details**.
 - **Kathas in Hindi.** Every katha and granth is told in Hindi as a kathavachak tells it — jaikara, the story with feeling and dialogue, the teachings and the phala — with a हिंदी / English switch (Hindi by default).
 
@@ -94,6 +95,7 @@ npm run dev                  # http://localhost:3000
 | `npm run build` / `npm start` | Production build and server |
 | `npm run lint` | Type-check |
 | `npm run build:beta` | Single-file beta page in `dist-beta/` |
+| `npm run build:voice` | Records every mantra with the natural voice into `public/voice/` (needs a voice key) |
 | `npm test` | Tests for the panchang and kundli maths (known dates), the reading engine, the birth-details parser, the finder (English, Hinglish and Devanagari), support and crisis detection, learned knowledge and the store, voice segmentation, the astrology systems, predictions, Kundli Milan tables, muhurta rules and samagri substitutes |
 
 ## Project layout
