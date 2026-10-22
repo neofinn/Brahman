@@ -13,6 +13,8 @@ import { getGraha } from "@/lib/grahas";
 import { formatDate, zonedToUtc, type Place } from "@/lib/time";
 import { Chart, type ChartStyle } from "./Charts";
 import { GrahaCard } from "./GrahaCard";
+import { PredictionsView } from "./PredictionsView";
+import type { AreaId } from "@/lib/predictions";
 
 const ABBR: Record<string, string> = {
   Sun: "Su", Moon: "Mo", Mars: "Ma", Mercury: "Me", Jupiter: "Ju", Venus: "Ve", Saturn: "Sa", Rahu: "Ra", Ketu: "Ke",
@@ -27,10 +29,12 @@ export interface BirthInfo {
   gender?: "m" | "f";
 }
 
-type Tab = "parashari" | "kp" | "bnn" | "numerology";
+type Tab = "parashari" | "predictions" | "kp" | "bnn" | "numerology";
 
-export function KundliReport({ kundli, name, birth, onRitual }: { kundli: Kundli; name?: string; birth?: BirthInfo; onRitual?: (id: string) => void }) {
-  const [tab, setTab] = useState<Tab>("parashari");
+export function KundliReport({ kundli, name, birth, onRitual, initialTab, focus }: {
+  kundli: Kundli; name?: string; birth?: BirthInfo; onRitual?: (id: string) => void; initialTab?: Tab; focus?: AreaId;
+}) {
+  const [tab, setTab] = useState<Tab>(initialTab ?? "parashari");
   const [style, setStyle] = useState<ChartStyle>("north");
   const [varga, setVarga] = useState("D1");
   useEffect(() => {
@@ -49,11 +53,12 @@ export function KundliReport({ kundli, name, birth, onRitual }: { kundli: Kundli
   return (
     <div className="kundli-report">
       <div className="tabs" role="tablist">
-        {([["parashari", "Parashari (BPHS)"], ["kp", "KP"], ["bnn", "Bhrigu Nandi Nadi"], ["numerology", "Numerology"]] as [Tab, string][]).map(([t, label]) => (
+        {([["parashari", "Parashari (BPHS)"], ["predictions", "Predictions & remedies"], ["kp", "KP"], ["bnn", "Bhrigu Nandi Nadi"], ["numerology", "Numerology"]] as [Tab, string][]).map(([t, label]) => (
           <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>{label}</button>
         ))}
       </div>
       {tab === "parashari" && <Parashari kundli={kundli} name={name} style={style} onStyle={changeStyle} varga={varga} onVarga={setVarga} onRitual={onRitual} />}
+      {tab === "predictions" && <PredictionsView kundli={kundli} gender={birth?.gender} focus={focus} onRitual={onRitual} />}
       {tab === "kp" && (birth ? <KpView birth={birth} /> : <p className="sub">KP needs the exact birth time and place.</p>)}
       {tab === "bnn" && <BnnView kundli={kundli} gender={birth?.gender} />}
       {tab === "numerology" && (birth ? <NumerologyView date={birth.date} name={name} /> : null)}

@@ -14,6 +14,10 @@ service is needed. Ask it the way you would ask your pandit-ji:
 | "I wanna perform greh shanti hawan" | Opens the Graha Shanti (Navagraha) Hawan: when to do it, duration, a samagri checklist, all 26 steps of the vidhi with every mantra (Devanagari, IAST, meaning), and **▶ Perform with me** — a step-by-step guided mode. |
 | tap 🔊 Recite / 🔁 Japa ×11 / 📿 ×108 | Recites the mantra aloud with the device's speech voice (Hindi/Sanskrit), counting repetitions. |
 | "My DOB is 15 Jan 1990, 6:30 am, Delhi" (or "kundli banao", then the details one by one) | Prepares the janma kundli and a full reading: lagna, rashi, nakshatra, naam akshar, gana and nadi, grahas by house with dignity, yogas (Gajakesari, Budhaditya, Mahapurusha, Raja, Dhana, Kemadruma…), Mangal dosh with cancellations, Kaal Sarp, Sade Sati and Dhaiya with dates, mahadasha and antardasha, favourable deity/day/gems, and remedies with the right graha mantras and rites. |
+| "my future", "shaadi kab hogi?", "career kaisa rahega", "will I settle abroad?" | **Rule-based predictions, like an astrologer:** rajyogas (Gajakesari, Pancha Mahapurusha, Raja, Yogakaraka, Dhana, Lakshmi, Saraswati, Adhi, Amala, Vasumati, Viparita, Neecha Bhanga, Parivartana), doshas with cancellations (Mangal, Kaal Sarp, Sade Sati, Pitru, Guru Chandal, Grahan, Shrapit, Angarak, Vish, Gandmool, Kemadruma), eight life areas rated from houses, lords, karakas and aspects, **timing windows** for the next ten years (dasha of the linked planets + Jupiter–Saturn double transit), a five-year **antardasha forecast** with Jupiter, Saturn and Rahu ingresses from the Moon, and a prioritised **remedy plan** (beej mantra with japa count, vrat, daan, rudraksha, rites; gems only for functional benefics). Asks for the birth details once and remembers them. |
+| "kundli milan", "gun milan" | **Kundli Milan:** all eight kootas (36 gunas), Nadi and Bhakoot doshas with their exceptions, Mangal dosha comparison, verdict and remedies. |
+| "griha pravesh ka muhurat", "shubh date for marriage" | **Muhurta finder:** the next good days and time windows for griha pravesh, vivah, business, vehicle, property, mundan, namkaran, travel or puja — by nakshatra and weekday, avoiding Amavasya, Rikta tithis, Bhadra, bad yogas, Rahu Kaal and Yamaganda (and Chaturmas, Kharmas and combust Jupiter/Venus for marriage, griha pravesh and mundan). |
+| "I live in USA, no pandit", "mango leaves nahi milte" | **For families abroad or on a budget:** substitutes for every hard-to-find samagri item, the "Gange cha Yamune…" invocation that makes any water fit for puja, panchopachara manasa puja when nothing is available, and fire safety for a hawan in an apartment. Every ritual guide carries this section. |
 | "shani mantra", "gayatri mantra" | Shows the mantra or the graha's beej mantra, Navagraha stotra verse, day, daan, grain, samidha and gem. |
 | "aaj ka panchang" | Today's panchang for any city. |
 | "I have exam tomorrow, pray for me", "I'm feeling scared", "interview hai kal", "my mother is in hospital", "motivate me" | Answers like a caring pandit: warm words, a prayer offered for the person (🔊 prays aloud), the right mantras (Saraswati for exams, Ganesha for interviews and new beginnings, Hanuman for fear, Mahamrityunjaya for illness…), a Gita verse for strength, practical steps, and a related katha and rite. Recognises 14 situations, including grief, travel, money, marriage, anger, loneliness, sleep and good news. Notices who it is for ("my son…") and when ("tomorrow"). |
@@ -29,8 +33,9 @@ hawan/havan, pooja/puja, laxmi/lakshmi, kundali/kundli…), and Indian date and 
 | Section | What it does |
 | --- | --- |
 | **Ask Brahman** (`/chat`) | The finder described above. |
-| **Panchang** (`/panchang`) | Vara, tithi, nakshatra, yoga, karana with end times; amanta/purnimanta masa with adhik masa detection; Vikram and Shaka samvat; sunrise, sunset, moonrise; Brahma and Abhijit muhurta, Rahu Kaal, Yamaganda, Gulika; monthly vratas linked to their guides. |
-| **Kundli** (`/kundli`) | Search any birthplace (10,000+ places offline; Open-Meteo geocoding online), then read the chart in four systems:<br>• **Parashari (BPHS):** all 16 divisional charts (D1–D60), chara karakas and karakamsha, vargottama, the full reading, remedies, and Vimshottari maha and antardashas.<br>• **KP:** Krishnamurti ayanamsa, Placidus cusps, sign/star/sub/sub-sub lords, four-level house significators, and ruling planets.<br>• **Bhrigu Nandi Nadi:** Jupiter (native), Saturn (career) and spouse-karaka connections, plus Jupiter/Saturn transit triggers.<br>• **Chaldean numerology:** name, birth and destiny numbers.<br>Charts are drawn in **North Indian or South Indian** style. |
+| **Panchang** (`/panchang`) | Vara, tithi, nakshatra, yoga, karana with end times; amanta/purnimanta masa with adhik masa detection; Vikram and Shaka samvat; sunrise, sunset, moonrise; Brahma and Abhijit muhurta, Rahu Kaal, Yamaganda, Gulika; monthly vratas linked to their guides; and a **muhurta finder** for common activities. |
+| **Kundli** (`/kundli`) | Search any birthplace (10,000+ places offline; Open-Meteo geocoding online), then read the chart in four systems:<br>• **Parashari (BPHS):** all 16 divisional charts (D1–D60), chara karakas and karakamsha, vargottama, the full reading, remedies, and Vimshottari maha and antardashas.<br>• **Predictions & remedies:** yogas, doshas, life areas with timing windows, the five-year forecast and the remedy plan described above.<br>• **KP:** Krishnamurti ayanamsa, Placidus cusps, sign/star/sub/sub-sub lords, four-level house significators, and ruling planets.<br>• **Bhrigu Nandi Nadi:** Jupiter (native), Saturn (career) and spouse-karaka connections, plus Jupiter/Saturn transit triggers.<br>• **Chaldean numerology:** name, birth and destiny numbers.<br>Charts are drawn in **North Indian or South Indian** style. |
+| **Milan** (`/milan`) | Ashtakoota kundli matching for two birth charts. |
 | **Puja & Hawan** (`/kriyas`) | 26 guides (including the four path guides): general havan, Graha Shanti, Vastu Shanti, Mahamrityunjaya, Mangal dosh, Kaal Sarp, Shani shanti, daily and shodashopachara puja, Ganesha, Rudrabhishek, Lakshmi puja, Navratri, Hanuman/Sundarkand, Satyanarayan, Sandhya, Griha Pravesh, tarpan/shraddha, Ekadashi, Janmashtami, Karwa Chauth and the 16 samskaras. |
 | **Katha** (`/katha`) | 30 entries:<br>• **Granths:** Bhagavad Gita (18 adhyayas, a key verse each), Shrimad Bhagavat (12 skandhas), Ramcharitmanas and Valmiki Ramayana (7 kandas), Sundarkand (episode by episode), Garuda Purana, Mahabharata (18 parvas), Shiv Mahapuran (7 samhitas), Durga Saptashati.<br>• **Full text:** Hanuman Chalisa, all 40 chaupais with meaning, recitable in full.<br>• **Kathas:** Dhruva, Prahlad and Narasimha, Gajendra Moksha, Samudra Manthan, Vamana, Krishna Janma, Govardhan, Sudama, Ajamila, Nachiketa, Harishchandra, Shravan Kumar, Ganga Avataran, Markandeya.<br>• **Vrat kathas:** Savitri–Satyavan, Shivaratri, Ganesh Chaturthi, Ekadashi, Karwa Chauth, Hartalika Teej.<br>• **Path guides:** Gita path, Bhagavat Saptah, Akhand Ramayan, Sundarkand and Garuda Purana path. |
 | **Scriptures** (`/library`) | A map of the canon (Vedas, Upanishads, Itihasa, Puranas, Darshanas, Dharmashastra, Agamas, Vedangas). |
@@ -60,11 +65,11 @@ To keep this under control:
 
 Users never need a key. Without one, the app works fully from its built-in knowledge, just without learning.
 
-## Beta (0.1.0-beta.2)
+## Beta (0.1.0-beta.3)
 
-`npm run build:beta` bundles the browser side of the app into one self-contained page (`dist-beta/index.html`, about 850 KB). It includes:
-- the finder, puja and hawan guides with personal sankalpa
-- the katha library, kundli and reading, panchang, and prayers
+`npm run build:beta` bundles the browser side of the app into one self-contained page (`dist-beta/index.html`, about 1.3 MB). It includes:
+- the finder, puja and hawan guides with personal sankalpa and substitutes for abroad
+- the katha library, kundli with four systems, predictions and remedies, Kundli Milan, panchang with muhurta finder, and prayers
 - Brahman's voice
 
 It needs no server. The beta leaves out three things that need the server or a microphone: AI search and learned knowledge, the conversational AI kundli reading, and speech input. Deep links use plain hash tokens, e.g. `#kriyas.navagraha-shanti` or `#katha.dhruva`.
@@ -85,7 +90,7 @@ npm run dev                  # http://localhost:3000
 | `npm run build` / `npm start` | Production build and server |
 | `npm run lint` | Type-check |
 | `npm run build:beta` | Single-file beta page in `dist-beta/` |
-| `npm test` | Tests for the panchang and kundli maths (known dates), the reading engine, the birth-details parser, the finder (English, Hinglish and Devanagari), support and crisis detection, learned knowledge and the store, and voice segmentation |
+| `npm test` | Tests for the panchang and kundli maths (known dates), the reading engine, the birth-details parser, the finder (English, Hinglish and Devanagari), support and crisis detection, learned knowledge and the store, voice segmentation, the astrology systems, predictions, Kundli Milan tables, muhurta rules and samagri substitutes |
 
 ## Project layout
 
@@ -105,6 +110,10 @@ lib/
   kathas/             Katha library: granths.ts (granths, Hanuman Chalisa) and stories.ts (kathas, vrat kathas)
   grahas.ts           Navagraha mantras, stotra verses, daan, samidha, gems
   reading.ts          Rule-based Parashari kundli reading: yogas, doshas, dashas, remedies
+  predictions.ts      Predictions: yogas, doshas, life areas, timing windows, transits, dasha forecast, remedy plan
+  milan.ts            Kundli Milan (Ashtakoota, 36 gunas)
+  muhurta.ts          Muhurta finder for common activities
+  abroad.ts           Samagri substitutes, manasa puja and hawan fire safety for families abroad
   jyotish.ts          Sidereal positions, panchang, kundli, Vimshottari dasha
   time.ts             Places, gazetteer and time-zone helpers
   speech.ts           Brahman's voice (speech synthesis) and listening (speech recognition)
@@ -137,5 +146,11 @@ tests/                node:test suites
   text or verse number errors were found; translation and citation refinements from the audit are applied.
 - Long granths are given as chapter summaries with selected verses rather than full text, to avoid misquoting
   scripture; full texts are included only where they are short and well established (Hanuman Chalisa).
+- Predictions apply textbook rules (functional benefics/malefics by lagna, dignity, combustion, aspects, Vimshottari
+  dasha, Jupiter–Saturn double transit, gochar from the Moon). They are deliberately worded as tendencies with remedies.
+- Kundli Milan follows the most widely published North Indian tables. Gana and Vashya vary between traditions (the
+  choice is documented in `lib/milan.ts`); Nadi and Bhakoot exceptions are reported without restoring points.
+- Muhurtas use common Muhurta Chintamani rules; marriage and griha pravesh muhurtas should still be confirmed by a
+  pandit against the lagna at the chosen moment and the family's charts.
 - Mantras are given as traditionally recited; rites follow common North Indian household practice and note where
   regional customs differ or a purohit is traditionally needed.

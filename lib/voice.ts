@@ -6,6 +6,8 @@ import { getKatha } from "./kathas/index.ts";
 import { getKriya } from "./kriyas.ts";
 import { getArticle } from "./learned.ts";
 import { readKundli } from "./reading.ts";
+import { ACTIVITIES } from "./muhurta.ts";
+import { AREA_TITLES, formatMonth, predict } from "./predictions.ts";
 import { CRISIS_TEXT, EMERGENCY_TEXT, supportWords } from "./support.ts";
 import type { Step } from "./ritual-common.ts";
 import { zonedToUtc } from "./time.ts";
@@ -57,6 +59,28 @@ export function speechForCard(card: Card): string[] {
         r.remedies.length ? `For remedies I suggest worship of ${list([...new Set(r.remedies.map((x) => getGraha(x.graha).sanskrit))])}. The mantras are shown below.` : "",
       ].filter(Boolean);
     }
+    case "prediction": {
+      const k = computeKundli(zonedToUtc(card.date, card.time, card.place.timeZone), card.place);
+      const p = predict(k);
+      const area = card.focus && p.areas.find((a) => a.id === card.focus);
+      const lines: string[] = [];
+      if (area) {
+        lines.push(`${AREA_TITLES[area.id]}: ${area.summary}`);
+        if (area.windows.length) lines.push(`The most promising ${area.id === "health" ? "periods to watch" : "windows"} are ${list(area.windows.slice(0, 3).map((w) => `${formatMonth(w.start)} to ${formatMonth(w.end)}`))}.`);
+      } else {
+        lines.push(p.summary);
+      }
+      if (p.current) lines.push(`${p.current.themes} ${p.current.advice}`);
+      const first = p.remedies[0];
+      if (first) lines.push(`Your first remedy: ${first.purpose === "pacify" ? "pacify" : "strengthen"} ${getGraha(first.graha).sanskrit} with this mantra`, first.mantra.devanagari, `on ${first.day}s, and give ${first.daan} in charity.`);
+      return lines;
+    }
+    case "abroad":
+      return ["Wherever you are, the puja can be done. When Ganga jal is not available, take clean water and recite", "गङ्गे च यमुने चैव गोदावरि सरस्वति। नर्मदे सिन्धु कावेरि जलेऽस्मिन् सन्निधिं कुरु॥", "When an item is missing, offer akshata in its place, or offer it in your mind. The substitutes are listed below."];
+    case "milan":
+      return ["For Kundli Milan, enter the birth details of the boy and the girl, and I will match all eight kootas."];
+    case "muhurta":
+      return [`Here are the shubh muhurtas for ${ACTIVITIES[card.activity].title}. Choose your city to adjust the timings.`];
     case "panchang":
       return ["Here is the panchang. Choose the date and your city to see the timings."];
     case "scripture":

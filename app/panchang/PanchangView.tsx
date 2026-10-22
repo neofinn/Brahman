@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { computePanchang } from "@/lib/jyotish";
 import { PLACES, formatDateTime, formatTime, todayIn, weekdayOf, zonedToUtc, type Place } from "@/lib/time";
 import { PlacePicker } from "@/components/PlacePicker";
+import { MuhurtaFinder } from "@/components/MuhurtaFinder";
 
 // Which ritual guide to open for each monthly observance.
 const OBSERVANCE_RITUALS: [string, string][] = [
@@ -27,6 +28,10 @@ export function PanchangView() {
           for your place, with sunrise-based reckoning.
         </p>
         <PanchangPanel />
+        <section className="section">
+          <h2>Find a shubh muhurta</h2>
+          <MuhurtaFinder />
+        </section>
       </div>
     </main>
   );

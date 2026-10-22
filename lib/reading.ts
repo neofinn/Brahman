@@ -25,7 +25,7 @@ export interface Reading {
 // ---------------------------------------------------------------------------
 // Reference tables
 
-const SIGN_LORDS = ["Mars", "Venus", "Mercury", "Moon", "Sun", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Saturn", "Jupiter"];
+export const SIGN_LORDS = ["Mars", "Venus", "Mercury", "Moon", "Sun", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Saturn", "Jupiter"];
 const ELEMENTS = ["Fire", "Earth", "Air", "Water"];
 const QUALITIES = ["movable (chara)", "fixed (sthira)", "dual (dvisvabhava)"];
 
@@ -44,7 +44,7 @@ const SIGN_NATURE = [
   "compassionate, imaginative and spiritual; gentle and selfless, drawn to devotion, art and solitude",
 ];
 
-const HOUSES = [
+export const HOUSES = [
   "self, body, personality and overall direction of life",
   "wealth, family, speech, food and early education",
   "courage, siblings, communication, short journeys and skills",
@@ -59,8 +59,8 @@ const HOUSES = [
   "expenses, losses, foreign lands, sleep, renunciation and moksha",
 ];
 
-const EXALTED: Record<string, number> = { Sun: 0, Moon: 1, Mars: 9, Mercury: 5, Jupiter: 3, Venus: 11, Saturn: 6, Rahu: 1, Ketu: 7 };
-const OWN: Record<string, number[]> = { Sun: [4], Moon: [3], Mars: [0, 7], Mercury: [2, 5], Jupiter: [8, 11], Venus: [1, 6], Saturn: [9, 10] };
+export const EXALTED: Record<string, number> = { Sun: 0, Moon: 1, Mars: 9, Mercury: 5, Jupiter: 3, Venus: 11, Saturn: 6, Rahu: 1, Ketu: 7 };
+export const OWN: Record<string, number[]> = { Sun: [4], Moon: [3], Mars: [0, 7], Mercury: [2, 5], Jupiter: [8, 11], Venus: [1, 6], Saturn: [9, 10] };
 const NATURAL_BENEFICS = new Set(["Jupiter", "Venus", "Mercury", "Moon"]);
 
 interface NakshatraInfo {
@@ -71,7 +71,7 @@ interface NakshatraInfo {
   nature: string;
 }
 
-const NAKSHATRA_INFO: NakshatraInfo[] = [
+export const NAKSHATRA_INFO: NakshatraInfo[] = [
   { deity: "the Ashvini Kumaras", symbol: "horse's head", gana: "Deva", syllables: ["चू", "चे", "चो", "ला"], nature: "swift, healing and helpful; quick to start things" },
   { deity: "Yama", symbol: "yoni", gana: "Manushya", syllables: ["ली", "लू", "ले", "लो"], nature: "strong-willed, responsible and capable of bearing great burdens" },
   { deity: "Agni", symbol: "razor / flame", gana: "Rakshasa", syllables: ["अ", "ई", "उ", "ए"], nature: "sharp, purifying and courageous; outspoken and determined" },
@@ -117,7 +117,7 @@ export function namingSyllable(nakshatraIndex: number, pada: number): string {
 const DASHA_YEARS: Record<string, number> = { Ketu: 7, Venus: 20, Sun: 6, Moon: 10, Mars: 7, Rahu: 18, Jupiter: 16, Saturn: 19, Mercury: 17 };
 const DASHA_ORDER = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"];
 
-const DASHA_THEMES: Record<string, string> = {
+export const DASHA_THEMES: Record<string, string> = {
   Sun: "a period of authority, recognition and self-assertion; dealings with government, father and leadership come to the fore",
   Moon: "a period centred on home, mother, emotions and public relations; the mind is sensitive, so peace of mind is the key",
   Mars: "a period of energy, courage and action — property, land, sports, technical work and siblings; guard against anger and accidents",
@@ -146,7 +146,7 @@ export function dignity(g: GrahaPosition): "exalted" | "debilitated" | "own sign
 }
 
 /** Houses (1-based, whole-sign) aspected by a graha placed in `house`. */
-function aspects(g: GrahaPosition): number[] {
+export function aspects(g: GrahaPosition): number[] {
   const offsets = [7];
   if (g.name === "Mars") offsets.push(4, 8);
   if (g.name === "Jupiter" || g.name === "Rahu" || g.name === "Ketu") offsets.push(5, 9);

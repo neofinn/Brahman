@@ -61,7 +61,8 @@ test("finder: kundli gathered across messages", () => {
   const r3 = respond("subah 7:15 baje, Pune", r2.state);
   const card = first(r3.cards);
   assert.equal(card.type, "kundli");
-  assert.deepEqual(r3.state, {});
+  assert.equal(r3.state.pendingKundli, undefined);
+  assert.equal(r3.state.lastBirth?.date, "1985-03-12");
 });
 
 test("finder: moving on from a pending kundli", () => {

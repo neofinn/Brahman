@@ -14,6 +14,9 @@ import { CrisisCard, SupportCard } from "@/components/SupportCard";
 import { SankalpaBlock } from "@/components/SankalpaBlock";
 import { getKatha } from "@/lib/kathas";
 import { PanchangPanel } from "@/app/panchang/PanchangView";
+import { MilanTool } from "@/app/milan/MilanView";
+import { MuhurtaFinder } from "@/components/MuhurtaFinder";
+import { AbroadBlock } from "@/components/AbroadBlock";
 import { useAiAvailable } from "@/components/useAi";
 import { respond, setLearnedKnowledge, STARTER_SUGGESTIONS, type Card, type FinderState } from "@/lib/finder";
 import { computeKundli } from "@/lib/jyotish";
@@ -54,6 +57,14 @@ function KundliCard({ card, onRitual }: { card: Extract<Card, { type: "kundli" }
   return <KundliReport kundli={kundli} name={card.name} birth={{ date: card.date, time: card.time, place: card.place }} onRitual={onRitual} />;
 }
 
+function PredictionCard({ card, onRitual }: { card: Extract<Card, { type: "prediction" }>; onRitual: (id: string) => void }) {
+  const kundli = useMemo(
+    () => computeKundli(zonedToUtc(card.date, card.time, card.place.timeZone), card.place),
+    [card.date, card.time, card.place],
+  );
+  return <KundliReport kundli={kundli} name={card.name} birth={{ date: card.date, time: card.time, place: card.place }} onRitual={onRitual} initialTab="predictions" focus={card.focus} />;
+}
+
 function CardView({ card, voice, onRitual, onSend, onKatha }: { card: Card; voice: boolean; onRitual: (id: string) => void; onSend: (text: string) => void; onKatha: (id: string) => void }) {
   switch (card.type) {
     case "text":
@@ -84,6 +95,14 @@ function CardView({ card, voice, onRitual, onSend, onKatha }: { card: Card; voic
       );
     case "kundli":
       return <KundliCard card={card} onRitual={onRitual} />;
+    case "prediction":
+      return <PredictionCard card={card} onRitual={onRitual} />;
+    case "milan":
+      return <MilanTool onRitual={onRitual} />;
+    case "abroad":
+      return <AbroadBlock kriya={card.ritualId ? getKriya(card.ritualId) : undefined} open />;
+    case "muhurta":
+      return <MuhurtaFinder initial={card.activity} onRitual={onRitual} />;
     case "panchang":
       return <PanchangPanel />;
     case "scripture":

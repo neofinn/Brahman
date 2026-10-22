@@ -7,6 +7,8 @@ import { KRIYAS, registerLearnedKriyas } from "./kriyas.ts";
 import { learnedToKriya, registerArticles, type LearnedEntry } from "./learned.ts";
 import { LIBRARY } from "./library.ts";
 import { parseBirthDetails, type BirthDetails } from "./parse.ts";
+import { detectActivity, type Activity } from "./muhurta.ts";
+import type { AreaId } from "./predictions.ts";
 import { detectCrisis, detectSituation, getSituation, type Relation } from "./support.ts";
 import type { Mantra } from "./ritual-common.ts";
 import type { Place } from "./time.ts";
@@ -18,6 +20,10 @@ export type Card =
   | { type: "graha"; name: string }
   | { type: "mantra"; title: string; mantra: Mantra }
   | { type: "kundli"; date: string; time: string; place: Place; name?: string }
+  | { type: "prediction"; date: string; time: string; place: Place; name?: string; focus?: AreaId }
+  | { type: "milan" }
+  | { type: "abroad"; ritualId?: string }
+  | { type: "muhurta"; activity: Activity }
   | { type: "panchang" }
   | { type: "scripture"; category: string; name: string; description: string }
   | { type: "article"; id: string }
@@ -30,6 +36,10 @@ export type Card =
 export interface FinderState {
   /** Birth details gathered so far while Brahman asks for the rest. */
   pendingKundli?: BirthDetails;
+  /** The prediction asked for while birth details are still being gathered ("general" for the whole future). */
+  pendingFocus?: AreaId | "general";
+  /** The last complete birth details, so "when will I marry?" can be answered without asking again. */
+  lastBirth?: BirthDetails;
 }
 
 export interface FinderReply {
@@ -240,7 +250,24 @@ function rank<T>(index: Entry<T>[], query: string, qTokens: string[]) {
 
 // ---------------------------------------------------------------------------
 
-const KUNDLI_WORDS = ["kundli", "birth chart", "janam", "janm", "dob", "date of birth", "jyotish", "astrology", "rashi", "nakshatra", "lagna", "dasha", "mahadasha", "my chart", "janmapatrika", "birth details", "prediction", "bhavishya"];
+const KUNDLI_WORDS = ["kundli", "birth chart", "janam", "janm", "dob", "date of birth", "jyotish", "astrology", "rashi", "nakshatra", "lagna", "dasha", "mahadasha", "my chart", "janmapatrika", "birth details"];
+const MILAN_WORDS = ["milan", "gun milan", "guna milan", "gunn milan", "ashtakoot", "ashtakoota", "kundli match", "kundli matching", "match kundli", "horoscope matching", "matchmaking", "36 gun", "36 guna", "gun milao", "kundli milao"];
+const MUHURTA_WORDS = ["muhurat", "muhurta", "mahurat", "muhurtham", "shubh din", "shubh tithi", "shubh date", "auspicious date", "auspicious day", "auspicious time", "good date", "good day", "best date", "shubh samay"];
+const PREDICT_WORDS = ["future", "bhavishya", "prediction", "predictions", "predict", "forecast", "bhavishyavani", "rajyog", "raj yog", "rajyoga", "raja yoga", "upcoming", "aane wala", "aanewala", "kaisa rahega", "kaisa rahegi", "kaise rahega", "next year", "agla saal", "this year", "is saal", "phaladesh", "my dosha", "mere dosh", "kundli dosh", "kundli dosha"];
+const ABROAD_WORDS = ["abroad", "videsh", "foreign", "usa", "america", "canada", "uk", "london", "australia", "germany", "dubai", "overseas", "no pandit", "without pandit", "pandit nahi", "bina pandit", "no temple"];
+const SUBSTITUTE_WORDS = ["substitute", "substitutes", "alternative", "replacement", "instead of", "not available", "can't find", "cant find", "cannot find", "nahi milta", "nahi milte", "nahi mil raha", "nahi mil rahe", "nahi mila", "nahi milti", "unavailable", "dont have", "don't have", "do not have", "budget", "cheap", "afford", "manasa puja", "mansik puja", "fire safety", "smoke alarm", "apartment"];
+const PRAYER_WORDS = ["pray", "prayer", "prarthana", "dua", "bless", "blessing", "blessings", "aashirwad", "ashirwad", "motivate", "scared", "afraid", "darr", "dar lag", "nervous", "anxious", "worried", "tension", "sad", "upset"];
+const WHEN_WORDS = ["kab", "when", "will i", "hoga", "hogi", "milegi", "milega", "chances", "possible", "yog", "yoga"];
+const AREA_WORDS: [AreaId, string[]][] = [
+  ["marriage", ["shaadi", "shadi", "marriage", "married", "vivah", "vivaah", "wedding", "spouse", "rishta", "life partner", "husband", "wife", "love marriage", "byah"]],
+  ["career", ["career", "job", "naukri", "naukari", "promotion", "business", "vyapar", "government job", "sarkari", "work", "profession", "kaam"]],
+  ["wealth", ["money", "paisa", "paise", "dhan", "wealth", "rich", "ameer", "finance", "financial", "income", "property"]],
+  ["children", ["child", "children", "baby", "santan", "santaan", "bachcha", "bacche", "pregnancy", "putra", "kids"]],
+  ["health", ["health", "sehat", "swasthya", "bimari", "disease", "illness"]],
+  ["education", ["education", "study", "studies", "padhai", "exam result", "degree", "admission"]],
+  ["foreign", ["foreign", "abroad", "videsh", "visa", "settle abroad", "pr ", "green card", "immigration", "usa", "canada", "uk "]],
+  ["spirituality", ["spiritual", "moksha", "sadhana", "dharma path", "adhyatm"]],
+];
 const PANCHANG_WORDS = ["panchang", "tithi", "rahu kaal", "rahukaal", "muhurat", "muhurta", "shubh muhurat", "choghadiya", "sunrise", "nakshatra today", "aaj ka din"];
 
 const HELLO = /^(hi|hello|hey|namaste|namaskar|pranam|pranaam|jai shri (ram|krishna)|radhe radhe|har har mahadev|hari om|om)\b/i;
@@ -254,6 +281,9 @@ export const STARTER_SUGGESTIONS = [
   "Shani Sade Sati remedies",
   "Gayatri mantra",
   "Aaj ka panchang",
+  "Shaadi kab hogi?",
+  "Griha pravesh muhurat",
+  "Kundli milan",
 ];
 
 function askForMissing(d: BirthDetails): string {
@@ -262,11 +292,31 @@ function askForMissing(d: BirthDetails): string {
   return `🙏 To prepare your janma kundli I need your ${missing.join(", ").replace(/, ([^,]*)$/, " and $1")}.${have.length ? ` I have noted your ${have.join(", ")}.` : ""} If you don't know the exact time, give your best estimate — the lagna changes about every two hours.`;
 }
 
+function areaOf(has: (w: string) => boolean): AreaId | undefined {
+  return AREA_WORDS.find(([, words]) => words.some((w) => has(w.trim())))?.[0];
+}
+
+function predictionCards(d: BirthDetails, focus: AreaId | "general"): Card[] {
+  const f = focus === "general" ? undefined : focus;
+  const intro = f
+    ? `🙏 I have studied the kundli${d.name ? ` of ${d.name}` : ""} (${d.date}, ${d.time}, ${d.place!.name}) for ${f === "foreign" ? "foreign travel and settlement" : f}. The timing comes from the dashas and the transits of Jupiter and Saturn; remedies follow.`
+    : `🙏 Here is the phaladesh${d.name ? ` for ${d.name}` : ""} (${d.date}, ${d.time}, ${d.place!.name}) — rajyogas, doshas, every area of life, the next five years and your remedies.`;
+  return [{ type: "text", text: intro }, { type: "prediction", date: d.date!, time: d.time!, place: d.place!, name: d.name, focus: f }];
+}
+
 function mergeDetails(a: BirthDetails | undefined, b: BirthDetails): BirthDetails {
   return { date: b.date ?? a?.date, time: b.time ?? a?.time, place: b.place ?? a?.place, name: b.name ?? a?.name };
 }
 
 export function respond(text: string, state: FinderState = {}): FinderReply {
+  const reply = answer(text, state);
+  // Remember complete birth details across turns, whatever the answer was.
+  const lastBirth = reply.state.lastBirth ?? state.lastBirth;
+  if (lastBirth) reply.state = { ...reply.state, lastBirth };
+  return reply;
+}
+
+function answer(text: string, state: FinderState): FinderReply {
   const query = normPhrase(text);
   const qTokens = tokens(text);
   const lower = text.toLowerCase();
@@ -276,9 +326,50 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
   const crisis = detectCrisis(text);
   if (crisis) return { cards: [{ type: "crisis", kind: crisis }], state: {} };
 
-  // 1. Kundli: explicit request, a birth date, or continuing a pending request.
   const spaced = ` ${transliterate(lower).replace(/[^a-z0-9\s]+/g, " ").replace(/\s+/g, " ")} `;
   const hasWord = (w: string) => spaced.includes(` ${w} `);
+
+  // 1a. Kundli milan.
+  if (MILAN_WORDS.some(hasWord) || (hasWord("match") && (hasWord("kundli") || hasWord("kundali") || hasWord("horoscope")))) {
+    return { cards: [{ type: "text", text: "🙏 For Kundli Milan, enter the birth details of the boy and the girl. I will check all eight kootas (36 gunas), Nadi, Bhakoot and Mangal dosha, with remedies." }, { type: "milan" }], state: {} };
+  }
+
+  // 1b. A muhurta for an activity ("griha pravesh ka muhurat", "shubh date for marriage").
+  const activity = detectActivity(spaced);
+  if (MUHURTA_WORDS.some(hasWord) && (activity || hasWord("date") || hasWord("kab") || hasWord("when"))) {
+    const a = activity ?? "puja";
+    return { cards: [{ type: "text", text: "🙏 Here are the shubh muhurtas I find in the coming months for your city. Choose your city to adjust the timings." }, { type: "muhurta", activity: a }], state };
+  }
+
+  // 1c. Performing rites abroad or without the usual samagri.
+  const ritualContext = qTokens.some((t) => ["puja", "havan", "homa", "yagya", "samagri", "pandit", "vrat", "katha"].includes(t)) || hasWord("samagri") || hasWord("pandit");
+  if (SUBSTITUTE_WORDS.some(hasWord) || (ABROAD_WORDS.some(hasWord) && ritualContext)) {
+    const top = rank(RITUAL_INDEX, query, qTokens)[0];
+    const ritualId = top && top.score >= 4 ? top.value : undefined;
+    const cards: Card[] = [
+      { type: "text", text: "🙏 Wherever you are, the puja can be done. Bhava matters more than material — here is what to use when an item is missing, how to sanctify any water, the manasa puja when nothing is available, and fire safety for a hawan at home." },
+      { type: "abroad", ...(ritualId ? { ritualId } : {}) },
+    ];
+    if (ritualId) cards.push({ type: "ritual", id: ritualId });
+    return { cards, state };
+  }
+
+  // 1d. Predictions: "my future", "shaadi kab hogi", "career kaisa rahega".
+  const area = areaOf(hasWord);
+  // A worry with a prayer request ("interview tomorrow, will I get the job? pray for me") is for comfort, not a forecast.
+  const asksPrayer = PRAYER_WORDS.some(hasWord);
+  const wantsPrediction = PREDICT_WORDS.some(hasWord) || (area !== undefined && WHEN_WORDS.some(hasWord) && !asksPrayer);
+  if (wantsPrediction && !state.pendingKundli) {
+    const focus = area ?? "general";
+    const details = mergeDetails(birth.date ? undefined : state.lastBirth, birth);
+    if (details.date && details.time && details.place) return { cards: predictionCards(details, focus), state: { lastBirth: details } };
+    return {
+      cards: [{ type: "text", text: askForMissing(details).replace("To prepare your janma kundli", focus === "general" ? "To see your future" : `To read your kundli for ${focus === "foreign" ? "foreign travel" : focus}`) }],
+      state: { pendingKundli: details, pendingFocus: focus },
+    };
+  }
+
+  // 1e. Kundli: explicit request, a birth date, or continuing a pending request.
   const wantsKundli = KUNDLI_WORDS.some(hasWord) || qTokens.includes("kundli");
   if (state.pendingKundli || wantsKundli || birth.date) {
     const ritualsHit = rank(RITUAL_INDEX, query, qTokens)[0];
@@ -287,16 +378,18 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
     if (!movedOn && (wantsKundli || birth.date || birth.time || birth.place || state.pendingKundli)) {
       const details = mergeDetails(state.pendingKundli, birth);
       if (details.date && details.time && details.place) {
+        if (state.pendingFocus) return { cards: predictionCards(details, state.pendingFocus), state: { lastBirth: details } };
         return {
           cards: [
             { type: "text", text: `🙏 Here is the janma kundli${details.name ? ` of ${details.name}` : ""} for ${details.date}, ${details.time}, ${details.place.name}, with my reading.` },
             { type: "kundli", date: details.date, time: details.time, place: details.place, name: details.name },
+            { type: "suggestions", items: ["My future predictions", "Shaadi kab hogi?", "Career kaisa rahega?"] },
           ],
-          state: {},
+          state: { lastBirth: details },
         };
       }
       if (wantsKundli || birth.date || state.pendingKundli) {
-        return { cards: [{ type: "text", text: askForMissing(details) }], state: { pendingKundli: details } };
+        return { cards: [{ type: "text", text: askForMissing(details) }], state: { pendingKundli: details, ...(state.pendingFocus ? { pendingFocus: state.pendingFocus } : {}) } };
       }
     }
   }

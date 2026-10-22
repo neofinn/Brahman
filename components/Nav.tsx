@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/chat", label: "Ask Brahman" },
   { href: "/panchang", label: "Panchang" },
   { href: "/kundli", label: "Kundli" },
+  { href: "/milan", label: "Milan" },
   { href: "/kriyas", label: "Puja & Hawan" },
   { href: "/katha", label: "Katha" },
   { href: "/library", label: "Scriptures" },

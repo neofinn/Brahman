@@ -3,7 +3,8 @@ import Link from "next/link";
 const FEATURES = [
   { href: "/chat", title: "Ask Brahman", text: "Say \"I want to perform Graha Shanti hawan\" or share your birth details — get the samagri, every step, the mantras recited aloud, or your kundli with a full reading." },
   { href: "/panchang", title: "Daily Panchang", text: "Tithi, nakshatra, yoga, karana, sunrise, Rahu Kaal and auspicious muhurtas, computed for your city." },
-  { href: "/kundli", title: "Janma Kundli", text: "Your birth chart with a complete reading: lagna, rashi, nakshatra and naam akshar, yogas, Mangal dosh, Kaal Sarp, Sade Sati, dashas and remedies." },
+  { href: "/kundli", title: "Janma Kundli", text: "Your birth chart with a complete reading: lagna, rashi, nakshatra and naam akshar, yogas, Mangal dosh, Kaal Sarp, Sade Sati, dashas, rule-based predictions for the next five years and a remedy plan." },
+  { href: "/milan", title: "Kundli Milan", text: "Match two kundlis on all eight kootas (36 gunas) with Nadi, Bhakoot and Mangal dosha checks, exceptions and remedies." },
   { href: "/kriyas", title: "Puja, Hawan & Vidhi", text: "Graha shanti, havan, Vastu shanti, Rudrabhishek, Satyanarayan, Lakshmi puja, Navratri, Sundarkand, Shani shanti and more — perform them step by step." },
   { href: "/katha", title: "Katha Library", text: "Bhagavat, Gita, Ramayana, Sundarkand, Garuda Purana, Shiv Purana, Durga Saptashati, Hanuman Chalisa and 20 kathas — read them or let Brahman tell them aloud." },
   { href: "/library", title: "Scripture Library", text: "Explore the Vedas, Upanishads, Itihasas, Puranas, Darshanas and Agamas, and ask about any text." },

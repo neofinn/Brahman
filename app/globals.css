@@ -307,3 +307,22 @@ ul.samagri { padding-left: 18px; margin: 0; }
 .tabs button { font: inherit; background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 12px; color: var(--muted); cursor: pointer; }
 .tabs button.on { color: var(--saffron-strong); border-bottom-color: var(--saffron); font-weight: 600; }
 .lords { font-size: 0.85rem; }
+
+/* Predictions, matching and muhurta */
+.rating { display: inline-block; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; vertical-align: middle; border: 1px solid currentColor; white-space: nowrap; }
+.rating-excellent, .rating-favourable { color: var(--good); }
+.rating-mixed { color: var(--gold); }
+.rating-challenging { color: var(--bad); }
+.factors { margin: 4px 0 8px; padding-left: 18px; font-size: 0.88rem; color: var(--muted); }
+.factors li { margin: 2px 0; }
+.card.focus { border-color: var(--saffron); box-shadow: 0 0 0 2px color-mix(in srgb, var(--saffron) 30%, transparent); }
+.mantra-line { font-size: 1.1rem; margin: 6px 0 2px; }
+.period h3 { font-size: 1rem; }
+.score-big { font-size: 2.4rem; font-weight: 700; color: var(--saffron-strong); line-height: 1; }
+.milan-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.milan-forms fieldset { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin: 0; display: grid; gap: 10px; min-width: 0; }
+.milan-forms legend { font-weight: 600; padding: 0 6px; }
+.muhurta-day { display: grid; gap: 4px; }
+.abroad { border: 1px dashed var(--border); border-radius: var(--radius); padding: 10px 14px; margin: 12px 0 16px; background: var(--surface-2); }
+.abroad summary { cursor: pointer; }
+.abroad h4 { margin: 14px 0 6px; }

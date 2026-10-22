@@ -5,6 +5,7 @@ import type { Kriya } from "@/lib/ritual-common";
 import { speak, speechSupported } from "@/lib/speech";
 import { stepSpeech } from "@/lib/voice";
 import { MantraBlock } from "./MantraBlock";
+import { AbroadBlock } from "./AbroadBlock";
 import { SankalpaBlock, TarpanBlock } from "./SankalpaBlock";
 
 const CATEGORY_LABEL: Record<Kriya["category"], string> = {
@@ -74,6 +75,8 @@ export function RitualGuide({ kriya, compact = false, voice = false }: { kriya: 
           </li>
         ))}
       </ul>
+
+      <AbroadBlock kriya={kriya} />
 
       <div className="vidhi-head">
         <h3>Vidhi — procedure ({kriya.steps.length} steps)</h3>
