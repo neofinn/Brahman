@@ -10,6 +10,7 @@ import { MantraBlock } from "@/components/MantraBlock";
 import { KundliReport } from "@/components/KundliReport";
 import { ArticleCard } from "@/components/ArticleCard";
 import { KathaView } from "@/components/KathaView";
+import { CrisisCard, SupportCard } from "@/components/SupportCard";
 import { getKatha } from "@/lib/kathas";
 import { PanchangPanel } from "@/app/panchang/PanchangView";
 import { useAiAvailable } from "@/components/useAi";
@@ -97,6 +98,10 @@ function CardView({ card, voice, onRitual, onSend, onKatha }: { card: Card; voic
       return <ArticleCard id={card.id} />;
     case "katha":
       return <KathaView id={card.id} part={card.part} compact voice={voice} onKatha={onKatha} />;
+    case "support":
+      return <SupportCard card={card} onRitual={onRitual} onKatha={onKatha} />;
+    case "crisis":
+      return <CrisisCard kind={card.kind} />;
     case "suggestions":
       return (
         <div className="chips">
@@ -381,7 +386,8 @@ export function Chat() {
             <div className="om-big deva" aria-hidden>ॐ</div>
             <h1>🙏 Namaste</h1>
             <p>
-              I am Brahman, your purohit. Tell me — or say aloud — the puja, hawan or vrat you wish to perform and I will
+              I am Brahman, your purohit. Share what is on your heart — an exam, an interview, a worry — and I will pray
+              with you. Tell me — or say aloud — the puja, hawan or vrat you wish to perform and I will
               give you the samagri, every step and the mantras, and recite them with you. Ask for any katha — Bhagavat, Gita,
               Ramayana, Sundarkand, Garuda Purana — and I will tell it. Share your birth details and I will prepare your kundli.
             </p>

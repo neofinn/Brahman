@@ -7,6 +7,7 @@ import { KRIYAS, registerLearnedKriyas } from "./kriyas.ts";
 import { learnedToKriya, registerArticles, type LearnedEntry } from "./learned.ts";
 import { LIBRARY } from "./library.ts";
 import { parseBirthDetails, type BirthDetails } from "./parse.ts";
+import { detectCrisis, detectSituation, getSituation, type Relation } from "./support.ts";
 import type { Mantra } from "./ritual-common.ts";
 import type { Place } from "./time.ts";
 
@@ -21,6 +22,8 @@ export type Card =
   | { type: "scripture"; category: string; name: string; description: string }
   | { type: "article"; id: string }
   | { type: "katha"; id: string; part?: number }
+  | { type: "support"; id: string; relation?: Relation; when?: "today" | "tomorrow" | "tonight"; seed: string }
+  | { type: "crisis"; kind: "crisis" | "emergency" }
   | { type: "suggestions"; items: string[] };
 
 export interface FinderState {
@@ -235,12 +238,13 @@ function rank<T>(index: Entry<T>[], query: string, qTokens: string[]) {
 
 // ---------------------------------------------------------------------------
 
-const KUNDLI_WORDS = ["kundli", "birth chart", "janam", "janm", "dob", "date of birth", "born", "jyotish", "astrology", "rashi", "nakshatra", "lagna", "dasha", "mahadasha", "my chart", "janmapatrika", "birth details", "prediction", "bhavishya"];
-const PANCHANG_WORDS = ["panchang", "tithi", "aaj", "today", "rahu kaal", "rahukaal", "muhurat", "muhurta", "shubh muhurat", "choghadiya", "sunrise", "nakshatra today", "aaj ka din"];
+const KUNDLI_WORDS = ["kundli", "birth chart", "janam", "janm", "dob", "date of birth", "jyotish", "astrology", "rashi", "nakshatra", "lagna", "dasha", "mahadasha", "my chart", "janmapatrika", "birth details", "prediction", "bhavishya"];
+const PANCHANG_WORDS = ["panchang", "tithi", "rahu kaal", "rahukaal", "muhurat", "muhurta", "shubh muhurat", "choghadiya", "sunrise", "nakshatra today", "aaj ka din"];
 
 const HELLO = /^(hi|hello|hey|namaste|namaskar|pranam|pranaam|jai shri (ram|krishna)|radhe radhe|har har mahadev|hari om|om)\b/i;
 
 export const STARTER_SUGGESTIONS = [
+  "I have an exam tomorrow, please pray for me",
   "I want to perform Graha Shanti hawan",
   "Bhagwat katha",
   "My DOB is 15 Jan 1990, 6:30 am, Delhi",
@@ -265,6 +269,10 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
   const qTokens = tokens(text);
   const lower = text.toLowerCase();
   const birth = parseBirthDetails(text);
+
+  // 0. Safety first: someone in crisis or a medical emergency gets real-world help before anything else.
+  const crisis = detectCrisis(text);
+  if (crisis) return { cards: [{ type: "crisis", kind: crisis }], state: {} };
 
   // 1. Kundli: explicit request, a birth date, or continuing a pending request.
   const spaced = ` ${transliterate(lower).replace(/[^a-z0-9\s]+/g, " ").replace(/\s+/g, " ")} `;
@@ -300,17 +308,33 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
   const grahas = rank(GRAHA_INDEX, query, qTokens);
   const mantras = rank(MANTRA_INDEX, query, qTokens);
   const scriptures = rank(SCRIPTURE_INDEX, query, qTokens);
-  const articles = rank(ARTICLE_INDEX, query, qTokens);
   const kathas = rank(KATHA_INDEX, query, qTokens);
+  const articles = rank(ARTICLE_INDEX, query, qTokens);
   const mentionsMantra = qTokens.includes("mantra");
   const mentionsJapa = mentionsMantra || qTokens.includes("jaap") || qTokens.includes("japa");
 
-  // 3. A specific mantra ("… jaap" usually means the practice, so the rite's guide wins unless "mantra" is said).
+  // 3. A feeling or life moment ("I'm scared", "exam tomorrow, pray for me") — unless a named rite or katha is clearly asked for.
+  const situation = detectSituation(text);
+  const strongest = Math.max(rituals[0]?.score ?? 0, kathas[0]?.score ?? 0, mantras[0]?.score ?? 0);
+  // The rite the comfort card itself recommends only wins when the person names it ("mahamrityunjaya jaap…").
+  const linked = situation && rituals[0] && rituals[0].value === getSituation(situation.id)?.ritualId;
+  const named = (id: string) => {
+    const primary = RITUAL_INDEX.find((e) => e.value === id)?.primary;
+    return !!primary && qTokens.some((t) => fuzzyEqual(t, primary));
+  };
+  if (situation && situation.score >= 4 && (situation.score * 2 >= strongest || (linked && !named(rituals[0].value)))) {
+    return {
+      cards: [{ type: "support", id: situation.id, seed: text, ...(situation.relation ? { relation: situation.relation } : {}), ...(situation.when ? { when: situation.when } : {}) }],
+      state: {},
+    };
+  }
+
+  // 4. A specific mantra ("… jaap" usually means the practice, so the rite's guide wins unless "mantra" is said).
   if (mantras[0] && mantras[0].score >= 5 && (mentionsMantra || mantras[0].score > (rituals[0]?.score ?? 0))) {
     return { cards: [{ type: "mantra", ...mantras[0].value }], state };
   }
 
-  // 4. A graha (mantra, remedy, dosha) — unless a ritual for it matches better.
+  // 5. A graha (mantra, remedy, dosha) — unless a ritual for it matches better.
   if (grahas[0] && (!rituals[0] || mentionsJapa || rituals[0].score < 6)) {
     const cards: Card[] = [{ type: "graha", name: grahas[0].value }];
     const related = rituals.filter((r) => r.score >= 4).slice(0, 2).map((r) => r.value);
@@ -318,7 +342,7 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
     return { cards, state };
   }
 
-  // 5. A katha or granth — it carries its own path vidhi, so it wins ties with the ritual guide.
+  // 6. A katha or granth — it carries its own path vidhi, so it wins ties with the ritual guide.
   const wantsKatha = qTokens.some((t) => ["katha", "charitra", "leela", "lila", "path", "paath", "chalisa"].includes(t));
   const kathaWins = kathas[0] && kathas[0].score >= 4 && (wantsKatha || kathas[0].score >= (rituals[0]?.score ?? 0));
   if (kathaWins && kathas[0].score >= (articles[0]?.score ?? 0)) {
@@ -330,12 +354,12 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
     return { cards, state };
   }
 
-  // 6. A learned article that fits better than any ritual.
+  // 7. A learned article that fits better than any ritual.
   if (articles[0] && articles[0].score >= 4 && articles[0].score > (rituals[0]?.score ?? 0)) {
     return { cards: [{ type: "article", id: articles[0].value }], state };
   }
 
-  // 7. Rituals.
+  // 8. Rituals.
   if (rituals[0] && rituals[0].score >= 2) {
     const top = rituals[0];
     const cards: Card[] = [{ type: "ritual", id: top.value }];
@@ -344,12 +368,12 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
     return { cards, state };
   }
 
-  // 8. Scriptures.
+  // 9. Scriptures.
   if (scriptures[0] && scriptures[0].score >= 2) {
     return { cards: scriptures.slice(0, 3).map((s) => ({ type: "scripture" as const, ...s.value })), state };
   }
 
-  // 9. Greeting / nothing matched.
+  // 10. Greeting / nothing matched.
   if (HELLO.test(text.trim())) {
     return {
       cards: [

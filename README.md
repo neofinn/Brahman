@@ -16,6 +16,8 @@ service is needed. Ask it the way you would ask your pandit-ji:
 | "My DOB is 15 Jan 1990, 6:30 am, Delhi" (or "kundli banao", then the details one by one) | Prepares the janma kundli and a full reading: lagna, rashi, nakshatra, naam akshar, gana and nadi, grahas by house with dignity, yogas (Gajakesari, Budhaditya, Mahapurusha, Raja, Dhana, Kemadruma…), Mangal dosh with cancellations, Kaal Sarp, Sade Sati and Dhaiya with dates, mahadasha and antardasha, favourable deity/day/gems, and remedies with the right graha mantras and rites. |
 | "shani mantra", "gayatri mantra" | Shows the mantra or the graha's beej mantra, Navagraha stotra verse, day, daan, grain, samidha and gem. |
 | "aaj ka panchang" | Today's panchang for any city. |
+| "I have exam tomorrow, pray for me", "I'm feeling scared", "interview hai kal", "my mother is in hospital", "motivate me" | Answers like a caring pandit: warm words, a prayer offered for the person (🔊 prays aloud), the right mantras (Saraswati for exams, Ganesha for interviews and new beginnings, Hanuman for fear, Mahamrityunjaya for illness…), a Gita verse for strength, practical steps, and a related katha and rite. Recognises 14 situations, including grief, travel, money, marriage, anger, loneliness, sleep and good news. Notices who it is for ("my son…") and when ("tomorrow"). |
+| Words about self-harm, or a medical emergency | **Safety first:** a compassionate message with India's Tele-MANAS helpline (14416 / 1-800-891-4416) and 112 (or 108 for an ambulance), with tap-to-call buttons — before anything else. |
 | "bhagwat katha", "gita adhyay 2", "garud puran", "dhruv ki kahani", "हनुमान चालीसा" | Opens the Katha library: the granth chapter by chapter with key verses, the story told aloud with 🔊, the full path recited line by line, and how to hold the path or katha. |
 
 The finder understands English, Hindi and Hinglish phrasing and common spelling variants (greh/grah/graha,
@@ -72,7 +74,7 @@ npm run dev                  # http://localhost:3000
 | `npm run dev` | Development server |
 | `npm run build` / `npm start` | Production build and server |
 | `npm run lint` | Type-check |
-| `npm test` | Tests for the panchang and kundli maths (known dates), the reading engine, the birth-details parser, the finder (English, Hinglish and Devanagari), learned knowledge and the store, and voice segmentation |
+| `npm test` | Tests for the panchang and kundli maths (known dates), the reading engine, the birth-details parser, the finder (English, Hinglish and Devanagari), support and crisis detection, learned knowledge and the store, and voice segmentation |
 
 ## Project layout
 
@@ -98,6 +100,7 @@ lib/
   voice.ts            What Brahman says aloud for each kind of answer
   devanagari.ts       Devanagari → Latin transliteration for Hindi input
   learned.ts          Learned-knowledge types and registry (+ knowledge-store.ts on the server)
+  support.ts          Feelings and life moments: comfort, prayers, mantras, steps; crisis and emergency detection
   library.ts          Scripture catalogue
   priest.ts           System prompts for AI search and the optional conversational reading
 components/           RitualGuide, MantraBlock, KundliReport, GrahaCard, …

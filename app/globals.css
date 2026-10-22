@@ -245,3 +245,13 @@ ul.samagri { padding-left: 18px; margin: 0; }
 .fulltext .deva { color: var(--maroon); font-size: 1.08rem; }
 .fulltext .iast { font-style: italic; font-size: 0.85rem; color: var(--muted); }
 .fulltext .meaning { font-size: 0.92rem; }
+
+/* Support */
+.support .comfort { font-size: 1.08rem; margin: 0 0 12px; }
+.support h3 { margin: 16px 0 8px; color: var(--maroon); font-size: 1.02rem; }
+.prayer { padding: 14px 16px; border-radius: var(--radius); background: color-mix(in srgb, var(--gold) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent); }
+.prayer p { margin: 4px 0 8px; font-style: italic; line-height: 1.65; }
+.support-steps { padding-left: 20px; margin: 0; display: grid; gap: 6px; }
+.crisis { padding: 16px; border-radius: var(--radius); border: 2px solid var(--bad); background: color-mix(in srgb, var(--bad) 8%, var(--surface)); }
+.crisis p { margin: 0 0 8px; }
+.crisis .chips { margin-top: 8px; gap: 10px; }

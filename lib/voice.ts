@@ -6,6 +6,7 @@ import { getKatha } from "./kathas/index.ts";
 import { getKriya } from "./kriyas.ts";
 import { getArticle } from "./learned.ts";
 import { readKundli } from "./reading.ts";
+import { CRISIS_TEXT, EMERGENCY_TEXT, supportWords } from "./support.ts";
 import type { Step } from "./ritual-common.ts";
 import { zonedToUtc } from "./time.ts";
 
@@ -68,6 +69,20 @@ export function speechForCard(card: Card): string[] {
     }
     case "katha":
       return kathaSpeech(card.id, card.part);
+    case "support": {
+      const w = supportWords(card);
+      if (!w) return [];
+      const first = w.situation.mantras[0];
+      return [
+        w.comfort.replace(/^🙏\s*/, ""),
+        "Let us pray together.",
+        w.prayer,
+        `Now chant with me: ${first.devanagari}`,
+        `As Shri Krishna says in the Gita: ${w.situation.verse.meaning}`,
+      ];
+    }
+    case "crisis":
+      return (card.kind === "crisis" ? CRISIS_TEXT : EMERGENCY_TEXT).map((t) => t.replace(/^[🙏•]\s*/u, "").replace("14416", "1 4 4 1 6").replace("112", "1 1 2").replace("108", "1 0 8"));
     case "suggestions":
       return [];
   }
