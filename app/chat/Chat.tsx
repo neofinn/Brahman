@@ -9,6 +9,8 @@ import { GrahaCard } from "@/components/GrahaCard";
 import { MantraBlock } from "@/components/MantraBlock";
 import { KundliReport } from "@/components/KundliReport";
 import { ArticleCard } from "@/components/ArticleCard";
+import { KathaView } from "@/components/KathaView";
+import { getKatha } from "@/lib/kathas";
 import { PanchangPanel } from "@/app/panchang/PanchangView";
 import { useAiAvailable } from "@/components/useAi";
 import { respond, setLearnedKnowledge, STARTER_SUGGESTIONS, type Card, type FinderState } from "@/lib/finder";
@@ -50,7 +52,7 @@ function KundliCard({ card, onRitual }: { card: Extract<Card, { type: "kundli" }
   return <KundliReport kundli={kundli} name={card.name} onRitual={onRitual} />;
 }
 
-function CardView({ card, voice, onRitual, onSend }: { card: Card; voice: boolean; onRitual: (id: string) => void; onSend: (text: string) => void }) {
+function CardView({ card, voice, onRitual, onSend, onKatha }: { card: Card; voice: boolean; onRitual: (id: string) => void; onSend: (text: string) => void; onKatha: (id: string) => void }) {
   switch (card.type) {
     case "text":
       return <p className="card-text">{card.text}</p>;
@@ -93,6 +95,8 @@ function CardView({ card, voice, onRitual, onSend }: { card: Card; voice: boolea
       );
     case "article":
       return <ArticleCard id={card.id} />;
+    case "katha":
+      return <KathaView id={card.id} part={card.part} compact voice={voice} onKatha={onKatha} />;
     case "suggestions":
       return (
         <div className="chips">
@@ -213,6 +217,12 @@ export function Chat() {
     const k = getKriya(id);
     if (!k) return;
     setMessages((prev) => [...prev, { role: "user", text: k.title }, { role: "assistant", cards: [{ type: "ritual", id }] }]);
+  }, []);
+
+  const showKatha = useCallback((id: string) => {
+    const k = getKatha(id);
+    if (!k) return;
+    setMessages((prev) => [...prev, { role: "user", text: k.title }, { role: "assistant", cards: [{ type: "katha", id }] }]);
   }, []);
 
   /** Optional conversational kundli reading, only when the server has an AI key. */
@@ -372,8 +382,8 @@ export function Chat() {
             <h1>🙏 Namaste</h1>
             <p>
               I am Brahman, your purohit. Tell me — or say aloud — the puja, hawan or vrat you wish to perform and I will
-              give you the samagri, every step and the mantras, and recite them with you. Share your date, time and place of
-              birth and I will prepare your kundli.
+              give you the samagri, every step and the mantras, and recite them with you. Ask for any katha — Bhagavat, Gita,
+              Ramayana, Sundarkand, Garuda Purana — and I will tell it. Share your birth details and I will prepare your kundli.
             </p>
             <div className="chips" style={{ justifyContent: "center" }}>
               {STARTER_SUGGESTIONS.map((s) => (
@@ -391,7 +401,7 @@ export function Chat() {
                   m.ai ? <Markdown>{m.ai}</Markdown> : <span className="typing">Brahman is contemplating…</span>
                 ) : (
                   <div className="cards">
-                    {m.cards.map((c, j) => <CardView key={j} card={c} voice={voice} onRitual={showRitual} onSend={send} />)}
+                    {m.cards.map((c, j) => <CardView key={j} card={c} voice={voice} onRitual={showRitual} onSend={send} onKatha={showKatha} />)}
                     {m.pending && <span className="typing">Searching the shastras… this can take up to a minute.</span>}
                     {canSpeak && !m.pending && m.cards.some((c) => speechForCard(c).length > 0) && (
                       <div>

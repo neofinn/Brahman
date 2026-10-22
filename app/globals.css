@@ -229,3 +229,19 @@ ul.samagri { padding-left: 18px; margin: 0; }
 .tag.learned { background: color-mix(in srgb, var(--gold) 20%, transparent); color: var(--gold); }
 .article h2 { font-size: 1.3rem; }
 @media (max-width: 600px) { .voice-bar .disclaimer { display: none; } }
+
+/* Katha */
+.katha section { margin-top: 18px; }
+.katha h3 { margin: 0 0 8px; color: var(--maroon); }
+.parts { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.parts li { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.parts li.open { border-color: var(--saffron); }
+.part-head { width: 100%; display: flex; justify-content: space-between; gap: 12px; text-align: left; font: inherit; font-weight: 600; color: var(--text); background: none; border: 0; padding: 10px 12px; cursor: pointer; }
+.part-body { padding: 0 12px 12px; }
+.part-body p { margin-top: 0; }
+.fulltext { list-style: none; padding-left: 0; display: grid; gap: 10px; }
+.fulltext li { padding: 6px 8px; border-radius: 8px; }
+.fulltext li.current { background: var(--surface-2); outline: 2px solid var(--saffron); }
+.fulltext .deva { color: var(--maroon); font-size: 1.08rem; }
+.fulltext .iast { font-style: italic; font-size: 0.85rem; color: var(--muted); }
+.fulltext .meaning { font-size: 0.92rem; }

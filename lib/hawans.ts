@@ -377,7 +377,7 @@ export const HAWANS: Kriya[] = [
     title: "Hanuman Puja & Sundarkand Path",
     devanagari: "हनुमान पूजा एवं सुन्दरकाण्ड पाठ",
     category: "path",
-    keywords: ["hanuman", "bajrang bali", "bajrangbali", "sundarkand", "sunderkand", "hanuman chalisa", "chalisa", "tuesday puja", "mangalvar", "saturday hanuman", "bhoot pret", "fear", "courage", "sankat mochan", "hanuman jayanti"],
+    keywords: ["hanuman", "bajrang bali", "bajrangbali", "sundarkand", "sunderkand", "hanuman puja", "tuesday puja", "mangalvar", "saturday hanuman", "bhoot pret", "fear", "courage", "sankat mochan", "hanuman jayanti"],
     duration: "Chalisa 10 minutes; Sundarkand about 2–3 hours",
     summary: "Worship of Shri Hanuman with sindoor and jasmine oil, recitation of the Hanuman Chalisa and the Sundarkand of the Ramcharitmanas — for courage, protection from fear and negativity, and relief in Mangal and Shani afflictions.",
     when: "Tuesdays and Saturdays, Hanuman Jayanti, during Shani Sade Sati or Mangal dosha, and before important undertakings.",

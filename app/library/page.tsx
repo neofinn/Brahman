@@ -25,7 +25,7 @@ export default function LibraryPage() {
             <p className="lede">{cat.summary}</p>
             <div className="grid">
               {cat.texts.map((t) => (
-                <Link key={t.name} href={askHref(t.name)} className="card">
+                <Link key={t.name} href={t.kathaId ? `/katha/${t.kathaId}` : askHref(t.name)} className="card">
                   <h3>
                     {t.name}
                     {t.devanagari && <span className="deva" style={{ display: "block", fontWeight: 400, color: "var(--maroon)" }}>{t.devanagari}</span>}

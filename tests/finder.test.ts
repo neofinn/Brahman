@@ -18,7 +18,6 @@ const RITUAL_QUERIES: [string, string][] = [
   ["Diwali laxmi pujan", "lakshmi-puja"],
   ["navratri kalash sthapana", "navratri"],
   ["rudrabhishek on shivratri", "rudrabhishek"],
-  ["sunderkand path", "hanuman-sundarkand"],
   ["kaal sarp dosh puja", "kaal-sarp"],
   ["manglik dosh remedy", "mangal-dosh"],
   ["pitru paksha shradh", "tarpan"],
@@ -111,4 +110,50 @@ test("finder: more everyday phrasings", () => {
     const card = respond(q).cards.find((c) => c.type !== "text");
     assert.deepEqual(card, { type: "ritual", id }, q);
   }
+});
+
+test("finder: kathas and granths", () => {
+  const cases: [string, string, number?][] = [
+    ["sunderkand path", "sundarkand"],
+    ["bhagwat katha", "bhagavata-purana"],
+    ["bhagwat skandh 10", "bhagavata-purana", 10],
+    ["gita adhyay 2", "bhagavad-gita", 2],
+    ["bhagavad gita chapter 18", "bhagavad-gita", 18],
+    ["garud puran", "garuda-purana"],
+    ["ramayan ki katha", "ramcharitmanas"],
+    ["valmiki ramayan", "valmiki-ramayana"],
+    ["hanuman chalisa", "hanuman-chalisa"],
+    ["durga saptashati path", "durga-saptashati"],
+    ["shiv puran katha", "shiv-purana"],
+    ["mahabharat", "mahabharata"],
+    ["dhruv ki kahani", "dhruva"],
+    ["prahlad aur holika", "prahlad"],
+    ["gajendra moksha", "gajendra-moksha"],
+    ["samudra manthan", "samudra-manthan"],
+    ["savitri satyavan katha", "savitri-satyavan"],
+    ["karwa chauth katha", "karwa-chauth-katha"],
+    ["ganesh chaturthi katha", "ganesh-chaturthi-katha"],
+    ["shivratri vrat katha", "shivratri-katha"],
+    ["सुंदरकांड", "sundarkand"],
+  ];
+  for (const [q, id, part] of cases) {
+    const card = respond(q).cards.find((c) => c.type !== "text");
+    assert.deepEqual(card, { type: "katha", id, ...(part ? { part } : {}) }, q);
+  }
+  // Vrat rituals stay rituals unless the katha is asked for.
+  assert.deepEqual(respond("karwa chauth").cards[0], { type: "ritual", id: "karwa-chauth" });
+});
+
+test("katha library: Hanuman Chalisa has 40 chaupais and every katha links resolve", async () => {
+  const { KATHAS, getKatha } = await import("../lib/kathas/index.ts");
+  const { getKriya } = await import("../lib/kriyas.ts");
+  const chalisa = getKatha("hanuman-chalisa")!;
+  assert.equal(chalisa.fullText!.filter((l) => l.label?.startsWith("Chaupai")).length, 40);
+  assert.equal(getKatha("bhagavad-gita")!.parts!.length, 18);
+  assert.equal(getKatha("bhagavata-purana")!.parts!.length, 12);
+  for (const k of KATHAS) {
+    if (k.vidhiId) assert.ok(getKriya(k.vidhiId), `${k.id} vidhi ${k.vidhiId}`);
+    for (const r of k.related ?? []) assert.ok(getKatha(r), `${k.id} related ${r}`);
+  }
+  assert.equal(new Set(KATHAS.map((k) => k.id)).size, KATHAS.length);
 });

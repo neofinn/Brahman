@@ -2,6 +2,7 @@
 import type { Card } from "./finder.ts";
 import { getGraha } from "./grahas.ts";
 import { computeKundli } from "./jyotish.ts";
+import { getKatha } from "./kathas/index.ts";
 import { getKriya } from "./kriyas.ts";
 import { getArticle } from "./learned.ts";
 import { readKundli } from "./reading.ts";
@@ -65,7 +66,26 @@ export function speechForCard(card: Card): string[] {
       const plain = a.body.replace(/^#+\s*/gm, "").replace(/^\s*[-*]\s+/gm, "").replace(/\n{2,}/g, ". ");
       return [a.title, plain.length > 1500 ? `${plain.slice(0, 1500)}…` : plain];
     }
+    case "katha":
+      return kathaSpeech(card.id, card.part);
     case "suggestions":
       return [];
   }
+}
+
+/** Brahman tells the katha: the whole story for a katha, an overview (or one chapter) for a granth. */
+export function kathaSpeech(id: string, part?: number): string[] {
+  const k = getKatha(id);
+  if (!k) return [];
+  if (part && k.parts?.[part - 1]) {
+    const p = k.parts[part - 1];
+    return [`${k.title}. ${p.title}.`, p.summary, ...(p.verse ? [p.verse.devanagari, `Meaning: ${p.verse.meaning}`] : [])];
+  }
+  if (k.story) return [k.title, ...k.story];
+  if (k.fullText) return [`${k.title}. ${k.summary}`, "Tap Recite the whole path, and I will recite it with you."];
+  return [
+    `${k.title}. ${k.summary}`,
+    ...(k.parts ? [`${k.partsLabel ?? "It has these parts"}: ${list(k.parts.map((p) => p.title.split(/ — | \(/)[0]))}.`] : []),
+    ...(k.teachings?.length ? [`Its teachings: ${k.teachings.join(" ")}`] : []),
+  ];
 }

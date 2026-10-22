@@ -3,6 +3,8 @@ export interface Text {
   name: string;
   devanagari?: string;
   description: string;
+  /** The Katha library entry for this text, if there is one. */
+  kathaId?: string;
 }
 
 export interface Category {
@@ -36,7 +38,7 @@ export const LIBRARY: Category[] = [
     texts: [
       { name: "Isha Upanishad", devanagari: "ईशोपनिषद्", description: "Eighteen verses opening 'ईशा वास्यमिदं सर्वम्' — all this is pervaded by the Lord." },
       { name: "Kena Upanishad", devanagari: "केनोपनिषद्", description: "By whom is the mind directed? The parable of Uma Haimavati and the devas." },
-      { name: "Katha Upanishad", devanagari: "कठोपनिषद्", description: "Nachiketa's dialogue with Yama on death and the immortal Self; the chariot analogy." },
+      { name: "Katha Upanishad", kathaId: "nachiketa", devanagari: "कठोपनिषद्", description: "Nachiketa's dialogue with Yama on death and the immortal Self; the chariot analogy." },
       { name: "Prashna Upanishad", devanagari: "प्रश्नोपनिषद्", description: "Six seekers put six questions to the sage Pippalada." },
       { name: "Mundaka Upanishad", devanagari: "मुण्डकोपनिषद्", description: "Higher and lower knowledge; source of 'सत्यमेव जयते' (3.1.6)." },
       { name: "Mandukya Upanishad", devanagari: "माण्डूक्योपनिषद्", description: "Twelve verses on Om and the four states of consciousness, with Gaudapada's Karika." },
@@ -53,11 +55,11 @@ export const LIBRARY: Category[] = [
     devanagari: "इतिहास",
     summary: "'Thus indeed it happened.' The two great epics carry dharma to every home through story.",
     texts: [
-      { name: "Valmiki Ramayana", devanagari: "वाल्मीकि रामायण", description: "The adikavya in seven kandas: the life of Shri Rama, Sita, Lakshmana and Hanuman." },
-      { name: "Mahabharata", devanagari: "महाभारत", description: "Vyasa's epic of about 100,000 shlokas in eighteen parvas — the Kurukshetra war and the whole of dharma." },
-      { name: "Bhagavad Gita", devanagari: "भगवद्गीता", description: "Krishna's teaching to Arjuna in 18 chapters and 700 verses (Bhishma Parva 25–42): karma, jnana and bhakti yoga." },
+      { name: "Valmiki Ramayana", kathaId: "valmiki-ramayana", devanagari: "वाल्मीकि रामायण", description: "The adikavya in seven kandas: the life of Shri Rama, Sita, Lakshmana and Hanuman." },
+      { name: "Mahabharata", kathaId: "mahabharata", devanagari: "महाभारत", description: "Vyasa's epic of about 100,000 shlokas in eighteen parvas — the Kurukshetra war and the whole of dharma." },
+      { name: "Bhagavad Gita", kathaId: "bhagavad-gita", devanagari: "भगवद्गीता", description: "Krishna's teaching to Arjuna in 18 chapters and 700 verses (Bhishma Parva 25–42): karma, jnana and bhakti yoga." },
       { name: "Vishnu Sahasranama", devanagari: "विष्णुसहस्रनाम", description: "The thousand names of Vishnu taught by Bhishma (Anushasana Parva)." },
-      { name: "Ramcharitmanas", devanagari: "रामचरितमानस", description: "Goswami Tulsidas's Awadhi retelling of the Ramayana, sung in homes across North India." },
+      { name: "Ramcharitmanas", kathaId: "ramcharitmanas", devanagari: "रामचरितमानस", description: "Goswami Tulsidas's Awadhi retelling of the Ramayana, sung in homes across North India." },
     ],
   },
   {
@@ -67,13 +69,13 @@ export const LIBRARY: Category[] = [
     summary:
       "The eighteen Mahapuranas teach cosmology, genealogy, avataras, tirthas, vratas and devotion. Traditionally grouped as Sattvika (Vishnu), Rajasika (Brahma) and Tamasika (Shiva).",
     texts: [
-      { name: "Bhagavata Purana", devanagari: "श्रीमद्भागवतम्", description: "Twelve skandhas; the lila of Shri Krishna in the tenth. Central to Vaishnava bhakti." },
+      { name: "Bhagavata Purana", kathaId: "bhagavata-purana", devanagari: "श्रीमद्भागवतम्", description: "Twelve skandhas; the lila of Shri Krishna in the tenth. Central to Vaishnava bhakti." },
       { name: "Vishnu Purana", devanagari: "विष्णु पुराण", description: "Parashara's teaching to Maitreya on creation, the avataras and the yugas." },
-      { name: "Shiva Purana", devanagari: "शिव पुराण", description: "The glory of Shiva, the jyotirlingas, and Shiva–Parvati stories." },
+      { name: "Shiva Purana", kathaId: "shiv-purana", devanagari: "शिव पुराण", description: "The glory of Shiva, the jyotirlingas, and Shiva–Parvati stories." },
       { name: "Devi Bhagavata Purana", devanagari: "देवी भागवत पुराण", description: "The supremacy of the Divine Mother; Shakta theology." },
-      { name: "Markandeya Purana", devanagari: "मार्कण्डेय पुराण", description: "Contains the Devi Mahatmya (Durga Saptashati), recited at Navaratri." },
+      { name: "Markandeya Purana", kathaId: "durga-saptashati", devanagari: "मार्कण्डेय पुराण", description: "Contains the Devi Mahatmya (Durga Saptashati), recited at Navaratri." },
       { name: "Skanda Purana", devanagari: "स्कन्द पुराण", description: "The largest Purana: tirthas, vratas, and the Satyanarayan katha (Reva Khanda)." },
-      { name: "Garuda Purana", devanagari: "गरुड पुराण", description: "Vishnu's teaching to Garuda; its Preta Khanda is read during the days after a death." },
+      { name: "Garuda Purana", kathaId: "garuda-purana", devanagari: "गरुड पुराण", description: "Vishnu's teaching to Garuda; its Preta Khanda is read during the days after a death." },
       { name: "Padma, Agni, Matsya, Kurma, Varaha, Vamana, Linga, Narada, Brahma, Brahmanda, Brahmavaivarta and Bhavishya Puranas", description: "The remaining Mahapuranas, each with distinctive cosmology, vratas and mahatmyas." },
     ],
   },

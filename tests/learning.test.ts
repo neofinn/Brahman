@@ -17,8 +17,8 @@ const base = {
 };
 
 const ARTICLE: LearnedEntry = {
-  ...base, id: "learned-nachiketa", kind: "article", category: "knowledge", title: "The story of Nachiketa",
-  keywords: ["nachiketa", "nachiketa story", "yama and nachiketa"], body: "Nachiketa was a boy…", question: "who was nachiketa",
+  ...base, id: "learned-pandharpur-wari", kind: "article", category: "knowledge", title: "Pandharpur Wari",
+  keywords: ["pandharpur", "wari", "vithoba", "warkari", "pandharpur yatra"], body: "The Wari is a pilgrimage…", question: "what is pandharpur wari",
 };
 const RITUAL: LearnedEntry = {
   ...base, id: "learned-chhath-puja", kind: "ritual", category: "vrat", title: "Chhath Puja",
@@ -28,13 +28,13 @@ const RITUAL: LearnedEntry = {
 
 test("unknown questions are unmatched before learning", () => {
   setLearnedKnowledge([]);
-  assert.equal(respond("who was nachiketa").unmatched, true);
+  assert.equal(respond("what is pandharpur wari").unmatched, true);
   assert.equal(respond("chhath puja kaise kare").unmatched, true);
 });
 
 test("learned entries answer later questions offline", () => {
   setLearnedKnowledge([ARTICLE, RITUAL]);
-  assert.deepEqual(first(respond("tell me the nachiketa story").cards), { type: "article", id: "learned-nachiketa" });
+  assert.deepEqual(first(respond("tell me about the pandharpur wari").cards), { type: "article", id: "learned-pandharpur-wari" });
   assert.deepEqual(first(respond("chhath puja kaise kare").cards), { type: "ritual", id: "learned-chhath-puja" });
   assert.deepEqual(first(respond("chhath vrat vidhi batao").cards), { type: "ritual", id: "learned-chhath-puja" });
   assert.equal(getKriya("learned-chhath-puja")?.learned, true);

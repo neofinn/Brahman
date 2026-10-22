@@ -2,6 +2,7 @@
 import { GRAHAS } from "./grahas.ts";
 import { MANTRAS } from "./hawans.ts";
 import { transliterate } from "./devanagari.ts";
+import { KATHAS } from "./kathas/index.ts";
 import { KRIYAS, registerLearnedKriyas } from "./kriyas.ts";
 import { learnedToKriya, registerArticles, type LearnedEntry } from "./learned.ts";
 import { LIBRARY } from "./library.ts";
@@ -19,6 +20,7 @@ export type Card =
   | { type: "panchang" }
   | { type: "scripture"; category: string; name: string; description: string }
   | { type: "article"; id: string }
+  | { type: "katha"; id: string; part?: number }
   | { type: "suggestions"; items: string[] };
 
 export interface FinderState {
@@ -70,6 +72,7 @@ const VARIANTS: Record<string, string> = {
   vrath: "vrat", vratam: "vrat", upvas: "vrat", upwas: "vrat", fast: "vrat",
   sanskar: "samskara", samskar: "samskara", sanskara: "samskara",
   surya: "surya", suraj: "surya", sury: "surya",
+  kahani: "katha", kahaani: "katha", kahanee: "katha", story: "katha", stories: "katha", kathaa: "katha",
 };
 
 const STOPWORDS = new Set([
@@ -186,6 +189,18 @@ const MANTRA_INDEX = (Object.keys(MANTRA_KEYWORDS) as (keyof typeof MANTRAS)[]).
   entry({ title: MANTRA_KEYWORDS[k][0], mantra: MANTRAS[k] }, MANTRA_KEYWORDS[k][1]),
 );
 
+const KATHA_INDEX = KATHAS.map((k) => entry(k.id, [k.title.split(/[—(]/)[0], ...k.keywords]));
+
+/** "gita adhyay 2", "chapter 18", "skandh 10", "gita 2.47" → the part number. */
+function partNumber(text: string): number | undefined {
+  const t = transliterate(text).toLowerCase();
+  const m =
+    t.match(/\b(?:adhyay|adhyaya|adhyaay|adhyaya|chapter|ch|skandh|skandha|skand|kand|kanda|parva|samhita)\s*(?:no\.?\s*)?(\d{1,2})\b/) ??
+    t.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s*(?:adhyay|adhyaya|chapter|skandh|skandha)\b/) ??
+    t.match(/\b(?:gita|geeta)\s*(\d{1,2})(?:[.:]\d{1,3})?\b/);
+  return m ? Number(m[1]) : undefined;
+}
+
 const SCRIPTURE_INDEX = LIBRARY.flatMap((cat) =>
   cat.texts.map((t) => entry({ category: cat.title, name: t.name, description: t.description }, [t.name.split(/[—(]/)[0]])),
 );
@@ -198,7 +213,7 @@ function score<T>(e: Entry<T>, query: string, qTokens: string[]): number {
       for (const w of p.trim().split(" ")) s += STOPWORDS.has(w) ? 0 : GENERIC.has(w) ? 0.5 : 3;
     }
   }
-  if (e.primary && qTokens.includes(e.primary)) s += 3;
+  if (e.primary && qTokens.some((t) => fuzzyEqual(t, e.primary!))) s += 3;
   for (const t of qTokens) {
     if (STOPWORDS.has(t)) continue;
     for (const w of e.words) {
@@ -227,6 +242,7 @@ const HELLO = /^(hi|hello|hey|namaste|namaskar|pranam|pranaam|jai shri (ram|kris
 
 export const STARTER_SUGGESTIONS = [
   "I want to perform Graha Shanti hawan",
+  "Bhagwat katha",
   "My DOB is 15 Jan 1990, 6:30 am, Delhi",
   "Satyanarayan katha ki vidhi",
   "Shani Sade Sati remedies",
@@ -285,6 +301,7 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
   const mantras = rank(MANTRA_INDEX, query, qTokens);
   const scriptures = rank(SCRIPTURE_INDEX, query, qTokens);
   const articles = rank(ARTICLE_INDEX, query, qTokens);
+  const kathas = rank(KATHA_INDEX, query, qTokens);
   const mentionsMantra = qTokens.includes("mantra");
   const mentionsJapa = mentionsMantra || qTokens.includes("jaap") || qTokens.includes("japa");
 
@@ -301,12 +318,24 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
     return { cards, state };
   }
 
-  // 5. A learned article that fits better than any ritual.
+  // 5. A katha or granth — it carries its own path vidhi, so it wins ties with the ritual guide.
+  const wantsKatha = qTokens.some((t) => ["katha", "charitra", "leela", "lila", "path", "paath", "chalisa"].includes(t));
+  const kathaWins = kathas[0] && kathas[0].score >= 4 && (wantsKatha || kathas[0].score >= (rituals[0]?.score ?? 0));
+  if (kathaWins && kathas[0].score >= (articles[0]?.score ?? 0)) {
+    const katha = KATHAS.find((k) => k.id === kathas[0].value)!;
+    const part = partNumber(text);
+    const cards: Card[] = [{ type: "katha", id: katha.id, ...(part && katha.parts && part <= katha.parts.length ? { part } : {}) }];
+    const others = kathas.slice(1, 4).filter((r) => r.score >= Math.max(4, kathas[0].score * 0.6)).map((r) => r.value);
+    if (others.length) cards.push({ type: "suggestions", items: others.map((id) => KATHAS.find((k) => k.id === id)!.title.split(/[—(]/)[0].trim()) });
+    return { cards, state };
+  }
+
+  // 6. A learned article that fits better than any ritual.
   if (articles[0] && articles[0].score >= 4 && articles[0].score > (rituals[0]?.score ?? 0)) {
     return { cards: [{ type: "article", id: articles[0].value }], state };
   }
 
-  // 6. Rituals.
+  // 7. Rituals.
   if (rituals[0] && rituals[0].score >= 2) {
     const top = rituals[0];
     const cards: Card[] = [{ type: "ritual", id: top.value }];
@@ -315,12 +344,12 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
     return { cards, state };
   }
 
-  // 7. Scriptures.
+  // 8. Scriptures.
   if (scriptures[0] && scriptures[0].score >= 2) {
     return { cards: scriptures.slice(0, 3).map((s) => ({ type: "scripture" as const, ...s.value })), state };
   }
 
-  // 8. Greeting / nothing matched.
+  // 9. Greeting / nothing matched.
   if (HELLO.test(text.trim())) {
     return {
       cards: [

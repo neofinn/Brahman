@@ -1,6 +1,7 @@
 // Household puja and vidhi guides. Simplified forms a family can follow; the finder and chat can expand any step.
 import { ACHAMANA, DEEPA, GANESHA_DHYANA, KSHAMA, PAVITRIKARANA, type Kriya } from "./ritual-common.ts";
 import { HAWANS } from "./hawans.ts";
+import { PATHS } from "./paths.ts";
 
 export type { Kriya, KriyaCategory, Mantra, Step } from "./ritual-common.ts";
 
@@ -244,7 +245,7 @@ const BASE_KRIYAS: Kriya[] = [
   },
 ];
 
-export const KRIYAS: Kriya[] = [...BASE_KRIYAS, ...HAWANS];
+export const KRIYAS: Kriya[] = [...BASE_KRIYAS, ...HAWANS, ...PATHS];
 
 let LEARNED_KRIYAS: Kriya[] = [];
 
