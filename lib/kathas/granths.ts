@@ -13,7 +13,7 @@ export const GRANTHS: Katha[] = [
     keywords: ["gita", "geeta", "bhagavad gita", "bhagwat geeta", "bhagavat gita", "gita path", "gita saar", "gita ka gyan", "krishna arjun", "kurukshetra", "gita adhyay", "gita chapter", "karma yoga", "gita updesh"],
     summary:
       "Shri Krishna's teaching to Arjuna on the battlefield of Kurukshetra — 700 verses in 18 chapters, in the Bhishma Parva (chapters 25–42) of the Mahabharata. It unites karma yoga (selfless action), jnana yoga (knowledge) and bhakti yoga (devotion), and is the most widely read scripture of Sanatan Dharma.",
-    source: "Mahabharata, Bhishma Parva 25–42 (Vyasa)",
+    source: "Mahabharata, Bhishma Parva 25–42 (23–40 in the Critical Edition) (Vyasa)",
     when: "Daily reading of a chapter; full path on Gita Jayanti (Margashirsha Shukla Ekadashi), during the 13 days after a death, and on Ekadashi.",
     partsLabel: "The 18 adhyayas",
     parts: [
@@ -98,7 +98,7 @@ export const GRANTHS: Katha[] = [
     kind: "granth",
     keywords: ["ramcharitmanas", "ram charit manas", "manas", "tulsi ramayan", "tulsidas ramayan", "ramayan path", "ramayan", "ramayana", "akhand ramayan", "ram katha", "ram ji ki katha", "chaupai", "doha", "manas path", "navah parayan"],
     summary:
-      "Goswami Tulsidas's Awadhi retelling of the life of Shri Rama (completed around 1574 CE), in seven kandas (sopanas) of chaupais, dohas and sorathas. Sung in homes and temples across North India, it is the most loved form of the Ramayana — Rama as the Supreme Lord, and bhakti as the path.",
+      "Goswami Tulsidas's Awadhi retelling of the life of Shri Rama (composed 1574–1576 CE, begun on Ram Navami 1574), in seven kandas (sopanas) of chaupais, dohas and sorathas. Sung in homes and temples across North India, it is the most loved form of the Ramayana — Rama as the Supreme Lord, and bhakti as the path.",
     source: "Goswami Tulsidas, Shri Ramcharitmanas",
     when: "Akhand path (continuous, about 24 hours) on Ram Navami, Diwali, griha pravesha and other occasions; Navah parayan (nine days) in Navratri; daily reading of a few dohas.",
     partsLabel: "The 7 kandas",
@@ -272,7 +272,7 @@ export const GRANTHS: Katha[] = [
     keywords: ["durga saptashati", "saptashati", "chandi path", "devi mahatmya", "durga path", "mahishasur", "shumbh nishumbh", "madhu kaitabh", "navratri path", "devi katha", "durga katha", "argala", "kavach", "kilak"],
     summary:
       "Seven hundred verses in 13 chapters from the Markandeya Purana, glorifying the Divine Mother. In three episodes (charitras) she slays Madhu–Kaitabha, Mahishasura and Shumbha–Nishumbha. It is recited especially during Navratri, preceded by the Kavacha, Argala and Kilaka stotras.",
-    source: "Markandeya Purana, chapters 81–93",
+    source: "Markandeya Purana, chapters 81–93 (78–90 in some editions)",
     when: "Navratri (all 13 chapters over nine days, or in one sitting), Ashtami, and for protection in difficult times.",
     partsLabel: "The three charitras",
     parts: [
@@ -303,15 +303,15 @@ export const GRANTHS: Katha[] = [
       ["राम दूत अतुलित बल धामा। अंजनि-पुत्र पवनसुत नामा॥", "rāma dūta atulita bala dhāmā | aṃjani-putra pavanasuta nāmā ||", "Rama's messenger, abode of matchless strength, known as Anjani's son and the son of the Wind."],
       ["महाबीर बिक्रम बजरंगी। कुमति निवार सुमति के संगी॥", "mahābīra bikrama bajaraṃgī | kumati nivāra sumati ke saṃgī ||", "Great hero, mighty, with a body like a thunderbolt; you dispel evil thoughts and are the companion of good sense."],
       ["कंचन बरन बिराज सुबेसा। कानन कुंडल कुंचित केसा॥", "kaṃcana barana birāja subesā | kānana kuṃḍala kuṃcita kesā ||", "Golden-hued, finely dressed, with earrings and curly hair."],
-      ["हाथ बज्र औ ध्वजा बिराजै। काँधे मूँज जनेऊ साजै॥", "hātha bajra au dhvajā birājai | kāṃdhe mūṃja janeū sājai ||", "In your hands shine the mace and the flag; a sacred thread of munja grass adorns your shoulder."],
-      ["संकर सुवन केसरीनंदन। तेज प्रताप महा जग बंदन॥", "saṃkara suvana kesarīnaṃdana | teja pratāpa mahā jaga baṃdana ||", "Embodiment of Shiva, son of Kesari; your radiance and glory are revered by the whole world."],
+      ["हाथ बज्र औ ध्वजा बिराजै। काँधे मूँज जनेऊ साजै॥", "hātha bajra au dhvajā birājai | kāṃdhe mūṃja janeū sājai ||", "In your hands shine the thunderbolt (vajra) and the flag; a sacred thread of munja grass adorns your shoulder."],
+      ["संकर सुवन केसरीनंदन। तेज प्रताप महा जग बंदन॥", "saṃkara suvana kesarīnaṃdana | teja pratāpa mahā jaga baṃdana ||", "Son of Shankara (born of his amsha) and delight of Kesari; your radiance and glory are revered by the whole world."],
       ["बिद्यावान गुनी अति चातुर। राम काज करिबे को आतुर॥", "bidyāvāna gunī ati cātura | rāma kāja karibe ko ātura ||", "Learned, virtuous and very wise, ever eager to do Rama's work."],
       ["प्रभु चरित्र सुनिबे को रसिया। राम लखन सीता मन बसिया॥", "prabhu caritra sunibe ko rasiyā | rāma lakhana sītā mana basiyā ||", "You delight in hearing the Lord's deeds; Rama, Lakshmana and Sita dwell in your heart."],
       ["सूक्ष्म रूप धरि सियहिं दिखावा। बिकट रूप धरि लंक जरावा॥", "sūkṣma rūpa dhari siyahiṃ dikhāvā | bikaṭa rūpa dhari laṃka jarāvā ||", "Taking a tiny form you appeared before Sita; taking a fearsome form you burned Lanka."],
       ["भीम रूप धरि असुर सँहारे। रामचंद्र के काज सँवारे॥", "bhīma rūpa dhari asura saṃhāre | rāmacaṃdra ke kāja saṃvāre ||", "Taking a mighty form you destroyed the demons and accomplished Ramachandra's tasks."],
       ["लाय सजीवन लखन जियाये। श्रीरघुबीर हरषि उर लाये॥", "lāya sajīvana lakhana jiyāye | śrīraghubīra haraṣi ura lāye ||", "Bringing the Sanjivani herb you revived Lakshmana, and Shri Raghuvira embraced you with joy."],
       ["रघुपति कीन्ही बहुत बड़ाई। तुम मम प्रिय भरतहि सम भाई॥", "raghupati kīnhī bahuta baṛāī | tuma mama priya bharatahi sama bhāī ||", "The Lord of the Raghus praised you greatly: 'You are as dear to me as my brother Bharata.'"],
-      ["सहस बदन तुम्हरो जस गावैं। अस कहि श्रीपति कंठ लगावैं॥", "sahasa badana tumharo jasa gāvaiṃ | asa kahi śrīpati kaṃṭha lagāvaiṃ ||", "'May a thousand mouths sing your glory,' said the Lord of Shri, and embraced you."],
+      ["सहस बदन तुम्हरो जस गावैं। अस कहि श्रीपति कंठ लगावैं॥", "sahasa badana tumharo jasa gāvaiṃ | asa kahi śrīpati kaṃṭha lagāvaiṃ ||", "'The thousand-mouthed Shesha sings your glory,' said the Lord of Shri, and embraced you."],
       ["सनकादिक ब्रह्मादि मुनीसा। नारद सारद सहित अहीसा॥", "sanakādika brahmādi munīsā | nārada sārada sahita ahīsā ||", "Sanaka and the sages, Brahma and the great munis, Narada, Sharada and the lord of serpents —"],
       ["जम कुबेर दिगपाल जहाँ ते। कबि कोबिद कहि सके कहाँ ते॥", "jama kubera digapāla jahāṃ te | kabi kobida kahi sake kahāṃ te ||", "Yama, Kubera and the guardians of the directions — how can poets and scholars describe your glory?"],
       ["तुम उपकार सुग्रीवहिं कीन्हा। राम मिलाय राज पद दीन्हा॥", "tuma upakāra sugrīvahiṃ kīnhā | rāma milāya rāja pada dīnhā ||", "You did Sugriva a great service: you brought him to Rama and gave him his kingdom."],

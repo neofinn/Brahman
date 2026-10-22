@@ -166,7 +166,7 @@ const BASE_KRIYAS: Kriya[] = [
           devanagari: "ॐ भूर्भुवः स्वः। तत्सवितुर्वरेण्यं भर्गो देवस्य धीमहि। धियो यो नः प्रचोदयात्॥",
           iast: "oṃ bhūr bhuvaḥ svaḥ | tat savitur vareṇyaṃ bhargo devasya dhīmahi | dhiyo yo naḥ pracodayāt ||",
           meaning: "We meditate on the adorable radiance of the divine Savitr; may it inspire our intellect.",
-          source: "Rigveda 3.62.10",
+          source: "Rigveda 3.62.10 (the opening ॐ भूर्भुवः स्वः is the Yajurvedic vyahriti prefix used in recitation)",
         },
       },
       { title: "Upasthana and namaskara", detail: "Stand, offer salutations to the Sun and the directions, and conclude with 'ॐ तत्सत्'." },

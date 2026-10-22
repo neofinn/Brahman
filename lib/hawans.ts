@@ -10,7 +10,7 @@ export const MANTRAS = {
     "ॐ भूर्भुवः स्वः। तत्सवितुर्वरेण्यं भर्गो देवस्य धीमहि। धियो यो नः प्रचोदयात्॥",
     "oṃ bhūr bhuvaḥ svaḥ | tat savitur vareṇyaṃ bhargo devasya dhīmahi | dhiyo yo naḥ pracodayāt ||",
     "We meditate on the adorable radiance of the divine Savitr; may it inspire our intellect.",
-    { source: "Rigveda 3.62.10" },
+    { source: "Rigveda 3.62.10 (the opening ॐ भूर्भुवः स्वः is the Yajurvedic vyahriti prefix used in recitation)" },
   ),
   mahamrityunjaya: m(
     "ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्। उर्वारुकमिव बन्धनान्मृत्योर्मुक्षीय माऽमृतात्॥",
@@ -89,7 +89,7 @@ export const MANTRAS = {
 const SANKALPA: Step = {
   title: "Sankalpa (statement of intent)",
   detail:
-    "Holding water, akshata, a flower and a coin in the right hand, say: 'Om Vishnur Vishnur Vishnuh' and state the place, date (samvat, masa, paksha, tithi, vara), your name, gotra and the purpose of the hawan. Release the water into a plate.",
+    "Holding water, akshata, a flower and a coin in the right hand, recite the sankalpa — it names the place and time (samvat, masa, paksha, tithi, vara, nakshatra), your gotra, your father's name, your own name and the purpose of the rite. Then release the water into a plate. Your personal sankalpa appears below once your details are saved.",
 };
 
 const GANESHA_GAURI: Step = {

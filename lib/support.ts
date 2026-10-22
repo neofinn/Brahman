@@ -80,6 +80,7 @@ const SAMARPAN = m(
   "कायेन वाचा मनसेन्द्रियैर्वा बुद्ध्यात्मना वा प्रकृतेः स्वभावात्। करोमि यद्यत्सकलं परस्मै नारायणायेति समर्पयामि॥",
   "kāyena vācā manasendriyair vā buddhyātmanā vā prakṛteḥ svabhāvāt | karomi yad yat sakalaṃ parasmai nārāyaṇāyeti samarpayāmi ||",
   "Whatever I do — with body, speech, mind, senses, intellect or by my very nature — I offer it all to the Supreme Narayana.",
+  { source: "Adapted for puja from Bhagavatam 11.2.36" },
 );
 
 const GITA_2_3 = gita("क्लैब्यं मा स्म गमः पार्थ नैतत्त्वय्युपपद्यते। क्षुद्रं हृदयदौर्बल्यं त्यक्त्वोत्तिष्ठ परन्तप॥", "klaibyaṃ mā sma gamaḥ pārtha naitat tvayy upapadyate | kṣudraṃ hṛdayadaurbalyaṃ tyaktvottiṣṭha parantapa ||", "Do not yield to weakness, O Partha; it does not become you. Cast off this petty faintness of heart and arise, O scorcher of foes!", "Gita 2.3");

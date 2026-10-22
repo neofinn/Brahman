@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/kriyas", label: "Puja & Hawan" },
   { href: "/katha", label: "Katha" },
   { href: "/library", label: "Scriptures" },
+  { href: "/profile", label: "My details" },
 ];
 
 export function Nav() {

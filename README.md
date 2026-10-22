@@ -17,6 +17,7 @@ service is needed. Ask it the way you would ask your pandit-ji:
 | "shani mantra", "gayatri mantra" | Shows the mantra or the graha's beej mantra, Navagraha stotra verse, day, daan, grain, samidha and gem. |
 | "aaj ka panchang" | Today's panchang for any city. |
 | "I have exam tomorrow, pray for me", "I'm feeling scared", "interview hai kal", "my mother is in hospital", "motivate me" | Answers like a caring pandit: warm words, a prayer offered for the person (🔊 prays aloud), the right mantras (Saraswati for exams, Ganesha for interviews and new beginnings, Hanuman for fear, Mahamrityunjaya for illness…), a Gita verse for strength, practical steps, and a related katha and rite. Recognises 14 situations, including grief, travel, money, marriage, anger, loneliness, sleep and good news. Notices who it is for ("my son…") and when ("tomorrow"). |
+| "mera sankalp", "satyanarayan sankalpa", or any puja's sankalpa step | Your **personal Sanskrit sankalpa**, written in the traditional form: today's samvat, ayana, ritu, masa, paksha, tithi, vara and nakshatra for your city, then "…गोत्रोत्पन्नः <father> नाम्नः पुत्रः <name> नामाहं" (feminine: "…उत्पन्ना … पुत्री … नाम्नी अहं"), and the rite's own Sanskrit purpose ("…करकचतुर्थीव्रतं करिष्ये"). Tarpan names each departed ancestor ("अस्मत्पिता … नामा वसुरूपस्तृप्यताम्…"). Details are entered once under **My details** and stay on the device. |
 | Words about self-harm, or a medical emergency | **Safety first:** a compassionate message with India's Tele-MANAS helpline (14416 / 1-800-891-4416) and 112 (or 108 for an ambulance), with tap-to-call buttons — before anything else. |
 | "bhagwat katha", "gita adhyay 2", "garud puran", "dhruv ki kahani", "हनुमान चालीसा" | Opens the Katha library: the granth chapter by chapter with key verses, the story told aloud with 🔊, the full path recited line by line, and how to hold the path or katha. |
 
@@ -100,6 +101,7 @@ lib/
   voice.ts            What Brahman says aloud for each kind of answer
   devanagari.ts       Devanagari → Latin transliteration for Hindi input
   learned.ts          Learned-knowledge types and registry (+ knowledge-store.ts on the server)
+  sankalpa.ts         Personal sankalpa and tarpan mantras (+ sanskrit.ts: IAST and name transliteration; profile.ts: on-device details)
   support.ts          Feelings and life moments: comfort, prayers, mantras, steps; crisis and emergency detection
   library.ts          Scripture catalogue
   priest.ts           System prompts for AI search and the optional conversational reading
@@ -114,6 +116,8 @@ tests/                node:test suites
   Surya Siddhanta, amanta vs. purnimanta, vrata-day rules), so the app tells users to follow their sampradaya for vrata dates.
 - The kundli reading applies classical Parashari rules mechanically; it describes tendencies and recommends gentle
   remedies (japa, daan, worship), never fear-based predictions.
+- Every mantra was independently audited against standard published readings (Gita Press, critical editions). No verse
+  text or verse number errors were found; translation and citation refinements from the audit are applied.
 - Long granths are given as chapter summaries with selected verses rather than full text, to avoid misquoting
   scripture; full texts are included only where they are short and well established (Hanuman Chalisa).
 - Mantras are given as traditionally recited; rites follow common North Indian household practice and note where

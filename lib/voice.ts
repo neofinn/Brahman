@@ -83,6 +83,8 @@ export function speechForCard(card: Card): string[] {
     }
     case "crisis":
       return (card.kind === "crisis" ? CRISIS_TEXT : EMERGENCY_TEXT).map((t) => t.replace(/^[🙏•]\s*/u, "").replace("14416", "1 4 4 1 6").replace("112", "1 1 2").replace("108", "1 0 8"));
+    case "sankalpa":
+      return ["Here is your sankalpa. Hold water, akshata and a flower in your right hand, recite it, and release the water."];
     case "suggestions":
       return [];
   }

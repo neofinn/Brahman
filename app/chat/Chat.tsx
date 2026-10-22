@@ -11,6 +11,7 @@ import { KundliReport } from "@/components/KundliReport";
 import { ArticleCard } from "@/components/ArticleCard";
 import { KathaView } from "@/components/KathaView";
 import { CrisisCard, SupportCard } from "@/components/SupportCard";
+import { SankalpaBlock } from "@/components/SankalpaBlock";
 import { getKatha } from "@/lib/kathas";
 import { PanchangPanel } from "@/app/panchang/PanchangView";
 import { useAiAvailable } from "@/components/useAi";
@@ -102,6 +103,14 @@ function CardView({ card, voice, onRitual, onSend, onKatha }: { card: Card; voic
       return <SupportCard card={card} onRitual={onRitual} onKatha={onKatha} />;
     case "crisis":
       return <CrisisCard kind={card.kind} />;
+    case "sankalpa":
+      return (
+        <div>
+          <h3 style={{ margin: "0 0 6px" }}>Sankalpa{getKriya(card.ritualId) ? ` — ${getKriya(card.ritualId)!.title}` : ""}</h3>
+          <p className="sub" style={{ marginTop: 0 }}>Hold water, akshata, a flower and a coin in your right hand, recite the sankalpa, then release the water into a plate.</p>
+          <SankalpaBlock ritualId={card.ritualId} />
+        </div>
+      );
     case "suggestions":
       return (
         <div className="chips">

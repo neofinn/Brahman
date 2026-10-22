@@ -39,7 +39,7 @@ export default function Home() {
           <div className="deva">ॐ असतो मा सद्गमय। तमसो मा ज्योतिर्गमय। मृत्योर्मा अमृतं गमय॥</div>
           <div className="iast">oṃ asato mā sad gamaya | tamaso mā jyotir gamaya | mṛtyor mā amṛtaṃ gamaya ||</div>
           <div>Lead me from the unreal to the real, from darkness to light, from death to immortality.</div>
-          <div className="iast">— Brihadaranyaka Upanishad 1.3.28</div>
+          <div className="iast">— Brihadaranyaka Upanishad 1.3.28 (recitation form)</div>
         </blockquote>
       </div>
       <footer className="footer">

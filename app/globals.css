@@ -255,3 +255,11 @@ ul.samagri { padding-left: 18px; margin: 0; }
 .crisis { padding: 16px; border-radius: var(--radius); border: 2px solid var(--bad); background: color-mix(in srgb, var(--bad) 8%, var(--surface)); }
 .crisis p { margin: 0 0 8px; }
 .crisis .chips { margin-top: 8px; gap: 10px; }
+
+/* Profile & sankalpa */
+.profile-form { display: grid; gap: 12px; }
+.profile-form .form-row { margin-bottom: 0; }
+.name-field { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.ancestors { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); padding: 12px; border: 1px dashed var(--border); border-radius: var(--radius); }
+.ancestors .sub { grid-column: 1 / -1; margin: 0; }
+.sankalpa-setup { margin-top: 10px; padding: 14px; border-radius: var(--radius); background: var(--surface-2); }

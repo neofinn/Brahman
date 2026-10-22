@@ -40,7 +40,7 @@ export const STORIES: Katha[] = [
       "At last the king roared, 'Where is your Vishnu? Is he in this pillar?' 'He is everywhere,' said Prahlad. Hiranyakashipu struck the pillar — and from it burst Narasimha, half man, half lion. At twilight, on the threshold, placing the demon on his thighs, he tore him apart with his claws: neither man nor beast, neither inside nor outside, neither day nor night, neither on earth nor in sky, with no weapon.",
       "None dared approach the fierce Lord until Prahlad came and bowed. Narasimha became gentle, placed his hand on the child's head and offered any boon. Prahlad asked only for freedom from desire and for his father's liberation — both were granted.",
     ],
-    keyVerses: [v("उग्रं वीरं महाविष्णुं ज्वलन्तं सर्वतोमुखम्। नृसिंहं भीषणं भद्रं मृत्युमृत्युं नमाम्यहम्॥", "ugraṃ vīraṃ mahāviṣṇuṃ jvalantaṃ sarvatomukham | nṛsiṃhaṃ bhīṣaṇaṃ bhadraṃ mṛtyumṛtyuṃ namāmy aham ||", "I bow to the fierce and heroic Mahavishnu, blazing, facing all directions — Narasimha, terrible yet auspicious, the death of death.", "Traditional Narasimha mantra")],
+    keyVerses: [v("उग्रं वीरं महाविष्णुं ज्वलन्तं सर्वतोमुखम्। नृसिंहं भीषणं भद्रं मृत्युमृत्युं नमाम्यहम्॥", "ugraṃ vīraṃ mahāviṣṇuṃ jvalantaṃ sarvatomukham | nṛsiṃhaṃ bhīṣaṇaṃ bhadraṃ mṛtyumṛtyuṃ namāmy aham ||", "I bow to the fierce and heroic Mahavishnu, blazing, facing all directions — Narasimha, terrible yet auspicious, the death of death.", "Narasimha Mantraraja (Nrisimha Purva Tapaniya Upanishad)")],
     teachings: ["The Lord is present everywhere and protects his devotee.", "True devotion asks for nothing in return.", "Pride and cruelty destroy themselves."],
     related: ["bhagavata-purana"],
   },
@@ -176,7 +176,7 @@ export const STORIES: Katha[] = [
     kind: "vrat-katha",
     keywords: ["savitri", "satyavan", "savitri satyavan", "vat savitri", "vat purnima", "bargad puja", "vat vriksha", "vat savitri vrat katha", "yamraj savitri"],
     summary: "Princess Savitri follows Yama himself to win back the life of her husband Satyavan through wisdom, devotion and courage. Heard on Vat Savitri vrat.",
-    source: "Mahabharata, Vana Parva (Pativrata Mahatmya, chapters 277–283)",
+    source: "Mahabharata, Vana Parva (Pativrata Mahatmya, chapters 277–283 in the Critical Edition; 293–299 in Gita Press)",
     when: "Vat Savitri vrat — Jyeshtha Amavasya (North India) or Jyeshtha Purnima (Maharashtra, Gujarat, the South), worshipping the banyan tree.",
     story: [
       "King Ashvapati of Madra had a daughter, Savitri, born by the grace of the goddess Savitri. When she came of age, she chose as her husband Satyavan, son of a blind king living in exile in the forest. The sage Narada warned that Satyavan would die exactly one year after the marriage. Savitri would not change her choice.",
@@ -263,7 +263,7 @@ export const STORIES: Katha[] = [
     kind: "katha",
     keywords: ["markandeya", "markandey", "mrityunjaya katha", "yama shiva", "kaal", "16 years", "long life story"],
     summary: "Destined to die at sixteen, young Markandeya clings to the Shivling as Yama's noose falls — and Shiva emerges to defeat Death. The story behind the Mahamrityunjaya devotion.",
-    source: "Markandeya Purana; Shiva Purana; Padma Purana",
+    source: "Padma Purana and other Puranas; Shaiva tradition (the Markandeya Purana is named after the sage but does not tell this story)",
     story: [
       "The sage Mrikandu and his wife prayed to Shiva for a son. Shiva offered a choice: a dull son with a long life, or a brilliant, devoted son who would live only sixteen years. They chose the second, and Markandeya was born.",
       "Markandeya grew into a great devotee of Shiva. As his sixteenth year approached, his parents grew sorrowful and told him of his fate. He went to worship Shiva with even greater devotion.",

@@ -5,10 +5,18 @@ import type { Kriya } from "@/lib/ritual-common";
 import { speak, speechSupported } from "@/lib/speech";
 import { stepSpeech } from "@/lib/voice";
 import { MantraBlock } from "./MantraBlock";
+import { SankalpaBlock, TarpanBlock } from "./SankalpaBlock";
 
 const CATEGORY_LABEL: Record<Kriya["category"], string> = {
   puja: "Puja", hawan: "Hawan", shanti: "Shanti", vrat: "Vrat", samskara: "Samskara", path: "Path",
 };
+
+/** Personal mantras for a step: the sankalpa (with name, gotra, father's name) and named tarpan offerings. */
+function PersonalBlock({ kriya, title }: { kriya: Kriya; title: string }) {
+  if (/sankalpa/i.test(title) && !kriya.learned) return <SankalpaBlock ritualId={kriya.id} />;
+  if (/^tarpana$/i.test(title)) return <TarpanBlock />;
+  return null;
+}
 
 /** A complete ritual: overview, samagri checklist and the vidhi, either as a list or performed step by step. */
 export function RitualGuide({ kriya, compact = false, voice = false }: { kriya: Kriya; compact?: boolean; voice?: boolean }) {
@@ -82,6 +90,7 @@ export function RitualGuide({ kriya, compact = false, voice = false }: { kriya: 
               <h4>{i + 1}. {s.title}</h4>
               <p>{s.detail}</p>
               {s.mantra && <MantraBlock mantra={s.mantra} />}
+              <PersonalBlock kriya={kriya} title={s.title} />
             </li>
           ))}
         </ol>
@@ -99,6 +108,7 @@ export function RitualGuide({ kriya, compact = false, voice = false }: { kriya: 
           <h4 className="guided-title">{current.title}</h4>
           <p>{current.detail}</p>
           {current.mantra && <MantraBlock key={step} mantra={current.mantra} />}
+          <PersonalBlock kriya={kriya} title={current.title} />
           <div className="guided-nav">
             <button type="button" className="btn secondary" disabled={step === 0} onClick={() => setStep(step - 1)}>← Previous</button>
             {step < kriya.steps.length - 1 ? (

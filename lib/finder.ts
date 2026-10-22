@@ -24,6 +24,7 @@ export type Card =
   | { type: "katha"; id: string; part?: number }
   | { type: "support"; id: string; relation?: Relation; when?: "today" | "tomorrow" | "tonight"; seed: string }
   | { type: "crisis"; kind: "crisis" | "emergency" }
+  | { type: "sankalpa"; ritualId: string }
   | { type: "suggestions"; items: string[] };
 
 export interface FinderState {
@@ -75,6 +76,7 @@ const VARIANTS: Record<string, string> = {
   vrath: "vrat", vratam: "vrat", upvas: "vrat", upwas: "vrat", fast: "vrat",
   sanskar: "samskara", samskar: "samskara", sanskara: "samskara",
   surya: "surya", suraj: "surya", sury: "surya",
+  sankalp: "sankalpa", sankalap: "sankalpa", sankalpam: "sankalpa",
   kahani: "katha", kahaani: "katha", kahanee: "katha", story: "katha", stories: "katha", kathaa: "katha",
 };
 
@@ -313,7 +315,13 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
   const mentionsMantra = qTokens.includes("mantra");
   const mentionsJapa = mentionsMantra || qTokens.includes("jaap") || qTokens.includes("japa");
 
-  // 3. A feeling or life moment ("I'm scared", "exam tomorrow, pray for me") — unless a named rite or katha is clearly asked for.
+  // 3. The person's own sankalpa ("mera sankalp", "satyanarayan sankalpa", "my gotra…").
+  if (qTokens.includes("sankalpa") || hasWord("gotra") || hasWord("my details")) {
+    const forRite = rituals[0] && rituals[0].score >= 4 ? rituals[0].value : "daily-puja";
+    return { cards: [{ type: "sankalpa", ritualId: forRite }], state };
+  }
+
+  // 4. A feeling or life moment ("I'm scared", "exam tomorrow, pray for me") — unless a named rite or katha is clearly asked for.
   const situation = detectSituation(text);
   const strongest = Math.max(rituals[0]?.score ?? 0, kathas[0]?.score ?? 0, mantras[0]?.score ?? 0);
   // The rite the comfort card itself recommends only wins when the person names it ("mahamrityunjaya jaap…").
@@ -329,12 +337,12 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
     };
   }
 
-  // 4. A specific mantra ("… jaap" usually means the practice, so the rite's guide wins unless "mantra" is said).
+  // 5. A specific mantra ("… jaap" usually means the practice, so the rite's guide wins unless "mantra" is said).
   if (mantras[0] && mantras[0].score >= 5 && (mentionsMantra || mantras[0].score > (rituals[0]?.score ?? 0))) {
     return { cards: [{ type: "mantra", ...mantras[0].value }], state };
   }
 
-  // 5. A graha (mantra, remedy, dosha) — unless a ritual for it matches better.
+  // 6. A graha (mantra, remedy, dosha) — unless a ritual for it matches better.
   if (grahas[0] && (!rituals[0] || mentionsJapa || rituals[0].score < 6)) {
     const cards: Card[] = [{ type: "graha", name: grahas[0].value }];
     const related = rituals.filter((r) => r.score >= 4).slice(0, 2).map((r) => r.value);
@@ -342,7 +350,7 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
     return { cards, state };
   }
 
-  // 6. A katha or granth — it carries its own path vidhi, so it wins ties with the ritual guide.
+  // 7. A katha or granth — it carries its own path vidhi, so it wins ties with the ritual guide.
   const wantsKatha = qTokens.some((t) => ["katha", "charitra", "leela", "lila", "path", "paath", "chalisa"].includes(t));
   const kathaWins = kathas[0] && kathas[0].score >= 4 && (wantsKatha || kathas[0].score >= (rituals[0]?.score ?? 0));
   if (kathaWins && kathas[0].score >= (articles[0]?.score ?? 0)) {
@@ -354,12 +362,12 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
     return { cards, state };
   }
 
-  // 7. A learned article that fits better than any ritual.
+  // 8. A learned article that fits better than any ritual.
   if (articles[0] && articles[0].score >= 4 && articles[0].score > (rituals[0]?.score ?? 0)) {
     return { cards: [{ type: "article", id: articles[0].value }], state };
   }
 
-  // 8. Rituals.
+  // 9. Rituals.
   if (rituals[0] && rituals[0].score >= 2) {
     const top = rituals[0];
     const cards: Card[] = [{ type: "ritual", id: top.value }];
@@ -368,12 +376,12 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
     return { cards, state };
   }
 
-  // 9. Scriptures.
+  // 10. Scriptures.
   if (scriptures[0] && scriptures[0].score >= 2) {
     return { cards: scriptures.slice(0, 3).map((s) => ({ type: "scripture" as const, ...s.value })), state };
   }
 
-  // 10. Greeting / nothing matched.
+  // 11. Greeting / nothing matched.
   if (HELLO.test(text.trim())) {
     return {
       cards: [
