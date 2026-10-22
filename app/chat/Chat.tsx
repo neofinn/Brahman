@@ -1,83 +1,157 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Markdown } from "@/components/Markdown";
-import type { ChatMode } from "@/lib/priest";
+import { RitualGuide } from "@/components/RitualGuide";
+import { GrahaCard } from "@/components/GrahaCard";
+import { MantraBlock } from "@/components/MantraBlock";
+import { KundliReport } from "@/components/KundliReport";
+import { PanchangPanel } from "@/app/panchang/PanchangView";
+import { useAiAvailable } from "@/components/useAi";
+import { respond, STARTER_SUGGESTIONS, type Card, type FinderState } from "@/lib/finder";
+import { computeKundli } from "@/lib/jyotish";
+import { getKriya } from "@/lib/kriyas";
 import { KUNDLI_HANDOFF_KEY } from "@/lib/handoff";
+import { zonedToUtc } from "@/lib/time";
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
+type Message =
+  | { role: "user"; text: string }
+  | { role: "assistant"; cards: Card[]; unmatched?: boolean; question?: string }
+  | { role: "assistant"; ai: string };
 
-const STORAGE_KEY = "brahman:conversation";
+const STORAGE_KEY = "brahman:finder:v1";
 
-
-const SUGGESTIONS = [
-  "What does Bhagavad Gita 2.47 teach about karma?",
-  "How do I perform a simple Lakshmi puja at home on Diwali?",
-  "Explain tat tvam asi from the Chandogya Upanishad",
-  "Ekadashi vrat ke niyam kya hain?",
-  "What is the significance of the Gayatri mantra?",
-  "Which mantras should I chant for peace of mind?",
-];
-
-function load(): { messages: Message[]; mode: ChatMode } {
+function load(): { messages: Message[]; state: FinderState } {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch {}
-  return { messages: [], mode: "general" };
+  return { messages: [], state: {} };
+}
+
+function KundliCard({ card, onRitual }: { card: Extract<Card, { type: "kundli" }>; onRitual: (id: string) => void }) {
+  const kundli = useMemo(
+    () => computeKundli(zonedToUtc(card.date, card.time, card.place.timeZone), card.place),
+    [card.date, card.time, card.place],
+  );
+  return <KundliReport kundli={kundli} name={card.name} onRitual={onRitual} />;
+}
+
+function CardView({ card, onRitual, onSend }: { card: Card; onRitual: (id: string) => void; onSend: (text: string) => void }) {
+  switch (card.type) {
+    case "text":
+      return <p className="card-text">{card.text}</p>;
+    case "ritual": {
+      const kriya = getKriya(card.id);
+      return kriya ? <RitualGuide kriya={kriya} compact /> : null;
+    }
+    case "ritualList":
+      return (
+        <div>
+          <div className="sub">{card.title}:</div>
+          <div className="chips">
+            {card.ids.map((id) => (
+              <button key={id} type="button" className="chip" onClick={() => onRitual(id)}>{getKriya(id)?.title ?? id}</button>
+            ))}
+          </div>
+        </div>
+      );
+    case "graha":
+      return <GrahaCard name={card.name} />;
+    case "mantra":
+      return (
+        <div>
+          <h3 style={{ margin: "0 0 6px" }}>{card.title}</h3>
+          <MantraBlock mantra={card.mantra} />
+        </div>
+      );
+    case "kundli":
+      return <KundliCard card={card} onRitual={onRitual} />;
+    case "panchang":
+      return <PanchangPanel />;
+    case "scripture":
+      return (
+        <div className="scripture">
+          <span className="tag">{card.category}</span>
+          <h3 style={{ margin: "6px 0 4px" }}>{card.name}</h3>
+          <p style={{ margin: 0 }}>{card.description}</p>
+          <Link href="/library" className="sub">Browse the scripture library →</Link>
+        </div>
+      );
+    case "suggestions":
+      return (
+        <div className="chips">
+          {card.items.map((s) => (
+            <button key={s} type="button" className="chip" onClick={() => onSend(s)}>{s}</button>
+          ))}
+        </div>
+      );
+  }
 }
 
 export function Chat() {
   const router = useRouter();
   const params = useSearchParams();
+  const ai = useAiAvailable();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [mode, setMode] = useState<ChatMode>("general");
+  const [state, setState] = useState<FinderState>({});
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const initialised = useRef(false);
+  const stateRef = useRef<FinderState>({});
+  stateRef.current = state;
 
-  const send = useCallback(async (text: string, history: Message[], sendMode: ChatMode) => {
+  const send = useCallback((text: string) => {
     const content = text.trim();
     if (!content) return;
-    const next: Message[] = [...history, { role: "user", content }];
-    setMessages([...next, { role: "assistant", content: "" }]);
+    const reply = respond(content, stateRef.current);
+    setState(reply.state);
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", text: content },
+      { role: "assistant", cards: reply.cards, unmatched: reply.unmatched, question: content },
+    ]);
     setInput("");
+  }, []);
+
+  const showRitual = useCallback((id: string) => {
+    const k = getKriya(id);
+    if (!k) return;
+    setMessages((prev) => [...prev, { role: "user", text: k.title }, { role: "assistant", cards: [{ type: "ritual", id }] }]);
+  }, []);
+
+  /** Optional: a free-form answer from Claude, only when the server has a key configured. */
+  const askAi = useCallback(async (question: string, mode: "general" | "kundli" = "general") => {
     setBusy(true);
     const controller = new AbortController();
     abortRef.current = controller;
     let reply = "";
+    setMessages((prev) => [...prev, { role: "assistant", ai: "" }]);
+    const update = (text: string) =>
+      setMessages((prev) => [...prev.slice(0, -1), { role: "assistant", ai: text }]);
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next, mode: sendMode }),
+        body: JSON.stringify({ messages: [{ role: "user", content: question }], mode }),
         signal: controller.signal,
       });
-      if (!res.ok || !res.body) {
-        const err = await res.json().catch(() => ({ error: res.statusText }));
-        throw new Error(err.error ?? "Request failed");
-      }
+      if (!res.ok || !res.body) throw new Error((await res.json().catch(() => ({}))).error ?? "Request failed");
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       for (;;) {
         const { done, value } = await reader.read();
         if (done) break;
         reply += decoder.decode(value, { stream: true });
-        setMessages([...next, { role: "assistant", content: reply }]);
+        update(reply);
       }
     } catch (err) {
-      if ((err as Error).name !== "AbortError") {
-        reply += `${reply ? "\n\n" : ""}⚠️ ${(err as Error).message}`;
-      }
+      if ((err as Error).name !== "AbortError") update(`${reply}\n\n⚠️ ${(err as Error).message}`);
     } finally {
-      const final: Message[] = reply ? [...next, { role: "assistant", content: reply }] : next;
-      setMessages(final);
       setBusy(false);
       abortRef.current = null;
     }
@@ -88,38 +162,44 @@ export function Chat() {
     if (initialised.current) return;
     initialised.current = true;
     const saved = load();
+    setMessages(saved.messages);
+    setState(saved.state);
+    stateRef.current = saved.state;
     const q = params.get("q");
     const handoff = params.get("mode") === "kundli" ? sessionStorage.getItem(KUNDLI_HANDOFF_KEY) : null;
     if (handoff) {
       sessionStorage.removeItem(KUNDLI_HANDOFF_KEY);
-      setMode("kundli");
-      send(handoff, [], "kundli");
+      setMessages((prev) => [...prev, { role: "user", text: "Please give me a detailed reading of my kundli." }]);
+      askAi(handoff, "kundli");
     } else if (q) {
-      setMode("general");
-      send(q, [], "general");
-    } else {
-      setMessages(saved.messages);
-      setMode(saved.mode);
+      send(q);
     }
     if (q || handoff) router.replace("/chat");
-  }, [params, router, send]);
+  }, [params, router, send, askAi]);
 
   useEffect(() => {
     if (!busy && initialised.current) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ messages, mode }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ messages: messages.slice(-30), state }));
       } catch {}
     }
-  }, [messages, mode, busy]);
+  }, [messages, state, busy]);
 
+  const lastCount = useRef(0);
   useEffect(() => {
-    logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
+    // Scroll so the newest reply starts at the top of the view (replies can be long).
+    if (messages.length > lastCount.current) {
+      const nodes = logRef.current?.querySelectorAll(".msg");
+      const target = nodes?.[Math.max(0, messages.length - 2)] as HTMLElement | undefined;
+      target?.scrollIntoView({ block: "start", behavior: "smooth" });
+    }
+    lastCount.current = messages.length;
   }, [messages]);
 
-  const newConversation = () => {
+  const reset = () => {
     abortRef.current?.abort();
     setMessages([]);
-    setMode("general");
+    setState({});
   };
 
   return (
@@ -130,23 +210,31 @@ export function Chat() {
             <div className="om-big deva" aria-hidden>ॐ</div>
             <h1>🙏 Namaste</h1>
             <p>
-              I am Brahman. Ask me about any scripture, puja, vrat, festival, mantra or question of dharma — in English,
-              Hindi or your own language.
+              I am Brahman, your purohit. Tell me the puja, hawan or vrat you wish to perform and I will give you the
+              samagri, every step and the mantras — and recite them with you. Share your date, time and place of birth
+              and I will prepare your kundli.
             </p>
-            <div className="suggestions">
-              {SUGGESTIONS.map((s) => (
-                <button key={s} onClick={() => send(s, [], "general")}>{s}</button>
+            <div className="chips" style={{ justifyContent: "center" }}>
+              {STARTER_SUGGESTIONS.map((s) => (
+                <button key={s} type="button" className="chip" onClick={() => send(s)}>{s}</button>
               ))}
             </div>
           </div>
         ) : (
           messages.map((m, i) => (
             <div key={i} className={`msg ${m.role}`}>
-              <div className="bubble">
-                {m.role === "assistant" ? (
-                  m.content ? <Markdown>{m.content}</Markdown> : <span className="typing">Brahman is contemplating…</span>
+              <div className={`bubble${m.role === "assistant" && "cards" in m && m.cards.some((c) => c.type !== "text" && c.type !== "suggestions" && c.type !== "ritualList") ? " wide" : ""}`}>
+                {m.role === "user" ? (
+                  m.text
+                ) : "ai" in m ? (
+                  m.ai ? <Markdown>{m.ai}</Markdown> : <span className="typing">Brahman is contemplating…</span>
                 ) : (
-                  m.content
+                  <div className="cards">
+                    {m.cards.map((c, j) => <CardView key={j} card={c} onRitual={showRitual} onSend={send} />)}
+                    {m.unmatched && ai && m.question && (
+                      <button type="button" className="chip" disabled={busy} onClick={() => askAi(m.question!)}>✨ Ask AI in depth</button>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -157,24 +245,22 @@ export function Chat() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (!busy) send(input, messages, mode);
+            send(input);
           }}
         >
           {messages.length > 0 && (
-            <button type="button" className="btn secondary" onClick={newConversation} title="New conversation">
-              ＋
-            </button>
+            <button type="button" className="btn secondary" onClick={reset} title="New conversation">＋</button>
           )}
           <textarea
             rows={1}
             value={input}
-            placeholder="Ask Brahman…"
+            placeholder="e.g. I want to perform Graha Shanti hawan…"
             aria-label="Your question"
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                 e.preventDefault();
-                if (!busy) send(input, messages, mode);
+                send(input);
               }
             }}
           />
@@ -184,9 +270,7 @@ export function Chat() {
             <button type="submit" className="btn" disabled={!input.trim()}>Ask</button>
           )}
         </form>
-        <div className="disclaimer">
-          Brahman can make mistakes. Verify important verses and muhurtas with your family purohit.
-        </div>
+        <div className="disclaimer">Brahman answers from its built-in granth — no account or API key needed. For samskaras, involve your family purohit.</div>
       </div>
     </div>
   );

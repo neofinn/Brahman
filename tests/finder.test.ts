@@ -1,0 +1,99 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { respond, type Card } from "../lib/finder.ts";
+import { computeKundli } from "../lib/jyotish.ts";
+import { readKundli, antardashas, namingSyllable, nadiOf } from "../lib/reading.ts";
+import { zonedToUtc } from "../lib/time.ts";
+
+const first = (cards: Card[]) => cards.find((c) => c.type !== "text")!;
+
+const RITUAL_QUERIES: [string, string][] = [
+  ["I wanna perform greh shanti hawan", "navagraha-shanti"],
+  ["grah shanti pooja kaise kare", "navagraha-shanti"],
+  ["navgrah havan samagri", "navagraha-shanti"],
+  ["how to do havan at home", "havan"],
+  ["griha pravesh puja", "griha-pravesh"],
+  ["naye ghar mein greh pravesh karna hai", "griha-pravesh"],
+  ["satyanarayan katha vidhi", "satyanarayan"],
+  ["Diwali laxmi pujan", "lakshmi-puja"],
+  ["navratri kalash sthapana", "navratri"],
+  ["rudrabhishek on shivratri", "rudrabhishek"],
+  ["sunderkand path", "hanuman-sundarkand"],
+  ["kaal sarp dosh puja", "kaal-sarp"],
+  ["manglik dosh remedy", "mangal-dosh"],
+  ["pitru paksha shradh", "tarpan"],
+  ["ekadashi vrat ke niyam", "ekadashi"],
+  ["vastu shanti for new office", "vastu-shanti"],
+  ["karwa chauth", "karwa-chauth"],
+  ["mundan sanskar", "samskaras"],
+];
+
+for (const [q, id] of RITUAL_QUERIES) {
+  test(`finder: "${q}" → ${id}`, () => {
+    const card = first(respond(q).cards);
+    assert.equal(card.type, "ritual", JSON.stringify(respond(q).cards));
+    assert.equal((card as { id: string }).id, id);
+  });
+}
+
+test("finder: mantra lookup", () => {
+  const card = first(respond("gayatri mantra").cards);
+  assert.equal(card.type, "mantra");
+  const mm = first(respond("om tryambakam jaap").cards);
+  assert.equal(mm.type, "mantra");
+});
+
+test("finder: graha mantra", () => {
+  const card = first(respond("shani mantra").cards);
+  assert.deepEqual(card, { type: "graha", name: "Saturn" });
+});
+
+test("finder: kundli in one message", () => {
+  const r = respond("My DOB is 15 Jan 1990, 6:30 am, Delhi");
+  const card = first(r.cards);
+  assert.equal(card.type, "kundli");
+});
+
+test("finder: kundli gathered across messages", () => {
+  const r1 = respond("make my kundli");
+  assert.ok(r1.state.pendingKundli);
+  const r2 = respond("12/03/1985", r1.state);
+  assert.equal(r2.state.pendingKundli?.date, "1985-03-12");
+  const r3 = respond("subah 7:15 baje, Pune", r2.state);
+  const card = first(r3.cards);
+  assert.equal(card.type, "kundli");
+  assert.deepEqual(r3.state, {});
+});
+
+test("finder: moving on from a pending kundli", () => {
+  const r1 = respond("kundli banao");
+  const r2 = respond("satyanarayan katha vidhi", r1.state);
+  assert.equal(first(r2.cards).type, "ritual");
+});
+
+test("finder: panchang and greeting", () => {
+  assert.equal(first(respond("aaj ka panchang").cards).type, "panchang");
+  assert.equal(first(respond("Namaste").cards).type, "suggestions");
+  assert.equal(respond("qwerty zxcv").unmatched, true);
+});
+
+test("reading: complete and consistent", () => {
+  const k = computeKundli(zonedToUtc("1990-01-15", "06:30", "Asia/Kolkata"), { latitude: 28.6139, longitude: 77.209 });
+  const r = readKundli(k, new Date("2026-10-22T00:00:00Z"));
+  assert.match(r.summary, /Dhanu lagna, Simha rashi, Purva Phalguni/);
+  const titles = r.sections.map((s) => s.title);
+  assert.ok(titles.some((t) => t.startsWith("Current dasha: Rahu")), titles.join("|"));
+  assert.ok(titles.includes("Doshas"));
+  assert.ok(r.remedies.some((x) => x.graha === "Rahu"));
+  assert.ok(r.rituals.includes("navagraha-shanti"));
+});
+
+test("reading: helpers", () => {
+  const a = antardashas({ lord: "Jupiter", start: new Date(0), end: new Date(16 * 365.2425 * 86400000) });
+  assert.equal(a[0].lord, "Jupiter");
+  assert.equal(a[1].lord, "Saturn");
+  assert.ok(Math.abs(a[8].end.getTime() - 16 * 365.2425 * 86400000) < 1000);
+  assert.equal(namingSyllable(0, 1), "चू");
+  assert.equal(nadiOf(3), "Antya"); // Rohini
+  assert.equal(nadiOf(17), "Adi"); // Jyeshtha
+});

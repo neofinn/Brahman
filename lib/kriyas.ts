@@ -1,75 +1,17 @@
-// Household puja and vidhi guides. Simplified forms a family can follow; the chat can expand any step.
-export interface Mantra {
-  devanagari: string;
-  iast: string;
-  meaning: string;
-  source?: string;
-}
+// Household puja and vidhi guides. Simplified forms a family can follow; the finder and chat can expand any step.
+import { ACHAMANA, DEEPA, GANESHA_DHYANA, KSHAMA, PAVITRIKARANA, type Kriya } from "./ritual-common.ts";
+import { HAWANS } from "./hawans.ts";
 
-export interface Step {
-  title: string;
-  detail: string;
-  mantra?: Mantra;
-}
+export type { Kriya, KriyaCategory, Mantra, Step } from "./ritual-common.ts";
 
-export interface Kriya {
-  id: string;
-  title: string;
-  devanagari: string;
-  summary: string;
-  when: string;
-  samagri: string[];
-  steps: Step[];
-  notes?: string[];
-}
-
-const ACHAMANA: Step = {
-  title: "Achamana (sipping water for purification)",
-  detail: "Take a little water in the right palm and sip three times, saying one name each time. Then wash the right hand.",
-  mantra: {
-    devanagari: "ॐ केशवाय नमः। ॐ नारायणाय नमः। ॐ माधवाय नमः॥",
-    iast: "oṃ keśavāya namaḥ | oṃ nārāyaṇāya namaḥ | oṃ mādhavāya namaḥ ||",
-    meaning: "Salutations to Keshava, Narayana and Madhava (names of Vishnu).",
-  },
-};
-
-const PAVITRIKARANA: Step = {
-  title: "Pavitrikarana (purifying self and space)",
-  detail: "Sprinkle water over yourself, the puja items and the space with a flower or tulsi leaf.",
-  mantra: {
-    devanagari: "ॐ अपवित्रः पवित्रो वा सर्वावस्थां गतोऽपि वा। यः स्मरेत् पुण्डरीकाक्षं स बाह्याभ्यन्तरः शुचिः॥",
-    iast: "oṃ apavitraḥ pavitro vā sarvāvasthāṃ gato'pi vā | yaḥ smaret puṇḍarīkākṣaṃ sa bāhyābhyantaraḥ śuciḥ ||",
-    meaning: "Whether pure or impure, in whatever state one may be, whoever remembers the lotus-eyed Lord becomes pure within and without.",
-  },
-};
-
-const GANESHA_DHYANA: Mantra = {
-  devanagari: "वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ। निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा॥",
-  iast: "vakratuṇḍa mahākāya sūryakoṭi samaprabha | nirvighnaṃ kuru me deva sarvakāryeṣu sarvadā ||",
-  meaning: "O Lord of the curved trunk and mighty form, radiant as a million suns, make all my undertakings free of obstacles, always.",
-};
-
-const DEEPA: Mantra = {
-  devanagari: "शुभं करोति कल्याणम् आरोग्यं धनसम्पदा। शत्रुबुद्धिविनाशाय दीपज्योतिर्नमोऽस्तु ते॥",
-  iast: "śubhaṃ karoti kalyāṇam ārogyaṃ dhanasampadā | śatrubuddhivināśāya dīpajyotir namo'stu te ||",
-  meaning: "Salutations to the light of the lamp, which brings auspiciousness, well-being, health and prosperity, and destroys hostile thoughts.",
-};
-
-const KSHAMA: Step = {
-  title: "Kshama prarthana (asking forgiveness)",
-  detail: "With folded hands, ask forgiveness for any error or omission in the worship.",
-  mantra: {
-    devanagari: "आवाहनं न जानामि न जानामि विसर्जनम्। पूजां चैव न जानामि क्षमस्व परमेश्वर॥",
-    iast: "āvāhanaṃ na jānāmi na jānāmi visarjanam | pūjāṃ caiva na jānāmi kṣamasva parameśvara ||",
-    meaning: "I do not know how to invoke you, nor how to bid you farewell, nor how to worship. Forgive me, O Supreme Lord.",
-  },
-};
-
-export const KRIYAS: Kriya[] = [
+const BASE_KRIYAS: Kriya[] = [
   {
     id: "daily-puja",
     title: "Daily Home Puja (Panchopachara)",
     devanagari: "नित्य पूजा — पञ्चोपचार",
+    category: "puja",
+    keywords: ["daily puja","nitya puja","roz ki puja","ghar ki puja","home puja","morning puja","panchopachara","simple puja","diya","aarti"],
+    duration: "20–30 minutes",
     summary: "A short daily worship with five offerings — gandha, pushpa, dhupa, dipa and naivedya — suitable for any family deity.",
     when: "Every morning after bathing, ideally at sunrise; many families also light a lamp at dusk (sandhya).",
     samagri: ["Clean water in a kalash or lota", "Chandan / kumkum / haldi", "Akshata (unbroken rice)", "Fresh flowers or tulsi", "Incense (agarbatti or dhoop)", "Ghee or oil lamp", "Naivedya — fruit, sugar crystals or cooked food", "Bell (ghanti)"],
@@ -96,6 +38,9 @@ export const KRIYAS: Kriya[] = [
     id: "shodashopachara",
     title: "Shodashopachara Puja (16 offerings)",
     devanagari: "षोडशोपचार पूजा",
+    category: "puja",
+    keywords: ["shodashopachara","16 upachar","sixteen offerings","solah upchar","festival puja","murti sthapana","full puja"],
+    duration: "1–2 hours",
     summary: "The complete sixteen-step worship used on festivals and special occasions, treating the deity as an honoured guest.",
     when: "Festivals (Ganesh Chaturthi, Janmashtami, Navaratri, Diwali), vratas, and the first worship of a new murti.",
     samagri: ["Kalash with water, mango leaves and coconut", "Panchamrita (milk, curd, ghee, honey, sugar)", "Clean cloth (vastra) and sacred thread (yajnopavita/mauli)", "Chandan, kumkum, haldi, akshata", "Flowers and garland", "Dhoop, ghee lamp, camphor", "Naivedya, fruits, betel leaf and nut (tambula), dakshina"],
@@ -127,6 +72,9 @@ export const KRIYAS: Kriya[] = [
     id: "ganesh-puja",
     title: "Shri Ganesha Puja",
     devanagari: "श्री गणेश पूजा",
+    category: "puja",
+    keywords: ["ganesh","ganesha","ganpati","vinayak","ganesh chaturthi","sankashti","vighnaharta","new beginning","shubh aarambh"],
+    duration: "30–45 minutes",
     summary: "Worship of Vighnaharta, the remover of obstacles — performed first in every rite and before new beginnings.",
     when: "Wednesdays, Vinayaka Chaturthi (Shukla 4), Sankashti Chaturthi (Krishna 4), Ganesh Chaturthi (Bhadrapada Shukla 4), and before any new venture.",
     samagri: ["Ganesha murti or picture", "Red flowers and durva grass (21 blades)", "Modak or laddoo", "Sindoor / kumkum, akshata", "Lamp and incense"],
@@ -149,6 +97,9 @@ export const KRIYAS: Kriya[] = [
     id: "satyanarayan",
     title: "Shri Satyanarayan Vrat Katha",
     devanagari: "श्री सत्यनारायण व्रत कथा",
+    category: "puja",
+    keywords: ["satyanarayan","satyanarayana","satya narayan katha","katha","purnima puja","vishnu katha"],
+    duration: "2–3 hours",
     summary: "Worship of Vishnu as Satyanarayana — the Lord who is Truth — with the five-chapter katha from the Skanda Purana (Reva Khanda).",
     when: "Purnima, Sankranti, Ekadashi, or to give thanks after a wedding, griha pravesha, new job or recovery.",
     samagri: ["Picture of Satyanarayana / Vishnu, or a shaligram", "Kalash and banana leaves or stems for a mandap", "Panchamrita, tulsi leaves", "Prasad (sheera / panjiri): wheat flour or semolina roasted in ghee with sugar, banana and milk", "Fruits, flowers, lamp, incense, camphor"],
@@ -172,6 +123,9 @@ export const KRIYAS: Kriya[] = [
     id: "ekadashi",
     title: "Ekadashi Vrat",
     devanagari: "एकादशी व्रत",
+    category: "vrat",
+    keywords: ["ekadashi","gyaras","ekadasi","vishnu vrat","fast","upvas","vrat"],
+    duration: "From sunrise to the next morning",
     summary: "The fast on the eleventh tithi of each paksha, sacred to Vishnu — about 24 Ekadashis a year, each with its own name and story.",
     when: "Shukla and Krishna Ekadashi (see the Panchang page). Many follow the sunrise-tithi rule; Vaishnava traditions may observe the next day when Dashami touches Ekadashi at dawn.",
     samagri: ["Tulsi leaves", "Vishnu or Krishna picture", "Lamp, incense, fruits, flowers"],
@@ -193,6 +147,9 @@ export const KRIYAS: Kriya[] = [
     id: "sandhya",
     title: "Sandhya Vandana & Gayatri Japa (simplified)",
     devanagari: "सन्ध्या वन्दन",
+    category: "puja",
+    keywords: ["sandhya","sandhyavandan","gayatri","gayatri jaap","surya arghya","surya namaskar","jal chadhana"],
+    duration: "15–30 minutes",
     summary: "Worship of the Divine as the Sun at the junctions of the day. The full Vedic rite varies by shakha; this is a simplified outline.",
     when: "Dawn (pratah), noon (madhyahna) and dusk (sayam).",
     samagri: ["Copper vessel (lota) with water", "Mat (asana)", "Japa mala (rudraksha or tulsi)"],
@@ -219,6 +176,9 @@ export const KRIYAS: Kriya[] = [
     id: "griha-pravesh",
     title: "Griha Pravesha (house warming)",
     devanagari: "गृह प्रवेश",
+    category: "shanti",
+    keywords: ["griha pravesh","grah pravesh","greh pravesh","house warming","housewarming","new house","new home","naya ghar","gruhapravesam"],
+    duration: "3–4 hours",
     summary: "Ceremonial first entry into a new home, invoking Ganesha, Vastu Purusha and the Navagrahas for peace and prosperity.",
     when: "On a muhurta chosen from the panchang — commonly in Uttarayana, avoiding Adhik masa, Chaturmasa and Rikta tithis (4, 9, 14). Consult a purohit for the exact muhurta.",
     samagri: ["Kalash with water, mango leaves and coconut", "Toran of mango leaves for the door", "Rangoli at the entrance", "Havan kund, samidha, ghee, havan samagri", "Milk pot for boiling over", "Turmeric, kumkum, flowers, sweets"],
@@ -237,6 +197,9 @@ export const KRIYAS: Kriya[] = [
     id: "tarpan",
     title: "Pitru Tarpana & Shraddha (overview)",
     devanagari: "पितृ तर्पण एवं श्राद्ध",
+    category: "shanti",
+    keywords: ["tarpan","tarpana","shraddha","shradh","pitru","pitra","pitru paksha","pitra dosh","pitru dosh","ancestors","mahalaya","barsi","pind daan"],
+    duration: "1–3 hours",
     summary: "Offerings of water, sesame and food to the ancestors (pitrs), expressing gratitude and supporting their onward journey.",
     when: "Amavasya each month, the annual tithi of the death, and especially Pitru Paksha (Bhadrapada Krishna paksha in amanta reckoning, Ashwin Krishna in purnimanta), ending on Mahalaya / Sarva Pitru Amavasya.",
     samagri: ["Black sesame (til)", "Kusha grass and a kusha ring (pavitri)", "Water in a copper vessel", "Barley and rice", "White flowers", "Sattvic food for the pinda and for feeding brahmins, cows, crows and dogs"],
@@ -254,6 +217,8 @@ export const KRIYAS: Kriya[] = [
     id: "samskaras",
     title: "The Sixteen Samskaras",
     devanagari: "षोडश संस्कार",
+    category: "samskara",
+    keywords: ["samskara","sanskar","16 sanskar","solah sanskar","namkaran","naming ceremony","mundan","annaprashan","upanayan","janeu","vivah","marriage","antyeshti"],
     summary: "Rites of passage that sanctify a life from conception to death, as described in the Grihya Sutras.",
     when: "Throughout life — each samskara has a traditional time; muhurtas are chosen from the panchang.",
     samagri: ["Varies by samskara — ask Brahman for the samagri list of a specific rite."],
@@ -278,6 +243,8 @@ export const KRIYAS: Kriya[] = [
     notes: ["Lists differ slightly between texts; many families today perform a subset."],
   },
 ];
+
+export const KRIYAS: Kriya[] = [...BASE_KRIYAS, ...HAWANS];
 
 export function getKriya(id: string): Kriya | undefined {
   return KRIYAS.find((k) => k.id === id);

@@ -13,6 +13,11 @@ interface ChatRequest {
 const MAX_MESSAGES = 40;
 const MAX_CHARS = 20000;
 
+/** Lets the UI know whether the optional AI answers are configured. */
+export function GET() {
+  return Response.json({ ai: Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN) });
+}
+
 function badRequest(message: string) {
   return Response.json({ error: message }, { status: 400 });
 }

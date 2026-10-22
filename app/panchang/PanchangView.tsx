@@ -6,7 +6,34 @@ import { computePanchang } from "@/lib/jyotish";
 import { PLACES, formatDateTime, formatTime, todayIn, weekdayOf, zonedToUtc, type Place } from "@/lib/time";
 import { PlacePicker } from "@/components/PlacePicker";
 
+// Which ritual guide to open for each monthly observance.
+const OBSERVANCE_RITUALS: [string, string][] = [
+  ["Ekadashi", "ekadashi"],
+  ["Purnima", "satyanarayan"],
+  ["Amavasya", "tarpan"],
+  ["Chaturthi", "ganesh-puja"],
+  ["Pradosh", "rudrabhishek"],
+  ["Shivaratri", "rudrabhishek"],
+  ["Ashtami", "navratri"],
+];
+
 export function PanchangView() {
+  return (
+    <main>
+      <div className="container">
+        <h1>Panchang</h1>
+        <p className="lede">
+          The five limbs of the day — vara, tithi, nakshatra, yoga and karana — computed astronomically (Lahiri ayanamsa)
+          for your place, with sunrise-based reckoning.
+        </p>
+        <PanchangPanel />
+      </div>
+    </main>
+  );
+}
+
+/** The interactive panchang, also embedded in the Ask Brahman chat. */
+export function PanchangPanel() {
   const [place, setPlace] = useState<Place>(PLACES[0]);
   const [date, setDate] = useState<string>("");
 
@@ -19,19 +46,9 @@ export function PanchangView() {
   }, [date, place]);
 
   const tz = place.timeZone;
-  const askText = panchang
-    ? `Today's panchang for ${place.name} on ${date}: ${panchang.vaara}, ${panchang.lunarMonth?.amanta ?? ""} ${panchang.tithi.paksha} ${panchang.tithi.name}, ${panchang.nakshatra.name} nakshatra, ${panchang.yoga.name} yoga. What is the significance of this day, and what should I observe or worship?`
-    : "";
 
   return (
-    <main>
-      <div className="container">
-        <h1>Panchang</h1>
-        <p className="lede">
-          The five limbs of the day — vara, tithi, nakshatra, yoga and karana — computed astronomically (Lahiri ayanamsa)
-          for your place, with sunrise-based reckoning.
-        </p>
-
+    <>
         <div className="form-row">
           <label>
             Date
@@ -105,12 +122,17 @@ export function PanchangView() {
                 <div className="card">
                   <h3>Observances</h3>
                   {panchang.observances.length ? (
-                    <ul className="samagri">{panchang.observances.map((o) => <li key={o}>{o}</li>)}</ul>
+                    <ul className="samagri">
+                      {panchang.observances.map((o) => {
+                        const id = OBSERVANCE_RITUALS.find(([word]) => o.includes(word))?.[1];
+                        return <li key={o}>{id ? <Link href={`/kriyas/${id}`}>{o}</Link> : o}</li>;
+                      })}
+                    </ul>
                   ) : (
                     <p>No major monthly vrata on this tithi. Ask Brahman about festivals today.</p>
                   )}
                 </div>
-                <Link className="btn" href={`/chat?q=${encodeURIComponent(askText)}`}>🙏 Ask Brahman about today</Link>
+                <Link className="btn" href="/kriyas">🙏 Find a puja or hawan</Link>
               </div>
             </div>
             <p className="disclaimer" style={{ marginTop: 20, textAlign: "left" }}>
@@ -119,7 +141,6 @@ export function PanchangView() {
             </p>
           </>
         )}
-      </div>
-    </main>
+    </>
   );
 }

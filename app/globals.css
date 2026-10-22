@@ -177,3 +177,42 @@ ul.samagri { padding-left: 18px; margin: 0; }
 
 .section { margin-top: 32px; }
 .footer { border-top: 1px solid var(--border); padding: 20px 0; color: var(--muted); font-size: 0.85rem; text-align: center; }
+
+/* Finder cards */
+.bubble.wide { max-width: 100%; width: 100%; }
+.cards { display: grid; gap: 12px; }
+.card-text { margin: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: 0.88rem; border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  padding: 6px 12px; border-radius: 999px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin: 2px 4px 2px 0;
+}
+.chip:hover { border-color: var(--saffron); }
+.chip:disabled { opacity: 0.5; cursor: not-allowed; }
+.sub { font-size: 0.85rem; color: var(--muted); }
+.mantra-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 4px; }
+.recite { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+.ritual h3 { margin: 18px 0 8px; font-size: 1.05rem; }
+.ritual .steps li h4 { margin: 0 0 4px; font-size: 1rem; }
+.facts { display: grid; gap: 4px; font-size: 0.92rem; padding: 10px 12px; background: var(--surface-2); border-radius: 10px; }
+.checklist { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.checklist label { display: flex; gap: 8px; align-items: flex-start; color: var(--text); font-size: 0.95rem; cursor: pointer; }
+.checklist input { flex: none; margin-top: 4px; accent-color: var(--saffron); }
+.checklist input:checked + span { text-decoration: line-through; color: var(--muted); }
+.vidhi-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+.segmented { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+.segmented button { font: inherit; font-size: 0.88rem; padding: 6px 12px; border: 0; background: var(--surface); color: var(--muted); cursor: pointer; }
+.segmented button.on { background: var(--saffron); color: #fff; }
+.guided { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.guided .progress { height: 6px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.guided .progress div { height: 100%; background: var(--saffron); transition: width 0.2s; }
+.step-count { font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+.guided-title { font-size: 1.2rem; margin: 4px 0 6px; }
+.guided-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 14px; }
+.notes { margin-top: 12px; font-size: 0.9rem; color: var(--muted); }
+.notes p { margin: 4px 0; }
+.reading-section { margin-bottom: 14px; }
+.reading-section h3 { margin: 0 0 6px; color: var(--maroon); }
+.reading-section p { margin: 0 0 6px; }
+.reading-section ul { margin: 4px 0; padding-left: 20px; }
+.graha .sub { margin: 0; }

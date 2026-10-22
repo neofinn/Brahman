@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 const FEATURES = [
-  { href: "/chat", title: "Ask Brahman", text: "Questions on dharma, scripture, philosophy, rituals and life — answered with references to the texts, in your language." },
+  { href: "/chat", title: "Ask Brahman", text: "Say \"I want to perform Graha Shanti hawan\" or share your birth details — get the samagri, every step, the mantras recited aloud, or your kundli with a full reading." },
   { href: "/panchang", title: "Daily Panchang", text: "Tithi, nakshatra, yoga, karana, sunrise, Rahu Kaal and auspicious muhurtas, computed for your city." },
-  { href: "/kundli", title: "Janma Kundli", text: "Your sidereal birth chart with lagna, grahas, nakshatras and Vimshottari dasha — and a reading from Brahman." },
-  { href: "/kriyas", title: "Puja Vidhi", text: "Step-by-step guides for daily puja, Ganesha puja, Satyanarayan katha, Ekadashi, griha pravesha, tarpana and more." },
+  { href: "/kundli", title: "Janma Kundli", text: "Your birth chart with a complete reading: lagna, rashi, nakshatra and naam akshar, yogas, Mangal dosh, Kaal Sarp, Sade Sati, dashas and remedies." },
+  { href: "/kriyas", title: "Puja, Hawan & Vidhi", text: "Graha shanti, havan, Vastu shanti, Rudrabhishek, Satyanarayan, Lakshmi puja, Navratri, Sundarkand, Shani shanti and more — perform them step by step." },
   { href: "/library", title: "Scripture Library", text: "Explore the Vedas, Upanishads, Itihasas, Puranas, Darshanas and Agamas, and ask about any text." },
 ];
 
@@ -16,8 +16,8 @@ export default function Home() {
           <div className="om-big deva" aria-hidden>ॐ</div>
           <h1>Brahman</h1>
           <p>
-            Your purohit for every day — learned in the Vedas, Upanishads, Puranas, Itihasas, kriyas and Jyotisha,
-            and here to guide you with warmth and the wisdom of the shastras.
+            Your purohit for every day — learned in puja, hawan, kriyas and Jyotisha. Tell Brahman what you wish to
+            perform and it guides you like a pandit: samagri, every step and every mantra. Free, private, no account needed.
           </p>
           <div className="actions">
             <Link href="/chat" className="btn">🙏 Ask Brahman</Link>
