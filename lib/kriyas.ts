@@ -1,0 +1,284 @@
+// Household puja and vidhi guides. Simplified forms a family can follow; the chat can expand any step.
+export interface Mantra {
+  devanagari: string;
+  iast: string;
+  meaning: string;
+  source?: string;
+}
+
+export interface Step {
+  title: string;
+  detail: string;
+  mantra?: Mantra;
+}
+
+export interface Kriya {
+  id: string;
+  title: string;
+  devanagari: string;
+  summary: string;
+  when: string;
+  samagri: string[];
+  steps: Step[];
+  notes?: string[];
+}
+
+const ACHAMANA: Step = {
+  title: "Achamana (sipping water for purification)",
+  detail: "Take a little water in the right palm and sip three times, saying one name each time. Then wash the right hand.",
+  mantra: {
+    devanagari: "ॐ केशवाय नमः। ॐ नारायणाय नमः। ॐ माधवाय नमः॥",
+    iast: "oṃ keśavāya namaḥ | oṃ nārāyaṇāya namaḥ | oṃ mādhavāya namaḥ ||",
+    meaning: "Salutations to Keshava, Narayana and Madhava (names of Vishnu).",
+  },
+};
+
+const PAVITRIKARANA: Step = {
+  title: "Pavitrikarana (purifying self and space)",
+  detail: "Sprinkle water over yourself, the puja items and the space with a flower or tulsi leaf.",
+  mantra: {
+    devanagari: "ॐ अपवित्रः पवित्रो वा सर्वावस्थां गतोऽपि वा। यः स्मरेत् पुण्डरीकाक्षं स बाह्याभ्यन्तरः शुचिः॥",
+    iast: "oṃ apavitraḥ pavitro vā sarvāvasthāṃ gato'pi vā | yaḥ smaret puṇḍarīkākṣaṃ sa bāhyābhyantaraḥ śuciḥ ||",
+    meaning: "Whether pure or impure, in whatever state one may be, whoever remembers the lotus-eyed Lord becomes pure within and without.",
+  },
+};
+
+const GANESHA_DHYANA: Mantra = {
+  devanagari: "वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ। निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा॥",
+  iast: "vakratuṇḍa mahākāya sūryakoṭi samaprabha | nirvighnaṃ kuru me deva sarvakāryeṣu sarvadā ||",
+  meaning: "O Lord of the curved trunk and mighty form, radiant as a million suns, make all my undertakings free of obstacles, always.",
+};
+
+const DEEPA: Mantra = {
+  devanagari: "शुभं करोति कल्याणम् आरोग्यं धनसम्पदा। शत्रुबुद्धिविनाशाय दीपज्योतिर्नमोऽस्तु ते॥",
+  iast: "śubhaṃ karoti kalyāṇam ārogyaṃ dhanasampadā | śatrubuddhivināśāya dīpajyotir namo'stu te ||",
+  meaning: "Salutations to the light of the lamp, which brings auspiciousness, well-being, health and prosperity, and destroys hostile thoughts.",
+};
+
+const KSHAMA: Step = {
+  title: "Kshama prarthana (asking forgiveness)",
+  detail: "With folded hands, ask forgiveness for any error or omission in the worship.",
+  mantra: {
+    devanagari: "आवाहनं न जानामि न जानामि विसर्जनम्। पूजां चैव न जानामि क्षमस्व परमेश्वर॥",
+    iast: "āvāhanaṃ na jānāmi na jānāmi visarjanam | pūjāṃ caiva na jānāmi kṣamasva parameśvara ||",
+    meaning: "I do not know how to invoke you, nor how to bid you farewell, nor how to worship. Forgive me, O Supreme Lord.",
+  },
+};
+
+export const KRIYAS: Kriya[] = [
+  {
+    id: "daily-puja",
+    title: "Daily Home Puja (Panchopachara)",
+    devanagari: "नित्य पूजा — पञ्चोपचार",
+    summary: "A short daily worship with five offerings — gandha, pushpa, dhupa, dipa and naivedya — suitable for any family deity.",
+    when: "Every morning after bathing, ideally at sunrise; many families also light a lamp at dusk (sandhya).",
+    samagri: ["Clean water in a kalash or lota", "Chandan / kumkum / haldi", "Akshata (unbroken rice)", "Fresh flowers or tulsi", "Incense (agarbatti or dhoop)", "Ghee or oil lamp", "Naivedya — fruit, sugar crystals or cooked food", "Bell (ghanti)"],
+    steps: [
+      { title: "Prepare", detail: "Bathe, wear clean clothes, clean the altar and sit facing east or north." },
+      ACHAMANA,
+      PAVITRIKARANA,
+      { title: "Light the lamp", detail: "Light the diya and offer a salutation to the flame.", mantra: DEEPA },
+      { title: "Ganesha smarana", detail: "Remember Shri Ganesha first so the worship proceeds without obstacles.", mantra: GANESHA_DHYANA },
+      { title: "Sankalpa", detail: "Holding water, akshata and a flower, state your name, gotra (if known), the date and your intention — for example, 'for the well-being of my family I perform this puja' — then release them in a plate." },
+      { title: "1. Gandha", detail: "Apply chandan or kumkum to the deity with the ring finger: 'ॐ [deity name] नमः, गन्धं समर्पयामि'." },
+      { title: "2. Pushpa", detail: "Offer flowers or tulsi: 'पुष्पं समर्पयामि'. (Tulsi is not offered to Ganesha; bel leaves are dear to Shiva; red flowers to Devi and Hanuman.)" },
+      { title: "3. Dhupa", detail: "Wave incense in clockwise circles: 'धूपम् आघ्रापयामि'." },
+      { title: "4. Dipa", detail: "Wave the lamp: 'दीपं दर्शयामि'." },
+      { title: "5. Naivedya", detail: "Place the food before the deity, sprinkle water around it and offer: 'नैवेद्यं निवेदयामि'. Offer water to sip afterwards." },
+      { title: "Japa and prayer", detail: "Chant your ishta mantra (for example ॐ नमः शिवाय, ॐ नमो भगवते वासुदेवाय, or the Gayatri) 11, 27 or 108 times, and a stotra or aarti if you wish." },
+      { title: "Aarti and pradakshina", detail: "Perform aarti, then turn clockwise in place once (pradakshina) and bow." },
+      KSHAMA,
+      { title: "Prasad", detail: "Share the naivedya as prasad with the family." },
+    ],
+    notes: ["Simplicity with devotion is the heart of nitya puja — Bhagavad Gita 9.26 says a leaf, a flower, a fruit or water offered with love is accepted."],
+  },
+  {
+    id: "shodashopachara",
+    title: "Shodashopachara Puja (16 offerings)",
+    devanagari: "षोडशोपचार पूजा",
+    summary: "The complete sixteen-step worship used on festivals and special occasions, treating the deity as an honoured guest.",
+    when: "Festivals (Ganesh Chaturthi, Janmashtami, Navaratri, Diwali), vratas, and the first worship of a new murti.",
+    samagri: ["Kalash with water, mango leaves and coconut", "Panchamrita (milk, curd, ghee, honey, sugar)", "Clean cloth (vastra) and sacred thread (yajnopavita/mauli)", "Chandan, kumkum, haldi, akshata", "Flowers and garland", "Dhoop, ghee lamp, camphor", "Naivedya, fruits, betel leaf and nut (tambula), dakshina"],
+    steps: [
+      ACHAMANA,
+      PAVITRIKARANA,
+      { title: "Ganesha puja and sankalpa", detail: "Briefly worship Ganesha, then take sankalpa naming the deity and occasion.", mantra: GANESHA_DHYANA },
+      { title: "1. Dhyana / Avahana", detail: "Meditate on the deity's form and invite them into the murti or kalash." },
+      { title: "2. Asana", detail: "Offer a seat — a flower or akshata." },
+      { title: "3. Padya", detail: "Offer water to wash the feet." },
+      { title: "4. Arghya", detail: "Offer water (with chandan, akshata, flower) for the hands." },
+      { title: "5. Achamaniya", detail: "Offer water to sip." },
+      { title: "6. Snana", detail: "Bathe the murti with water, then panchamrita, then pure water again (or sprinkle water for a picture)." },
+      { title: "7. Vastra", detail: "Offer clothing or a piece of mauli." },
+      { title: "8. Yajnopavita", detail: "Offer the sacred thread (for male deities)." },
+      { title: "9. Gandha", detail: "Offer chandan, kumkum, haldi and akshata." },
+      { title: "10. Pushpa", detail: "Offer flowers, a garland and the deity's special leaves (durva for Ganesha, bilva for Shiva, tulsi for Vishnu)." },
+      { title: "11. Dhupa", detail: "Offer incense." },
+      { title: "12. Dipa", detail: "Offer the lamp.", mantra: DEEPA },
+      { title: "13. Naivedya", detail: "Offer food, then water to sip." },
+      { title: "14. Tambula", detail: "Offer betel leaf, betel nut, a fruit and dakshina." },
+      { title: "15. Nirajana (aarti)", detail: "Wave camphor or a ghee lamp while singing the aarti." },
+      { title: "16. Pradakshina, namaskara and mantra-pushpa", detail: "Circumambulate, prostrate, and offer flowers with folded hands." },
+      KSHAMA,
+      { title: "Visarjana", detail: "For a temporary murti or kalash, bid the deity farewell with akshata; distribute prasad." },
+    ],
+  },
+  {
+    id: "ganesh-puja",
+    title: "Shri Ganesha Puja",
+    devanagari: "श्री गणेश पूजा",
+    summary: "Worship of Vighnaharta, the remover of obstacles — performed first in every rite and before new beginnings.",
+    when: "Wednesdays, Vinayaka Chaturthi (Shukla 4), Sankashti Chaturthi (Krishna 4), Ganesh Chaturthi (Bhadrapada Shukla 4), and before any new venture.",
+    samagri: ["Ganesha murti or picture", "Red flowers and durva grass (21 blades)", "Modak or laddoo", "Sindoor / kumkum, akshata", "Lamp and incense"],
+    steps: [
+      ACHAMANA,
+      { title: "Dhyana", detail: "Meditate on Ganesha.", mantra: GANESHA_DHYANA },
+      { title: "Offerings", detail: "Offer sindoor, red flowers and durva in bunches of three or 21, saying 'ॐ गं गणपतये नमः' with each." },
+      {
+        title: "Mula mantra japa",
+        detail: "Chant 108 times with a mala.",
+        mantra: { devanagari: "ॐ गं गणपतये नमः", iast: "oṃ gaṃ gaṇapataye namaḥ", meaning: "Om, salutations to Ganapati (गं is his bija syllable)." },
+      },
+      { title: "Naivedya", detail: "Offer modak or laddoo and fruit." },
+      { title: "Aarti", detail: "Sing 'Jai Ganesh Jai Ganesh Jai Ganesh Deva' or 'Sukhakarta Dukhaharta'." },
+      KSHAMA,
+    ],
+    notes: ["On Sankashti Chaturthi the fast is traditionally broken after sighting the moon.", "Tulsi is not offered to Ganesha, per a Purana story."],
+  },
+  {
+    id: "satyanarayan",
+    title: "Shri Satyanarayan Vrat Katha",
+    devanagari: "श्री सत्यनारायण व्रत कथा",
+    summary: "Worship of Vishnu as Satyanarayana — the Lord who is Truth — with the five-chapter katha from the Skanda Purana (Reva Khanda).",
+    when: "Purnima, Sankranti, Ekadashi, or to give thanks after a wedding, griha pravesha, new job or recovery.",
+    samagri: ["Picture of Satyanarayana / Vishnu, or a shaligram", "Kalash and banana leaves or stems for a mandap", "Panchamrita, tulsi leaves", "Prasad (sheera / panjiri): wheat flour or semolina roasted in ghee with sugar, banana and milk", "Fruits, flowers, lamp, incense, camphor"],
+    steps: [
+      ACHAMANA,
+      PAVITRIKARANA,
+      { title: "Ganesha, Navagraha and Kalash puja", detail: "Worship Ganesha, then the kalash (Varuna), and briefly the nine grahas." },
+      { title: "Sankalpa", detail: "Declare the vrat for Satyanarayana and its purpose." },
+      { title: "Shodashopachara puja", detail: "Worship Satyanarayana with the sixteen offerings (see that guide), offering tulsi with every naivedya." },
+      { title: "Katha — Chapter 1", detail: "Narada asks Vishnu how people in Kali Yuga can be freed from suffering; Vishnu reveals the Satyanarayana vrat." },
+      { title: "Chapter 2", detail: "A poor brahmin of Kashi and a woodcutter perform the vrat and prosper." },
+      { title: "Chapter 3", detail: "King Ulkamukha and the merchant Sadhu; the merchant vows the puja but delays it." },
+      { title: "Chapter 4", detail: "The merchant's broken promise brings misfortune until he keeps the vow." },
+      { title: "Chapter 5", detail: "King Tungadhvaja disrespects the prasad, suffers, then repents and is restored." },
+      { title: "Aarti", detail: "Sing 'Jai Lakshmi Ramana, Swami Jai Lakshmi Ramana' and perform aarti with camphor." },
+      KSHAMA,
+      { title: "Prasad", detail: "Everyone present must receive and respectfully eat the prasad — the central lesson of the katha." },
+    ],
+  },
+  {
+    id: "ekadashi",
+    title: "Ekadashi Vrat",
+    devanagari: "एकादशी व्रत",
+    summary: "The fast on the eleventh tithi of each paksha, sacred to Vishnu — about 24 Ekadashis a year, each with its own name and story.",
+    when: "Shukla and Krishna Ekadashi (see the Panchang page). Many follow the sunrise-tithi rule; Vaishnava traditions may observe the next day when Dashami touches Ekadashi at dawn.",
+    samagri: ["Tulsi leaves", "Vishnu or Krishna picture", "Lamp, incense, fruits, flowers"],
+    steps: [
+      { title: "Dashami (day before)", detail: "Take one simple sattvic meal before sunset; avoid grains and beans from evening onwards if following a strict fast." },
+      { title: "Morning sankalpa", detail: "Bathe and take a sankalpa to keep the Ekadashi vrat for Shri Vishnu." },
+      { title: "Choose a level of fast", detail: "Nirjala (no food or water), phalahar (fruits, milk, nuts), or one meal without grains. Rice, wheat, pulses and beans are avoided in all forms." },
+      {
+        title: "Worship and japa",
+        detail: "Worship Vishnu with tulsi, read the Ekadashi katha for the day, Vishnu Sahasranama or Bhagavad Gita, and chant the dvadashakshari mantra.",
+        mantra: { devanagari: "ॐ नमो भगवते वासुदेवाय", iast: "oṃ namo bhagavate vāsudevāya", meaning: "Om, salutations to Lord Vasudeva." },
+      },
+      { title: "Jagarana", detail: "Optional night vigil with kirtan and reading." },
+      { title: "Parana on Dvadashi", detail: "Break the fast the next morning after sunrise, within the parana window and before Dvadashi ends, ideally with food offered to Vishnu first." },
+    ],
+    notes: ["Children, the elderly, pregnant or nursing women and anyone unwell should not undertake strict fasts — a phalahar vrat or simple devotion is entirely valid.", "Do not pluck tulsi leaves on Ekadashi; gather them the day before."],
+  },
+  {
+    id: "sandhya",
+    title: "Sandhya Vandana & Gayatri Japa (simplified)",
+    devanagari: "सन्ध्या वन्दन",
+    summary: "Worship of the Divine as the Sun at the junctions of the day. The full Vedic rite varies by shakha; this is a simplified outline.",
+    when: "Dawn (pratah), noon (madhyahna) and dusk (sayam).",
+    samagri: ["Copper vessel (lota) with water", "Mat (asana)", "Japa mala (rudraksha or tulsi)"],
+    steps: [
+      ACHAMANA,
+      { title: "Pranayama", detail: "A few rounds of slow breathing, mentally chanting the Gayatri." },
+      { title: "Marjana", detail: "Sprinkle water on the head with the Apo hi shtha verses (Rigveda 10.9), if you know them." },
+      { title: "Arghya to Surya", detail: "Facing the sun, offer water from cupped hands or a lota three times while chanting the Gayatri." },
+      {
+        title: "Gayatri japa",
+        detail: "Sit steadily and chant the Gayatri 10, 28 or 108 times, meditating on its meaning.",
+        mantra: {
+          devanagari: "ॐ भूर्भुवः स्वः। तत्सवितुर्वरेण्यं भर्गो देवस्य धीमहि। धियो यो नः प्रचोदयात्॥",
+          iast: "oṃ bhūr bhuvaḥ svaḥ | tat savitur vareṇyaṃ bhargo devasya dhīmahi | dhiyo yo naḥ pracodayāt ||",
+          meaning: "We meditate on the adorable radiance of the divine Savitr; may it inspire our intellect.",
+          source: "Rigveda 3.62.10",
+        },
+      },
+      { title: "Upasthana and namaskara", detail: "Stand, offer salutations to the Sun and the directions, and conclude with 'ॐ तत्सत्'." },
+    ],
+    notes: ["Traditionally the full Sandhya Vandana is learned with upanayana from one's acharya; anyone may offer arghya to the Sun with devotion."],
+  },
+  {
+    id: "griha-pravesh",
+    title: "Griha Pravesha (house warming)",
+    devanagari: "गृह प्रवेश",
+    summary: "Ceremonial first entry into a new home, invoking Ganesha, Vastu Purusha and the Navagrahas for peace and prosperity.",
+    when: "On a muhurta chosen from the panchang — commonly in Uttarayana, avoiding Adhik masa, Chaturmasa and Rikta tithis (4, 9, 14). Consult a purohit for the exact muhurta.",
+    samagri: ["Kalash with water, mango leaves and coconut", "Toran of mango leaves for the door", "Rangoli at the entrance", "Havan kund, samidha, ghee, havan samagri", "Milk pot for boiling over", "Turmeric, kumkum, flowers, sweets"],
+    steps: [
+      { title: "Prepare the house", detail: "Clean thoroughly, draw rangoli, tie a toran and keep the main door closed until the muhurta." },
+      { title: "Entry", detail: "At the muhurta, the couple (or head of the family) enters with the right foot first, the lady of the house carrying the kalash, while conch and bells sound." },
+      { title: "Ganesha puja and Kalash sthapana", detail: "Worship Ganesha and install the kalash in the north-east (Ishanya) corner.", mantra: GANESHA_DHYANA },
+      { title: "Vastu puja", detail: "Worship Vastu Purusha and the directional guardians for harmony in the home." },
+      { title: "Navagraha shanti and havan", detail: "Offer ahutis into the sacred fire for the grahas and Vastu, ending with purnahuti." },
+      { title: "Boiling milk", detail: "Boil milk on the new stove until it overflows — a sign of abundance — and prepare a sweet dish." },
+      { title: "Feed and give", detail: "Offer food to the deity, feed the priest, guests and a cow or the needy, and give dakshina." },
+    ],
+    notes: ["Practice varies widely by region; your family purohit's tradition takes precedence."],
+  },
+  {
+    id: "tarpan",
+    title: "Pitru Tarpana & Shraddha (overview)",
+    devanagari: "पितृ तर्पण एवं श्राद्ध",
+    summary: "Offerings of water, sesame and food to the ancestors (pitrs), expressing gratitude and supporting their onward journey.",
+    when: "Amavasya each month, the annual tithi of the death, and especially Pitru Paksha (Bhadrapada Krishna paksha in amanta reckoning, Ashwin Krishna in purnimanta), ending on Mahalaya / Sarva Pitru Amavasya.",
+    samagri: ["Black sesame (til)", "Kusha grass and a kusha ring (pavitri)", "Water in a copper vessel", "Barley and rice", "White flowers", "Sattvic food for the pinda and for feeding brahmins, cows, crows and dogs"],
+    steps: [
+      { title: "Purity and timing", detail: "Shraddha is traditionally performed around midday (kutapa kala). Bathe and wear clean, preferably white, clothes." },
+      { title: "Sankalpa", detail: "Wearing the kusha pavitri, take a sankalpa naming the ancestors (three paternal and, in many traditions, three maternal generations) and your gotra." },
+      { title: "Tarpana", detail: "Facing south, with the sacred thread over the right shoulder (prachinavita), pour water mixed with sesame over kusha from the base of the thumb (pitru tirtha), three times for each ancestor, saying their name, gotra and 'तृप्यताम्'." },
+      { title: "Pinda dana", detail: "Offer rice balls (pindas) mixed with sesame, honey and ghee on kusha — usually performed with a purohit." },
+      { title: "Feeding", detail: "Feed brahmins or the needy, and set aside portions for the cow, crow and dog (panchabali)." },
+      { title: "Dana", detail: "Give dakshina, clothing or food in the ancestors' memory." },
+    ],
+    notes: ["The full shraddha rite is traditionally performed with a qualified purohit; tarpana with sesame and water can be offered by anyone with devotion.", "Customs about who performs shraddha differ by family and region — ask Brahman about your tradition."],
+  },
+  {
+    id: "samskaras",
+    title: "The Sixteen Samskaras",
+    devanagari: "षोडश संस्कार",
+    summary: "Rites of passage that sanctify a life from conception to death, as described in the Grihya Sutras.",
+    when: "Throughout life — each samskara has a traditional time; muhurtas are chosen from the panchang.",
+    samagri: ["Varies by samskara — ask Brahman for the samagri list of a specific rite."],
+    steps: [
+      { title: "1. Garbhadhana", detail: "Prayer for conception of a virtuous child." },
+      { title: "2. Pumsavana", detail: "In the third month of pregnancy, for the health of the foetus." },
+      { title: "3. Simantonnayana", detail: "Parting of the mother's hair; blessings and support for the mother (often celebrated as godh bharai / seemantham)." },
+      { title: "4. Jatakarma", detail: "Birth rite — honey and ghee touched to the baby's lips, whispering of blessings." },
+      { title: "5. Namakarana", detail: "Naming, usually on the 11th or 12th day; the first syllable is often chosen from the birth nakshatra pada." },
+      { title: "6. Nishkramana", detail: "The baby's first outing to see the Sun and Moon." },
+      { title: "7. Annaprashana", detail: "First feeding of solid food, around the sixth month." },
+      { title: "8. Chudakarana (Mundan)", detail: "First haircut, in the first or third year." },
+      { title: "9. Karnavedha", detail: "Ear piercing." },
+      { title: "10. Vidyarambha", detail: "Beginning of learning — writing ॐ or the alphabet, often on Vasant Panchami or Vijayadashami." },
+      { title: "11. Upanayana", detail: "Sacred-thread ceremony and initiation into the Gayatri and Vedic study." },
+      { title: "12. Vedarambha", detail: "Commencement of Vedic study with the guru." },
+      { title: "13. Keshanta / Godana", detail: "First shave, marking adolescence." },
+      { title: "14. Samavartana", detail: "Completion of studies and return home." },
+      { title: "15. Vivaha", detail: "Marriage — kanyadana, panigrahana, agni pradakshina and saptapadi, the seven steps." },
+      { title: "16. Antyeshti", detail: "The last rite — cremation and the observances that follow, guiding the departed onward." },
+    ],
+    notes: ["Lists differ slightly between texts; many families today perform a subset."],
+  },
+];
+
+export function getKriya(id: string): Kriya | undefined {
+  return KRIYAS.find((k) => k.id === id);
+}
