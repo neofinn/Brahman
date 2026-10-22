@@ -2,7 +2,7 @@
 import type { Card } from "./finder.ts";
 import { getGraha } from "./grahas.ts";
 import { computeKundli } from "./jyotish.ts";
-import { getKatha } from "./kathas/index.ts";
+import { getKatha, getKathaHindi } from "./kathas/index.ts";
 import { getKriya } from "./kriyas.ts";
 import { getArticle } from "./learned.ts";
 import { readKundli } from "./reading.ts";
@@ -11,6 +11,17 @@ import { AREA_TITLES, formatMonth, predict } from "./predictions.ts";
 import { CRISIS_TEXT, EMERGENCY_TEXT, supportWords } from "./support.ts";
 import type { Step } from "./ritual-common.ts";
 import { zonedToUtc } from "./time.ts";
+
+export const KATHA_LANG_KEY = "brahman:katha-lang";
+
+/** The listener's chosen language for kathas: Hindi unless they picked English. */
+export function kathaLang(): "hi" | "en" {
+  try {
+    return typeof localStorage !== "undefined" && localStorage.getItem(KATHA_LANG_KEY) === "en" ? "en" : "hi";
+  } catch {
+    return "hi";
+  }
+}
 
 const list = (items: string[]) => items.join(", ").replace(/, ([^,]*)$/, " and $1");
 
@@ -92,7 +103,7 @@ export function speechForCard(card: Card): string[] {
       return [a.title, plain.length > 1500 ? `${plain.slice(0, 1500)}…` : plain];
     }
     case "katha":
-      return kathaSpeech(card.id, card.part);
+      return kathaSpeech(card.id, card.part, kathaLang());
     case "support": {
       const w = supportWords(card);
       if (!w) return [];
@@ -115,9 +126,25 @@ export function speechForCard(card: Card): string[] {
 }
 
 /** Brahman tells the katha: the whole story for a katha, an overview (or one chapter) for a granth. */
-export function kathaSpeech(id: string, part?: number): string[] {
+export function kathaSpeech(id: string, part?: number, lang: "hi" | "en" = "hi"): string[] {
   const k = getKatha(id);
   if (!k) return [];
+  const h = lang === "hi" ? getKathaHindi(id) : undefined;
+  if (h) {
+    if (part && h.parts?.[part - 1]) {
+      const p = h.parts[part - 1];
+      const verse = k.parts?.[part - 1]?.verse;
+      return [`${h.title}। ${p.title}।`, p.summary, ...(verse ? [verse.devanagari] : [])];
+    }
+    if (k.fullText) return [h.opening ?? "", `${h.title}। ${h.summary}`, "पूरा पाठ सुनने के लिए, पूरा पाठ बटन दबाइए, मैं आपके साथ पाठ करूँगा।"].filter(Boolean);
+    return [
+      h.opening ?? "",
+      h.title,
+      ...(h.story ?? [h.summary, ...(h.parts ?? []).map((p) => `${p.title}। ${p.summary}`)]),
+      ...(h.teachings?.length ? [`इस कथा की सीख: ${h.teachings.join("। ")}`] : []),
+      h.closing ?? "",
+    ].filter(Boolean);
+  }
   if (part && k.parts?.[part - 1]) {
     const p = k.parts[part - 1];
     return [`${k.title}. ${p.title}.`, p.summary, ...(p.verse ? [p.verse.devanagari, `Meaning: ${p.verse.meaning}`] : [])];

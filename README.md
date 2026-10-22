@@ -44,6 +44,10 @@ Everything — panchang, kundli, readings and search — runs on the user's devi
 
 ### Brahman's voice
 
+- **Natural human-like voice (optional, server).** Set `AZURE_SPEECH_KEY` + `AZURE_SPEECH_REGION` (Azure neural voices `hi-IN-MadhurNeural` and `en-IN-PrabhatNeural`, Indian male; the free tier covers 0.5M characters a month) or `GOOGLE_TTS_API_KEY` (`hi-IN-Neural2-B`). `/api/tts` synthesises sentence by sentence with a calm, slightly slower pandit delivery and pauses at each danda, caches repeats, and has per-minute and daily (`TTS_DAILY_CHAR_LIMIT`) guards. Users never need a key; without one, or if the service fails, the device voice is used.
+- **Device voice.** Otherwise the best installed Hindi male voice is chosen (Edge's "Madhur Online (Natural)" first). Listeners can pick any installed voice and hear a sample under **My details**.
+- **Kathas in Hindi.** Every katha and granth is told in Hindi as a kathavachak tells it — jaikara, the story with feeling and dialogue, the teachings and the phala — with a हिंदी / English switch (Hindi by default).
+
 - **Speak to Brahman.** Tap 🎙️ and ask in Hindi, Hinglish or English. Hindi heard in Devanagari is understood too, because the finder transliterates it ("ग्रह शांति हवन" → "grah shanti havan").
 - **Brahman speaks back** when "Brahman's voice" is on, and it turns on by itself when you speak. It uses a calm, slower, deeper delivery and prefers Indian male voices where the device has them. Sanskrit and Hindi are read by a Hindi voice, English by an Indian-English voice.
 - **Narrated rituals.** In "Perform with me", each step is read out and then its mantra is recited. Every answer also has a 🔊 Listen button.
@@ -65,9 +69,9 @@ To keep this under control:
 
 Users never need a key. Without one, the app works fully from its built-in knowledge, just without learning.
 
-## Beta (0.1.0-beta.3)
+## Beta (0.1.0-beta.4)
 
-`npm run build:beta` bundles the browser side of the app into one self-contained page (`dist-beta/index.html`, about 1.3 MB). It includes:
+`npm run build:beta` bundles the browser side of the app into one self-contained page (`dist-beta/index.html`, about 1.7 MB). It includes:
 - the finder, puja and hawan guides with personal sankalpa and substitutes for abroad
 - the katha library, kundli with four systems, predictions and remedies, Kundli Milan, panchang with muhurta finder, and prayers
 - Brahman's voice
@@ -107,7 +111,7 @@ lib/
   finder.ts           Understands a question and picks the answer from the knowledge base
   parse.ts            Extracts date, time and place of birth from free text
   kriyas.ts           Puja and samskara guides (+ hawans.ts: hawan and shanti rites, mantras; paths.ts: path/katha guides)
-  kathas/             Katha library: granths.ts (granths, Hanuman Chalisa) and stories.ts (kathas, vrat kathas)
+  kathas/             Katha library: granths.ts (granths, Hanuman Chalisa), stories.ts (kathas, vrat kathas), hindi/ (Hindi tellings)
   grahas.ts           Navagraha mantras, stotra verses, daan, samidha, gems
   reading.ts          Rule-based Parashari kundli reading: yogas, doshas, dashas, remedies
   predictions.ts      Predictions: yogas, doshas, life areas, timing windows, transits, dasha forecast, remedy plan
@@ -116,6 +120,7 @@ lib/
   abroad.ts           Samagri substitutes, manasa puja and hawan fire safety for families abroad
   jyotish.ts          Sidereal positions, panchang, kundli, Vimshottari dasha
   time.ts             Places, gazetteer and time-zone helpers
+  tts.ts              Natural neural voice providers (Azure, Google) for /api/tts
   speech.ts           Brahman's voice (speech synthesis) and listening (speech recognition)
   voice.ts            What Brahman says aloud for each kind of answer
   devanagari.ts       Devanagari → Latin transliteration for Hindi input

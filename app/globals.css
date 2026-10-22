@@ -326,3 +326,6 @@ ul.samagri { padding-left: 18px; margin: 0; }
 .abroad { border: 1px dashed var(--border); border-radius: var(--radius); padding: 10px 14px; margin: 12px 0 16px; background: var(--surface-2); }
 .abroad summary { cursor: pointer; }
 .abroad h4 { margin: 14px 0 6px; }
+.katha-hi { font-size: 1.06rem; line-height: 1.85; }
+.jaikara { color: var(--saffron-strong); font-weight: 600; }
+.voice-settings label { display: grid; gap: 6px; max-width: 520px; }

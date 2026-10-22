@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { getKatha } from "@/lib/kathas";
+import { getKatha, getKathaHindi } from "@/lib/kathas";
 import { getKriya } from "@/lib/kriyas";
 import { speak, speechSupported } from "@/lib/speech";
-import { kathaSpeech } from "@/lib/voice";
+import { KATHA_LANG_KEY, kathaLang, kathaSpeech } from "@/lib/voice";
 import { MantraBlock } from "./MantraBlock";
 import { RitualGuide } from "./RitualGuide";
 
@@ -33,8 +33,10 @@ export function KathaView({
   const [canSpeak, setCanSpeak] = useState(false);
   const stopRef = useRef<(() => void) | null>(null);
   const partRef = useRef<HTMLLIElement | null>(null);
+  const [lang, setLang] = useState<"hi" | "en">("hi");
 
   useEffect(() => {
+    setLang(kathaLang());
     setCanSpeak(speechSupported());
     return () => stopRef.current?.();
   }, []);
@@ -44,6 +46,18 @@ export function KathaView({
 
   if (!k) return <p>This katha is not in the library.</p>;
   const vidhi = k.vidhiId ? getKriya(k.vidhiId) : undefined;
+  const hindi = getKathaHindi(k.id);
+  const hi = lang === "hi" && hindi ? hindi : undefined;
+  const changeLang = (l: "hi" | "en") => {
+    stopRef.current?.();
+    setLang(l);
+    try {
+      localStorage.setItem(KATHA_LANG_KEY, l);
+    } catch {}
+  };
+  const story = hi?.story ?? k.story;
+  const partText = (i: number) => hi?.parts?.[i] ?? k.parts![i];
+  const teachings = hi?.teachings ?? k.teachings;
 
   const say = (key: string, texts: string[], onLine?: (i: number) => void) => {
     stopRef.current?.();
@@ -59,8 +73,14 @@ export function KathaView({
   return (
     <div className="katha">
       <span className="deva tag">{k.devanagari}</span> <span className="tag">{KIND_LABEL[k.kind]}</span>
-      {compact ? <h2 style={{ margin: "8px 0 4px" }}>{k.title}</h2> : null}
-      <p style={{ marginTop: compact ? 0 : 8 }}>{k.summary}</p>
+      {hindi && (
+        <span className="segmented" role="group" aria-label="Katha language" style={{ marginLeft: 8 }}>
+          <button type="button" className={lang === "hi" ? "on" : ""} onClick={() => changeLang("hi")}>हिंदी</button>
+          <button type="button" className={lang === "en" ? "on" : ""} onClick={() => changeLang("en")}>English</button>
+        </span>
+      )}
+      {compact ? <h2 style={{ margin: "8px 0 4px" }}>{hi?.title ?? k.title}</h2> : hi ? <h2 className="deva" style={{ margin: "8px 0 4px" }}>{hi.title}</h2> : null}
+      <p style={{ marginTop: compact ? 0 : 8 }} className={hi ? "deva katha-hi" : undefined}>{hi?.summary ?? k.summary}</p>
       <div className="facts">
         <div><strong>Source:</strong> {k.source}</div>
         {k.when && <div><strong>When it is heard:</strong> {k.when}</div>}
@@ -68,16 +88,18 @@ export function KathaView({
 
       {canSpeak && (k.story || k.parts) && (
         <p>
-          <button type="button" className="btn" onClick={() => toggle("katha", kathaSpeech(k.id))}>
-            {speaking === "katha" ? "⏹ Stop" : k.story ? "🔊 Listen to the katha" : "🔊 Listen to the overview"}
+          <button type="button" className="btn" onClick={() => toggle("katha", kathaSpeech(k.id, undefined, lang))}>
+            {speaking === "katha" ? (hi ? "⏹ रोकिए" : "⏹ Stop") : hi ? (k.story ? "🔊 कथा सुनिए" : "🔊 परिचय सुनिए") : k.story ? "🔊 Listen to the katha" : "🔊 Listen to the overview"}
           </button>
         </p>
       )}
 
-      {k.story && (
+      {hi?.opening && <p className="deva katha-hi jaikara">{hi.opening}</p>}
+
+      {story && (
         <section>
-          <h3>The katha</h3>
-          {k.story.map((p) => <p key={p.slice(0, 30)}>{p}</p>)}
+          <h3>{hi ? "कथा" : "The katha"}</h3>
+          {story.map((p) => <p key={p.slice(0, 30)} className={hi ? "deva katha-hi" : undefined}>{p}</p>)}
         </section>
       )}
 
@@ -88,16 +110,16 @@ export function KathaView({
             {k.parts.map((p, i) => (
               <li key={p.title} ref={part === i + 1 ? partRef : undefined} className={open === i ? "open" : ""}>
                 <button type="button" className="part-head" onClick={() => setOpen(open === i ? null : i)} aria-expanded={open === i}>
-                  <span>{p.title}</span>
+                  <span className={hi ? "deva" : undefined}>{partText(i).title}</span>
                   <span aria-hidden>{open === i ? "−" : "+"}</span>
                 </button>
                 {open === i && (
                   <div className="part-body">
-                    <p>{p.summary}</p>
+                    <p className={hi ? "deva katha-hi" : undefined}>{partText(i).summary}</p>
                     {p.verse && <MantraBlock mantra={p.verse} />}
                     {canSpeak && (
-                      <button type="button" className="chip" onClick={() => toggle(`part-${i}`, kathaSpeech(k.id, i + 1))}>
-                        {speaking === `part-${i}` ? "⏹ Stop" : "🔊 Listen"}
+                      <button type="button" className="chip" onClick={() => toggle(`part-${i}`, kathaSpeech(k.id, i + 1, lang))}>
+                        {speaking === `part-${i}` ? (hi ? "⏹ रोकिए" : "⏹ Stop") : hi ? "🔊 सुनिए" : "🔊 Listen"}
                       </button>
                     )}
                   </div>
@@ -142,12 +164,14 @@ export function KathaView({
         </section>
       )}
 
-      {k.teachings && (
+      {teachings && (
         <section>
-          <h3>Teachings</h3>
-          <ul>{k.teachings.map((t) => <li key={t}>{t}</li>)}</ul>
+          <h3>{hi ? "सीख" : "Teachings"}</h3>
+          <ul>{teachings.map((t) => <li key={t} className={hi ? "deva katha-hi" : undefined}>{t}</li>)}</ul>
         </section>
       )}
+
+      {hi?.closing && <p className="deva katha-hi jaikara">{hi.closing}</p>}
 
       {vidhi && (
         <section>

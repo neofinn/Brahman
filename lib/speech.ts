@@ -1,22 +1,47 @@
-// Brahman's voice: the browser's built-in speech synthesis, with a calm, deep "pandit" delivery.
+// Brahman's voice. With a natural-voice service on the server (Azure or Google neural TTS) Brahman speaks with a
+// human-like Indian male voice; otherwise the browser's built-in speech synthesis is used with a calm, deep delivery.
 // Devanagari is spoken with a Hindi voice and English with an Indian-English voice.
 
 export function speechSupported(): boolean {
-  return typeof window !== "undefined" && "speechSynthesis" in window;
+  return typeof window !== "undefined" && ("speechSynthesis" in window || "Audio" in window);
 }
 
-// Male Indian voices shipped by common platforms (Windows, macOS/iOS, Android/Chrome), preferred in order.
-const PANDIT_VOICES = [/madhur/i, /hemant/i, /prabhat/i, /rishi/i, /ravi/i, /kalpana/i];
+export const DEVICE_VOICE_KEY = "brahman:device-voice";
+
+// Male Indian voices shipped by common platforms (Edge's natural voices, Windows, macOS/iOS), preferred in order.
+const PANDIT_VOICES = [/madhur.*(natural|online)/i, /prabhat.*(natural|online)/i, /madhur/i, /hemant/i, /prabhat/i, /rishi/i, /ravi/i];
+
+function savedVoiceName(): string | null {
+  try {
+    return localStorage.getItem(DEVICE_VOICE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+/** Installed voices that can speak Hindi or Indian English, best first — for the voice picker. */
+export function deviceVoices(): SpeechSynthesisVoice[] {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return [];
+  const voices = window.speechSynthesis.getVoices().filter((v) => /^(hi|sa|en-IN)/i.test(v.lang));
+  const rank = (v: SpeechSynthesisVoice) => {
+    const i = PANDIT_VOICES.findIndex((re) => re.test(v.name));
+    return (i === -1 ? 50 : i) + (/natural|neural|online|enhanced|premium/i.test(v.name) ? -20 : 0) + (v.lang.startsWith("en") ? 100 : 0);
+  };
+  return voices.sort((a, b) => rank(a) - rank(b));
+}
 
 function pickVoice(lang: "hi" | "en"): SpeechSynthesisVoice | undefined {
   const voices = window.speechSynthesis.getVoices();
   const wanted = lang === "hi" ? ["sa-IN", "hi-IN"] : ["en-IN"];
   const candidates = voices.filter((v) => wanted.includes(v.lang) || v.lang.startsWith(lang === "hi" ? "hi" : "en-IN"));
+  const saved = savedVoiceName();
+  const chosen = saved && candidates.find((c) => c.name === saved);
+  if (chosen) return chosen;
   for (const re of PANDIT_VOICES) {
     const v = candidates.find((c) => re.test(c.name));
     if (v) return v;
   }
-  return candidates.find((v) => /google|natural|neural/i.test(v.name)) ?? candidates[0] ?? (lang === "en" ? voices.find((v) => v.lang.startsWith("en")) : undefined);
+  return candidates.find((v) => /natural|neural|online|enhanced|premium/i.test(v.name)) ?? candidates.find((v) => /google/i.test(v.name)) ?? candidates[0] ?? (lang === "en" ? voices.find((v) => v.lang.startsWith("en")) : undefined);
 }
 
 interface Segment {
@@ -28,7 +53,7 @@ interface Segment {
 export function segments(text: string): Segment[] {
   const out: Segment[] = [];
   for (const part of text.match(/[ऀ-ॿ][ऀ-ॿ\s\d,.!?;:'"()\-–—]*|[^ऀ-ॿ]+/g) ?? []) {
-    const clean = part.replace(/[॥।|]+/g, ", ").replace(/[*#_`>]/g, "").trim();
+    const clean = part.replace(/[॥।|]+/g, "। ").replace(/[*#_`>]/g, "").trim();
     if (!clean || !/[\p{L}\p{N}]/u.test(clean)) continue;
     const lang = /[ऀ-ॿ]/.test(clean) ? "hi" : "en";
     const last = out[out.length - 1];
@@ -38,15 +63,61 @@ export function segments(text: string): Segment[] {
   return out;
 }
 
+/** Sentence-sized pieces (at . ! ? and the danda) so speech has natural pauses and engines don't time out. */
+export function chunks(text: string, max = 220): string[] {
+  const out: string[] = [];
+  for (const sentence of text.match(/[^.!?।]+(?:[.!?।]+|$)/g) ?? [text]) {
+    const t = sentence.trim();
+    if (!t) continue;
+    const last = out[out.length - 1];
+    if (last && last.length + t.length + 1 <= max) out[out.length - 1] = `${last} ${t}`;
+    else if (t.length <= max) out.push(t);
+    else out.push(...(t.match(new RegExp(`.{1,${max}}(?:\\s|$)`, "g")) ?? [t]).map((x) => x.trim()).filter(Boolean));
+  }
+  return out;
+}
+
+// --- Natural voice (server neural TTS) ----------------------------------------------
+
+let natural: Promise<boolean> | null = null;
+const audioCache = new Map<string, Promise<string>>();
+
+/** Whether the server offers the natural human-like voice. Checked once per page load. */
+export function naturalVoiceAvailable(): Promise<boolean> {
+  if (typeof window === "undefined" || isStaticBuild()) return Promise.resolve(false);
+  natural ??= fetch("/api/tts")
+    .then((r) => (r.ok ? r.json() : { available: false }))
+    .then((j: { available?: boolean }) => Boolean(j.available))
+    .catch(() => false);
+  return natural;
+}
+
+function naturalAudio(text: string, lang: "hi" | "en"): Promise<string> {
+  const key = `${lang}:${text}`;
+  let url = audioCache.get(key);
+  if (!url) {
+    url = fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, lang }) }).then(async (r) => {
+      if (!r.ok) throw new Error(`tts ${r.status}`);
+      return URL.createObjectURL(await r.blob());
+    });
+    url.catch(() => audioCache.delete(key));
+    audioCache.set(key, url);
+    if (audioCache.size > 300) audioCache.delete(audioCache.keys().next().value!);
+  }
+  return url;
+}
+
 let session = 0;
+let currentAudio: HTMLAudioElement | null = null;
 
 /**
  * Speaks a list of texts in order (each may mix scripts). Returns a function that stops speaking.
  * `onDone` runs once, when speech finishes or is stopped.
  */
 export function speak(texts: string[], onDone?: () => void, onItem?: (index: number) => void): () => void {
-  const synth = window.speechSynthesis;
-  synth.cancel();
+  const synth = typeof window !== "undefined" && "speechSynthesis" in window ? window.speechSynthesis : null;
+  synth?.cancel();
+  currentAudio?.pause();
   const id = ++session;
   let finished = false;
   const finish = () => {
@@ -54,35 +125,65 @@ export function speak(texts: string[], onDone?: () => void, onItem?: (index: num
     finished = true;
     onDone?.();
   };
-  const queue = texts.flatMap((t, index) => segments(t).map((s) => ({ ...s, index })));
+  const queue = texts.flatMap((t, index) => segments(t).flatMap((s) => chunks(s.text, s.lang === "hi" ? 260 : 300).map((text) => ({ text, lang: s.lang, index }))));
   let i = 0;
+  let useNatural = false;
+
+  const deviceSay = (item: (typeof queue)[number]) => {
+    if (!synth) return next();
+    const u = new SpeechSynthesisUtterance(item.text);
+    const voice = pickVoice(item.lang);
+    if (voice) u.voice = voice;
+    u.lang = voice?.lang ?? (item.lang === "hi" ? "hi-IN" : "en-IN");
+    u.rate = item.lang === "hi" ? 0.88 : 0.92;
+    u.pitch = 0.9;
+    u.onend = () => setTimeout(next, item.lang === "hi" ? 180 : 120); // a breath between sentences
+    u.onerror = () => finish();
+    synth.speak(u);
+  };
+
+  const naturalSay = (item: (typeof queue)[number]) => {
+    const ahead = queue[i];
+    if (ahead) naturalAudio(ahead.text, ahead.lang).catch(() => {}); // prefetch the next sentence
+    naturalAudio(item.text, item.lang)
+      .then((url) => {
+        if (id !== session) return finish();
+        const audio = new Audio(url);
+        currentAudio = audio;
+        audio.onended = () => setTimeout(next, 150);
+        audio.onerror = () => {
+          useNatural = false;
+          deviceSay(item);
+        };
+        audio.play().catch(() => {
+          useNatural = false;
+          deviceSay(item);
+        });
+      })
+      .catch(() => {
+        // The natural voice failed (limit or network): carry on with the device voice.
+        useNatural = false;
+        if (id === session) deviceSay(item);
+      });
+  };
+
   const next = () => {
     if (id !== session) return finish();
     if (i >= queue.length) return finish();
-    const { text, lang, index } = queue[i++];
-    onItem?.(index);
-    // Long passages are split at sentence ends: some engines stop speaking after ~15 seconds.
-    const chunks = text.match(/[^.!?]{1,220}(?:[.!?]+|$)/g) ?? [text];
-    let c = 0;
-    const sayChunk = () => {
-      if (id !== session) return finish();
-      if (c >= chunks.length) return next();
-      const u = new SpeechSynthesisUtterance(chunks[c++]);
-      const voice = pickVoice(lang);
-      if (voice) u.voice = voice;
-      u.lang = voice?.lang ?? (lang === "hi" ? "hi-IN" : "en-IN");
-      u.rate = lang === "hi" ? 0.8 : 0.92;
-      u.pitch = 0.85;
-      u.onend = sayChunk;
-      u.onerror = () => finish();
-      synth.speak(u);
-    };
-    sayChunk();
+    const item = queue[i++];
+    onItem?.(item.index);
+    if (useNatural) naturalSay(item);
+    else deviceSay(item);
   };
-  next();
+
+  naturalVoiceAvailable().then((ok) => {
+    useNatural = ok;
+    next();
+  });
   return () => {
     session++;
-    synth.cancel();
+    synth?.cancel();
+    currentAudio?.pause();
     finish();
   };
 }

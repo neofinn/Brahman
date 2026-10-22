@@ -31,3 +31,16 @@ export interface Katha {
   /** Other kathas in the library that belong to this one. */
   related?: string[];
 }
+
+/** The katha told in Hindi, as a kathavachak tells it. `parts` follow the English parts one for one. */
+export interface KathaHindi {
+  title: string;
+  summary: string;
+  /** Opening words (a jaikara and invocation) before the katha. */
+  opening?: string;
+  story?: string[];
+  parts?: { title: string; summary: string }[];
+  teachings?: string[];
+  /** Closing words: the phala (fruit) of hearing the katha and a jaikara. */
+  closing?: string;
+}

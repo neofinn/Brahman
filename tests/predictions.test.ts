@@ -119,3 +119,17 @@ test("finder: predictions, milan, muhurta and abroad intents", () => {
   // A worry with a prayer request still gets comfort, not a forecast.
   assert.equal(respond("Interview tomorrow, will I get the job? Please pray for me").cards[0].type, "support");
 });
+
+test("kathas: every katha has a Hindi telling that matches the English structure", async () => {
+  const { KATHAS, getKathaHindi } = await import("../lib/kathas/index.ts");
+  const { kathaSpeech } = await import("../lib/voice.ts");
+  for (const k of KATHAS) {
+    const h = getKathaHindi(k.id);
+    assert.ok(h, k.id);
+    assert.equal(h.parts?.length ?? 0, k.parts?.length ?? 0, `${k.id} parts`);
+    assert.equal(h.story?.length ?? 0, k.story?.length ?? 0, `${k.id} story`);
+    const text = [h.title, h.summary, h.opening, h.closing, ...(h.story ?? []), ...(h.teachings ?? []), ...(h.parts ?? []).flatMap((p) => [p.title, p.summary])].join(" ");
+    assert.ok(!/[A-Za-z]/.test(text), `${k.id} has Latin letters`);
+    assert.ok(kathaSpeech(k.id).every((t) => !/[A-Za-z]/.test(t)), `${k.id} speech`);
+  }
+});

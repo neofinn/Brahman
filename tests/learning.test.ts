@@ -7,7 +7,7 @@ import { respond, setLearnedKnowledge, type Card } from "../lib/finder.ts";
 import { getKriya } from "../lib/kriyas.ts";
 import type { LearnedEntry } from "../lib/learned.ts";
 import { parseBirthDetails } from "../lib/parse.ts";
-import { segments } from "../lib/speech.ts";
+import { chunks, segments } from "../lib/speech.ts";
 
 const first = (cards: Card[]) => cards.find((c) => c.type !== "text")!;
 
@@ -55,9 +55,25 @@ test("Hindi in Devanagari reaches the finder and parser", () => {
 test("speech splits Devanagari and English for the right voices", () => {
   assert.deepEqual(segments("Recite with me: ॐ नमः शिवाय। Then offer water."), [
     { text: "Recite with me:", lang: "en" },
-    { text: "ॐ नमः शिवाय,", lang: "hi" },
+    { text: "ॐ नमः शिवाय।", lang: "hi" },
     { text: "Then offer water.", lang: "en" },
   ]);
+});
+
+test("speech is split into sentence-sized pieces at the danda", () => {
+  assert.deepEqual(chunks("पहला वाक्य। दूसरा वाक्य।", 12), ["पहला वाक्य।", "दूसरा वाक्य।"]);
+  assert.deepEqual(chunks("पहला वाक्य। दूसरा वाक्य।"), ["पहला वाक्य। दूसरा वाक्य।"]);
+  for (const c of chunks("a ".repeat(400), 100)) assert.ok(c.length <= 100);
+});
+
+test("natural voice: provider selection and SSML", async () => {
+  const { ttsProvider, azureSsml } = await import("../lib/tts.ts");
+  assert.equal(ttsProvider({}), null);
+  assert.equal(ttsProvider({ AZURE_SPEECH_KEY: "k", AZURE_SPEECH_REGION: "centralindia" })?.name, "azure");
+  assert.equal(ttsProvider({ GOOGLE_TTS_API_KEY: "k" })?.name, "google");
+  const ssml = azureSsml("राम & श्याम। जय", "hi");
+  assert.ok(ssml.includes("hi-IN-MadhurNeural") && ssml.includes("&amp;") && ssml.includes('<break time="350ms"/>'));
+  assert.ok(azureSsml("Hello", "en").includes("en-IN-PrabhatNeural"));
 });
 
 test("knowledge store adds, de-duplicates ids and removes", async () => {

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ProfileForm } from "@/components/ProfileForm";
 import { SankalpaBlock } from "@/components/SankalpaBlock";
+import { VoiceSettings } from "@/components/VoiceSettings";
 import { saveProfile, useProfile } from "@/lib/profile";
 
 export function ProfileView() {
@@ -21,6 +22,9 @@ export function ProfileView() {
             <ProfileForm key={profile ? "edit" : "new"} initial={profile} onSaved={() => setSaved(true)} />
           </div>
         )}
+        <section className="section">
+          <VoiceSettings />
+        </section>
         {saved && <p className="good">✓ Saved. Here is today&apos;s sankalpa for your daily puja:</p>}
         {profile && (
           <section className="section">
