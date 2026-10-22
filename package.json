@@ -2,7 +2,7 @@
   "name": "brahman",
   "version": "0.1.0",
   "private": true,
-  "description": "Brahman \u2014 a Sanatan Dharma priest app: scripture-grounded guidance, panchang, kundli and puja vidhi.",
+  "description": "Brahman — a Sanatan Dharma priest app: scripture-grounded guidance, panchang, kundli and puja vidhi.",
   "type": "module",
   "scripts": {
     "dev": "next dev",
@@ -18,7 +18,8 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

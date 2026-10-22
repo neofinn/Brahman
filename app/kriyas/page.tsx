@@ -19,6 +19,7 @@ export default function KriyasPage() {
         <p className="lede">
           Complete guides with samagri checklists, every step of the vidhi and the mantras — tap 🔊 to hear them recited,
           or choose “Perform with me” to be guided one step at a time. Traditions vary by region and family.
+          Rites Brahman has learned from users&apos; questions are under <Link href="/knowledge">Learned Knowledge</Link>.
         </p>
         {GROUPS.map(([title, cats]) => {
           const items = KRIYAS.filter((k) => cats.includes(k.category));

@@ -1,7 +1,9 @@
 // The offline "finder": understands a question and answers from Brahman's built-in knowledge.
 import { GRAHAS } from "./grahas.ts";
 import { MANTRAS } from "./hawans.ts";
-import { KRIYAS } from "./kriyas.ts";
+import { transliterate } from "./devanagari.ts";
+import { KRIYAS, registerLearnedKriyas } from "./kriyas.ts";
+import { learnedToKriya, registerArticles, type LearnedEntry } from "./learned.ts";
 import { LIBRARY } from "./library.ts";
 import { parseBirthDetails, type BirthDetails } from "./parse.ts";
 import type { Mantra } from "./ritual-common.ts";
@@ -16,6 +18,7 @@ export type Card =
   | { type: "kundli"; date: string; time: string; place: Place; name?: string }
   | { type: "panchang" }
   | { type: "scripture"; category: string; name: string; description: string }
+  | { type: "article"; id: string }
   | { type: "suggestions"; items: string[] };
 
 export interface FinderState {
@@ -75,7 +78,7 @@ const STOPWORDS = new Set([
   "procedure", "process", "steps", "method", "way", "know", "help", "required", "requirements", "things", "list", "it", "this", "that",
   "mujhe", "mai", "main", "mein", "hum", "karna", "karni", "karna", "hai", "hain", "kaise", "kare", "karein", "karen", "kya", "ki", "ka", "ke",
   "ko", "batao", "bataiye", "chahiye", "chahta", "chahti", "hoon", "hu", "se", "aur", "ye", "yeh", "wala", "wali", "bhi", "ji", "pandit",
-  "brahman", "plz", "pls", "vidhi", "samagri",
+  "brahman", "plz", "pls", "vidhi", "samagri", "shri", "sri", "shree",
 ]);
 
 /** Generic words that say "a ritual" but not which one. */
@@ -86,7 +89,7 @@ function canon(token: string): string {
 }
 
 export function tokens(text: string): string[] {
-  return text
+  return transliterate(text)
     .toLowerCase()
     .replace(/[^a-z0-9ऀ-ॿ\s]+/g, " ")
     .split(/\s+/)
@@ -123,15 +126,29 @@ interface Entry<T> {
   value: T;
   phrases: string[]; // normalised, space-padded
   words: Set<string>;
+  /** The first word of the title — naming it ("havan") points at this entry even when the word is generic. */
+  primary?: string;
 }
 
 function entry<T>(value: T, texts: string[]): Entry<T> {
   const phrases = texts.map(normPhrase);
   const words = new Set(phrases.flatMap((p) => p.trim().split(" ")).filter((w) => w && !STOPWORDS.has(w)));
-  return { value, phrases, words };
+  const primary = phrases[0]?.trim().split(" ").find((w) => w && !STOPWORDS.has(w));
+  return { value, phrases, words, primary };
 }
 
-const RITUAL_INDEX = KRIYAS.map((k) => entry(k.id, [k.title, ...k.keywords]));
+const BASE_RITUAL_INDEX = KRIYAS.map((k) => entry(k.id, [k.title, ...k.keywords]));
+let RITUAL_INDEX = BASE_RITUAL_INDEX;
+let ARTICLE_INDEX: Entry<string>[] = [];
+
+/** Makes knowledge learned through AI searches answerable offline, alongside the built-in granth. */
+export function setLearnedKnowledge(entries: LearnedEntry[]): void {
+  const rituals = entries.filter((e) => e.kind === "ritual").map(learnedToKriya);
+  registerLearnedKriyas(rituals);
+  registerArticles(entries);
+  RITUAL_INDEX = [...BASE_RITUAL_INDEX, ...rituals.map((k) => entry(k.id, [k.title, ...k.keywords]))];
+  ARTICLE_INDEX = entries.filter((e) => e.kind === "article").map((e) => entry(e.id, [e.title, e.question, ...e.keywords]));
+}
 
 const GRAHA_ALIASES: Record<string, string[]> = {
   Sun: ["surya", "sun", "ravi", "aditya", "suryadev"],
@@ -176,8 +193,12 @@ const SCRIPTURE_INDEX = LIBRARY.flatMap((cat) =>
 function score<T>(e: Entry<T>, query: string, qTokens: string[]): number {
   let s = 0;
   for (const p of e.phrases) {
-    if (p.trim() && query.includes(p)) s += 3 * p.trim().split(" ").length;
+    if (p.trim() && query.includes(p)) {
+      // A phrase made of generic words ("vrat", "puja") says little about which rite is meant.
+      for (const w of p.trim().split(" ")) s += STOPWORDS.has(w) ? 0 : GENERIC.has(w) ? 0.5 : 3;
+    }
   }
+  if (e.primary && qTokens.includes(e.primary)) s += 3;
   for (const t of qTokens) {
     if (STOPWORDS.has(t)) continue;
     for (const w of e.words) {
@@ -230,7 +251,9 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
   const birth = parseBirthDetails(text);
 
   // 1. Kundli: explicit request, a birth date, or continuing a pending request.
-  const wantsKundli = KUNDLI_WORDS.some((w) => lower.includes(w)) || qTokens.includes("kundli");
+  const spaced = ` ${transliterate(lower).replace(/[^a-z0-9\s]+/g, " ").replace(/\s+/g, " ")} `;
+  const hasWord = (w: string) => spaced.includes(` ${w} `);
+  const wantsKundli = KUNDLI_WORDS.some(hasWord) || qTokens.includes("kundli");
   if (state.pendingKundli || wantsKundli || birth.date) {
     const ritualsHit = rank(RITUAL_INDEX, query, qTokens)[0];
     // A strong ritual match without birth details means the person moved on.
@@ -253,7 +276,7 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
   }
 
   // 2. Panchang.
-  if (PANCHANG_WORDS.some((w) => lower.includes(w)) && !rank(RITUAL_INDEX, query, qTokens).some((r) => r.score >= 5)) {
+  if (PANCHANG_WORDS.some(hasWord) && !rank(RITUAL_INDEX, query, qTokens).some((r) => r.score >= 5)) {
     return { cards: [{ type: "text", text: "🙏 Here is the panchang. Choose the date and your city to see the timings." }, { type: "panchang" }], state };
   }
 
@@ -261,22 +284,29 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
   const grahas = rank(GRAHA_INDEX, query, qTokens);
   const mantras = rank(MANTRA_INDEX, query, qTokens);
   const scriptures = rank(SCRIPTURE_INDEX, query, qTokens);
-  const mentionsMantra = qTokens.includes("mantra") || qTokens.includes("jaap") || qTokens.includes("japa");
+  const articles = rank(ARTICLE_INDEX, query, qTokens);
+  const mentionsMantra = qTokens.includes("mantra");
+  const mentionsJapa = mentionsMantra || qTokens.includes("jaap") || qTokens.includes("japa");
 
-  // 3. A specific mantra.
+  // 3. A specific mantra ("… jaap" usually means the practice, so the rite's guide wins unless "mantra" is said).
   if (mantras[0] && mantras[0].score >= 5 && (mentionsMantra || mantras[0].score > (rituals[0]?.score ?? 0))) {
     return { cards: [{ type: "mantra", ...mantras[0].value }], state };
   }
 
   // 4. A graha (mantra, remedy, dosha) — unless a ritual for it matches better.
-  if (grahas[0] && (!rituals[0] || mentionsMantra || rituals[0].score < 6)) {
+  if (grahas[0] && (!rituals[0] || mentionsJapa || rituals[0].score < 6)) {
     const cards: Card[] = [{ type: "graha", name: grahas[0].value }];
     const related = rituals.filter((r) => r.score >= 4).slice(0, 2).map((r) => r.value);
     if (related.length) cards.push({ type: "ritualList", title: "Related rites", ids: related });
     return { cards, state };
   }
 
-  // 5. Rituals.
+  // 5. A learned article that fits better than any ritual.
+  if (articles[0] && articles[0].score >= 4 && articles[0].score > (rituals[0]?.score ?? 0)) {
+    return { cards: [{ type: "article", id: articles[0].value }], state };
+  }
+
+  // 6. Rituals.
   if (rituals[0] && rituals[0].score >= 2) {
     const top = rituals[0];
     const cards: Card[] = [{ type: "ritual", id: top.value }];
@@ -285,12 +315,12 @@ export function respond(text: string, state: FinderState = {}): FinderReply {
     return { cards, state };
   }
 
-  // 6. Scriptures.
+  // 7. Scriptures.
   if (scriptures[0] && scriptures[0].score >= 2) {
     return { cards: scriptures.slice(0, 3).map((s) => ({ type: "scripture" as const, ...s.value })), state };
   }
 
-  // 7. Greeting / nothing matched.
+  // 8. Greeting / nothing matched.
   if (HELLO.test(text.trim())) {
     return {
       cards: [

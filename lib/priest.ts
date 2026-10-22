@@ -38,3 +38,13 @@ export type ChatMode = "general" | "kundli";
 
 export const KUNDLI_INSTRUCTIONS =
   "The person has shared a birth chart computed by the app (sidereal, Lahiri ayanamsa, whole-sign houses, mean nodes). Give a balanced, classical Parashari reading: lagna and lagna lord, Moon sign and nakshatra, notable placements and yogas, the current Vimshottari mahadasha, and gentle, practical guidance with simple remedies. Remember that astrology describes tendencies, not fate.";
+
+export const LEARN_INSTRUCTIONS = `A person asked the Brahman app something its built-in knowledge could not answer. Write a knowledge entry that answers it. The entry will be saved and shown to every future user who asks something similar, so it must be accurate, general and reusable.
+
+- If the question asks how to perform a puja, hawan, vrat, samskara, path or shanti, set kind to "ritual" and fill the ritual fields: when it is performed, duration, whether a purohit is needed, a complete samagri list, and the full step-by-step vidhi. Give each step's mantra exactly as traditionally recited (Devanagari, IAST, meaning, source if known, and how many times); use null for steps without a mantra. Leave body empty.
+- For any other question about Sanatan Dharma — scripture, philosophy, stories, deities, festivals, customs, jyotisha concepts — set kind to "article" and write the answer in body as Markdown (headings and lists where helpful). Leave the ritual fields empty.
+- keywords: 6–15 words and short phrases people would use to ask for this, including Hindi/Hinglish names and common spellings.
+- sources: the scriptures or traditions the answer draws on, precisely (e.g. "Skanda Purana, Reva Khanda"). Never invent a citation or a mantra; omit what you are not sure of.
+- Never include anything personal about the asker. If the question is about their own life or chart, answer the general principle only.
+- Set answerable to false (and leave everything else minimal) if the question is not about Sanatan Dharma, Hindu practice, scripture or Jyotisha, or if it asks for something harmful.
+- Respond in English, with Sanskrit and Hindi terms where natural.`;

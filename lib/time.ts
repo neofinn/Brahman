@@ -38,7 +38,7 @@ const india = (name: string, latitude: number, longitude: number, aliases?: stri
 /** A wider gazetteer for recognising birthplaces typed into the finder. */
 export const GAZETTEER: (Place & { aliases?: string[] })[] = [
   ...PLACES.map((p) => ({ ...p })),
-  india("Lucknow", 26.8467, 80.9462),
+  india("Lucknow", 26.8467, 80.9462, ["lakhanau", "lakhnau"]),
   india("Kanpur", 26.4499, 80.3319),
   india("Prayagraj", 25.4358, 81.8463, ["allahabad"]),
   india("Ayodhya", 26.7922, 82.1998, ["faizabad"]),

@@ -39,7 +39,7 @@ for (const [q, id] of RITUAL_QUERIES) {
 test("finder: mantra lookup", () => {
   const card = first(respond("gayatri mantra").cards);
   assert.equal(card.type, "mantra");
-  const mm = first(respond("om tryambakam jaap").cards);
+  const mm = first(respond("om tryambakam mantra").cards);
   assert.equal(mm.type, "mantra");
 });
 
@@ -96,4 +96,19 @@ test("reading: helpers", () => {
   assert.equal(namingSyllable(0, 1), "चू");
   assert.equal(nadiOf(3), "Antya"); // Rohini
   assert.equal(nadiOf(17), "Adi"); // Jyeshtha
+});
+
+test("finder: more everyday phrasings", () => {
+  const cases: [string, string][] = [
+    ["I want to do havan", "havan"],
+    ["hawan karna hai", "havan"],
+    ["shri ganesh puja vidhi", "ganesh-puja"],
+    ["shri satyanarayan bhagwan ki katha", "satyanarayan"],
+    ["krishna janmashtami ki puja", "janmashtami"],
+    ["mahamrityunjaya jaap for my father's health", "mahamrityunjaya"],
+  ];
+  for (const [q, id] of cases) {
+    const card = respond(q).cards.find((c) => c.type !== "text");
+    assert.deepEqual(card, { type: "ritual", id }, q);
+  }
 });

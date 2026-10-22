@@ -27,6 +27,8 @@ export interface Kriya {
   duration?: string;
   /** Whether a qualified purohit is traditionally needed. */
   purohit?: string;
+  /** Learned through an AI search rather than part of the built-in granth. */
+  learned?: boolean;
   summary: string;
   when: string;
   samagri: string[];

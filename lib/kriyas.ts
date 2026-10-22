@@ -246,6 +246,17 @@ const BASE_KRIYAS: Kriya[] = [
 
 export const KRIYAS: Kriya[] = [...BASE_KRIYAS, ...HAWANS];
 
+let LEARNED_KRIYAS: Kriya[] = [];
+
+/** Adds rituals learned through AI searches (see lib/learned.ts). */
+export function registerLearnedKriyas(kriyas: Kriya[]): void {
+  LEARNED_KRIYAS = kriyas;
+}
+
+export function allKriyas(): Kriya[] {
+  return [...KRIYAS, ...LEARNED_KRIYAS];
+}
+
 export function getKriya(id: string): Kriya | undefined {
-  return KRIYAS.find((k) => k.id === id);
+  return KRIYAS.find((k) => k.id === id) ?? LEARNED_KRIYAS.find((k) => k.id === id);
 }

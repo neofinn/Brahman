@@ -32,11 +32,28 @@ hawan/havan, pooja/puja, laxmi/lakshmi, kundali/kundli…), and Indian date and 
 
 Everything — panchang, kundli, readings and search — runs on the user's device, so birth details never leave it.
 
-### Optional AI answers
+### Brahman's voice
 
-If the person hosting the app sets `ANTHROPIC_API_KEY` on the server, Brahman also offers "✨ Ask AI in depth" for
-questions outside its built-in knowledge, and a conversational kundli reading. Users never need a key, and without
-one the app works exactly the same, minus that button.
+- **Speak to Brahman.** Tap 🎙️ and ask in Hindi, Hinglish or English. Hindi heard in Devanagari is understood too, because the finder transliterates it ("ग्रह शांति हवन" → "grah shanti havan").
+- **Brahman speaks back** when "Brahman's voice" is on, and it turns on by itself when you speak. It uses a calm, slower, deeper delivery and prefers Indian male voices where the device has them. Sanskrit and Hindi are read by a Hindi voice, English by an Indian-English voice.
+- **Narrated rituals.** In "Perform with me", each step is read out and then its mantra is recited. Every answer also has a 🔊 Listen button.
+- **No server needed.** All of this uses the browser's built-in speech engine. Voice quality depends on the voices installed on the device.
+
+### Knowledge that grows
+
+If the server has an `ANTHROPIC_API_KEY`, questions the built-in granth cannot answer are **searched with AI and added to Brahman's knowledge**:
+
+1. The answer is generated in the same structured form as the built-in rites: samagri, steps and mantras for a vidhi, or a written article for other questions.
+2. It is checked and saved to a shared JSON store on the server (`KNOWLEDGE_FILE`, default `data/learned-knowledge.json`).
+3. From then on, every user who asks something similar gets it instantly from Brahman's own knowledge, with no AI call. Learned entries are marked ✨.
+
+To keep this under control:
+- **Review:** `/knowledge` lists everything learned. Removing an entry needs `BRAHMAN_ADMIN_TOKEN`.
+- **Cost guards:** 10 searches per hour per visitor, and `LEARN_DAILY_LIMIT` (default 200) per day across all users.
+- **Safety:** personal details are never stored, and off-topic or harmful questions are declined.
+- **Hosting:** host on a server with a persistent disk, or point `KNOWLEDGE_FILE` at one. Serverless filesystems are wiped between deploys.
+
+Users never need a key. Without one, the app works fully from its built-in knowledge, just without learning.
 
 ## Getting started
 
@@ -45,7 +62,7 @@ Requires Node.js 20+.
 ```bash
 npm install
 npm run dev                  # http://localhost:3000
-# optional: cp .env.example .env.local and set ANTHROPIC_API_KEY to enable "Ask AI in depth"
+# optional: cp .env.example .env.local and set ANTHROPIC_API_KEY so new questions are searched and learned
 ```
 
 | Script | Purpose |
@@ -53,13 +70,16 @@ npm run dev                  # http://localhost:3000
 | `npm run dev` | Development server |
 | `npm run build` / `npm start` | Production build and server |
 | `npm run lint` | Type-check |
-| `npm test` | Tests for the panchang and kundli maths (known dates), the reading engine, the birth-details parser and the finder |
+| `npm test` | Tests for the panchang and kundli maths (known dates), the reading engine, the birth-details parser, the finder (English, Hinglish and Devanagari), learned knowledge and the store, and voice segmentation |
 
 ## Project layout
 
 ```
 app/
-  api/chat/route.ts   Optional AI endpoint (only used when the server has a key)
+  api/learn/route.ts  Searches a new question with AI and saves the answer (only with a server key)
+  api/knowledge/      Lists learned knowledge; removes entries with the admin token
+  api/chat/route.ts   Optional conversational kundli reading
+  knowledge/          Review page for learned knowledge
   chat/               Ask Brahman (offline finder UI)
   panchang/  kundli/  Client-side astronomy views
   kriyas/  library/   Static content pages
@@ -71,9 +91,12 @@ lib/
   reading.ts          Rule-based Parashari kundli reading: yogas, doshas, dashas, remedies
   jyotish.ts          Sidereal positions, panchang, kundli, Vimshottari dasha
   time.ts             Places, gazetteer and time-zone helpers
-  speech.ts           Mantra recitation with the browser's speech synthesis
+  speech.ts           Brahman's voice (speech synthesis) and listening (speech recognition)
+  voice.ts            What Brahman says aloud for each kind of answer
+  devanagari.ts       Devanagari → Latin transliteration for Hindi input
+  learned.ts          Learned-knowledge types and registry (+ knowledge-store.ts on the server)
   library.ts          Scripture catalogue
-  priest.ts           System prompt for the optional AI answers
+  priest.ts           System prompts for AI search and the optional conversational reading
 components/           RitualGuide, MantraBlock, KundliReport, GrahaCard, …
 tests/                node:test suites
 ```

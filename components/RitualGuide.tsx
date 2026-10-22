@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Kriya } from "@/lib/ritual-common";
+import { speak, speechSupported } from "@/lib/speech";
+import { stepSpeech } from "@/lib/voice";
 import { MantraBlock } from "./MantraBlock";
 
 const CATEGORY_LABEL: Record<Kriya["category"], string> = {
@@ -9,11 +11,27 @@ const CATEGORY_LABEL: Record<Kriya["category"], string> = {
 };
 
 /** A complete ritual: overview, samagri checklist and the vidhi, either as a list or performed step by step. */
-export function RitualGuide({ kriya, compact = false }: { kriya: Kriya; compact?: boolean }) {
+export function RitualGuide({ kriya, compact = false, voice = false }: { kriya: Kriya; compact?: boolean; voice?: boolean }) {
   const [mode, setMode] = useState<"list" | "guided">("list");
   const [step, setStep] = useState(0);
   const [have, setHave] = useState<Set<number>>(new Set());
+  const [speaking, setSpeaking] = useState(false);
+  const [canSpeak, setCanSpeak] = useState(false);
+  const stopRef = useRef<(() => void) | null>(null);
   const current = kriya.steps[step];
+
+  const narrate = (index: number) => {
+    stopRef.current?.();
+    setSpeaking(true);
+    stopRef.current = speak(stepSpeech(kriya.steps[index], index), () => setSpeaking(false));
+  };
+
+  useEffect(() => setCanSpeak(speechSupported()), []);
+  // With Brahman's voice on, each step is read out as you reach it.
+  useEffect(() => {
+    if (mode === "guided" && voice && speechSupported()) narrate(step);
+    return () => stopRef.current?.();
+  }, [mode, step, voice]);
 
   const toggle = (i: number) => {
     const next = new Set(have);
@@ -27,6 +45,7 @@ export function RitualGuide({ kriya, compact = false }: { kriya: Kriya; compact?
       {compact && (
         <>
           <span className="deva tag">{kriya.devanagari}</span> <span className="tag">{CATEGORY_LABEL[kriya.category]}</span>
+          {kriya.learned && <span className="tag learned" title="Learned through an AI search and added to Brahman's knowledge">✨ Learned</span>}
           <h2 style={{ margin: "8px 0 4px" }}>{kriya.title}</h2>
           <p style={{ marginTop: 0 }}>{kriya.summary}</p>
         </>
@@ -69,7 +88,14 @@ export function RitualGuide({ kriya, compact = false }: { kriya: Kriya; compact?
       ) : (
         <div className="guided">
           <div className="progress"><div style={{ width: `${((step + 1) / kriya.steps.length) * 100}%` }} /></div>
-          <div className="step-count">Step {step + 1} of {kriya.steps.length}</div>
+          <div className="step-count">
+            Step {step + 1} of {kriya.steps.length}
+            {canSpeak && (
+              <button type="button" className="chip" style={{ marginLeft: 8 }} onClick={() => (speaking ? stopRef.current?.() : narrate(step))}>
+                {speaking ? "⏹ Stop" : "🔊 Speak this step"}
+              </button>
+            )}
+          </div>
           <h4 className="guided-title">{current.title}</h4>
           <p>{current.detail}</p>
           {current.mantra && <MantraBlock key={step} mantra={current.mantra} />}

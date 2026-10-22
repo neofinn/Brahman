@@ -1,4 +1,5 @@
 // Pulls birth details (date, time, place) out of free text in English or Hinglish.
+import { transliterate } from "./devanagari.ts";
 import { GAZETTEER, type Place } from "./time.ts";
 
 export interface BirthDetails {
@@ -9,18 +10,18 @@ export interface BirthDetails {
 }
 
 const MONTHS: Record<string, number> = {
-  jan: 1, january: 1, janvari: 1,
-  feb: 2, february: 2, farvari: 2, febuary: 2,
+  jan: 1, january: 1, janvari: 1, janavari: 1,
+  feb: 2, february: 2, farvari: 2, faravari: 2, febuary: 2,
   mar: 3, march: 3,
   apr: 4, april: 4, aprail: 4,
   may: 5, mai: 5,
   jun: 6, june: 6, joon: 6,
   jul: 7, july: 7, julai: 7,
   aug: 8, august: 8, agast: 8,
-  sep: 9, sept: 9, september: 9, sitambar: 9,
+  sep: 9, sept: 9, september: 9, sitambar: 9, sitanbar: 9,
   oct: 10, october: 10, aktubar: 10,
-  nov: 11, november: 11, navambar: 11,
-  dec: 12, december: 12, disambar: 12,
+  nov: 11, november: 11, navambar: 11, navanbar: 11,
+  dec: 12, december: 12, disambar: 12, disanbar: 12,
 };
 const MONTH_RE = Object.keys(MONTHS).sort((a, b) => b.length - a.length).join("|");
 
@@ -116,7 +117,8 @@ function extractName(text: string): string | undefined {
   return m?.[1]?.trim();
 }
 
-export function parseBirthDetails(text: string): BirthDetails {
+export function parseBirthDetails(input: string): BirthDetails {
+  const text = transliterate(input);
   const { date, rest } = extractDate(text);
   const time = extractTime(rest);
   const place = findPlace(text);
