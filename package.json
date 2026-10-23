@@ -11,7 +11,8 @@
     "lint": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "build:beta": "node beta/build.mjs",
-    "build:voice": "node --experimental-strip-types scripts/build-voice.ts"
+    "build:voice": "node --experimental-strip-types scripts/build-voice.ts",
+    "build:voice:offline": "node tools/voice/build.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.1.0",

@@ -3,6 +3,7 @@ import { GITA_9_26, MANASA_PUJA, RIVERS_INVOCATION } from "./abroad.ts";
 import { GRAHAS } from "./grahas.ts";
 import { MANTRAS } from "./hawans.ts";
 import { KATHAS } from "./kathas/index.ts";
+import { kathaSpeech } from "./voice.ts";
 import { KRIYAS } from "./kriyas.ts";
 import { SITUATIONS } from "./support.ts";
 
@@ -31,5 +32,15 @@ export function allMantraTexts(): string[] {
     add(s.verse.devanagari);
   }
   [RIVERS_INVOCATION, MANASA_PUJA, GITA_9_26].forEach((m) => add(m.devanagari));
+  return [...texts];
+}
+
+/** Everything Brahman says when telling the kathas in Hindi (whole katha and each part), for recording. */
+export function allKathaTexts(): string[] {
+  const texts = new Set<string>();
+  for (const k of KATHAS) {
+    const items = [...kathaSpeech(k.id, undefined, "hi"), ...(k.parts ?? []).flatMap((_, i) => kathaSpeech(k.id, i + 1, "hi"))];
+    for (const t of items) if (/[ऀ-ॿ]/.test(t) && !/[A-Za-z]/.test(t)) texts.add(mantraKey(t));
+  }
   return [...texts];
 }
