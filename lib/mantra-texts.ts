@@ -35,12 +35,18 @@ export function allMantraTexts(): string[] {
   return [...texts];
 }
 
-/** Everything Brahman says when telling the kathas in Hindi (whole katha and each part), for recording. */
+/** What Brahman says for each Hindi katha telling: the whole katha, then each part — one list of passages per telling. */
+export function allKathaTellings(): string[][] {
+  return KATHAS.flatMap((k) => [kathaSpeech(k.id, undefined, "hi"), ...(k.parts ?? []).map((_, i) => kathaSpeech(k.id, i + 1, "hi"))])
+    .filter((items) => items.length && items.every((t) => /[ऀ-ॿ]/.test(t) && !/[A-Za-z]/.test(t)));
+}
+
+/** Every passage in the Hindi katha tellings, for recording. */
 export function allKathaTexts(): string[] {
-  const texts = new Set<string>();
-  for (const k of KATHAS) {
-    const items = [...kathaSpeech(k.id, undefined, "hi"), ...(k.parts ?? []).flatMap((_, i) => kathaSpeech(k.id, i + 1, "hi"))];
-    for (const t of items) if (/[ऀ-ॿ]/.test(t) && !/[A-Za-z]/.test(t)) texts.add(mantraKey(t));
-  }
-  return [...texts];
+  return [...new Set(allKathaTellings().flat().map(mantraKey))];
+}
+
+/** A whole telling is recorded as one file, stored under its passages joined. */
+export function tellingKey(items: string[]): string {
+  return mantraKey(items.join(" "));
 }

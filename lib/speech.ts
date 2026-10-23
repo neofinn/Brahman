@@ -219,7 +219,9 @@ export function speak(texts: string[], onDone?: () => void, onItem?: (index: num
 
   Promise.all([naturalVoiceAvailable(), recordings()]).then(([ok, rec]) => {
     useNatural = ok;
-    queue = texts.flatMap((t, index) => {
+    // A whole katha telling may be recorded as one file.
+    const whole = texts.length > 1 ? rec[mantraKey(texts.join(" "))] : undefined;
+    queue = whole ? [{ text: mantraKey(texts.join(" ")), lang: "hi" as const, index: 0, url: whole }] : texts.flatMap((t, index) => {
       const url = rec[mantraKey(t)];
       if (url) return [{ text: mantraKey(t), lang: "hi" as const, index, url }];
       return segments(t).flatMap((s) => chunks(s.text, s.lang === "hi" ? 260 : 300).map((text) => ({ text, lang: s.lang, index })));
