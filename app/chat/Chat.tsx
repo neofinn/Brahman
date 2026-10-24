@@ -68,6 +68,14 @@ function PredictionCard({ card, onRitual }: { card: Extract<Card, { type: "predi
   return <KundliReport kundli={kundli} name={card.name} birth={{ date: card.date, time: card.time, place: card.place }} onRitual={onRitual} initialTab="predictions" focus={card.focus} />;
 }
 
+function DevataCard({ card, onRitual }: { card: Extract<Card, { type: "devata" }>; onRitual: (id: string) => void }) {
+  const kundli = useMemo(
+    () => computeKundli(zonedToUtc(card.date, card.time, card.place.timeZone), card.place),
+    [card.date, card.time, card.place],
+  );
+  return <KundliReport kundli={kundli} name={card.name} birth={{ date: card.date, time: card.time, place: card.place }} onRitual={onRitual} initialTab="devata" />;
+}
+
 function CardView({ card, voice, onRitual, onSend, onKatha }: { card: Card; voice: boolean; onRitual: (id: string) => void; onSend: (text: string) => void; onKatha: (id: string) => void }) {
   switch (card.type) {
     case "text":
@@ -100,6 +108,8 @@ function CardView({ card, voice, onRitual, onSend, onKatha }: { card: Card; voic
       return <KundliCard card={card} onRitual={onRitual} />;
     case "prediction":
       return <PredictionCard card={card} onRitual={onRitual} />;
+    case "devata":
+      return <DevataCard card={card} onRitual={onRitual} />;
     case "milan":
       return <MilanTool onRitual={onRitual} />;
     case "siddhi": {

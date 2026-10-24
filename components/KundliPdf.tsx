@@ -22,6 +22,7 @@ import { VARGAS } from "@/lib/vargas";
 import { lifeGuide } from "@/lib/lifeguide";
 import { gemsForGoals } from "@/lib/gems";
 import { specialLagnas } from "@/lib/lagnas";
+import { devataPlan } from "@/lib/devata";
 import type { BirthInfo } from "./KundliReport";
 
 const ABBR: Record<string, string> = { Sun: "Su", Moon: "Mo", Mars: "Ma", Mercury: "Me", Jupiter: "Ju", Venus: "Ve", Saturn: "Sa", Rahu: "Ra", Ketu: "Ke" };
@@ -48,6 +49,7 @@ function Report({ kundli, name, birth }: { kundli: Kundli; name?: string; birth:
   const py = personalYear(birth.date, new Date().getFullYear());
   const guide = lifeGuide(kundli, p, birthUtc, birth.date);
   const gems = gemsForGoals(kundli);
+  const devata = devataPlan(kundli, p, birthUtc);
   const lagnas = specialLagnas(kundli, birthUtc, birth.place);
   const vargaRows: (typeof VARGAS)[] = [];
   const allVargas = VARGAS.filter((v) => v.id !== "D1" && v.id !== "D9");
@@ -90,6 +92,28 @@ function Report({ kundli, name, birth }: { kundli: Kundli; name?: string; birth:
           </div>
         </Block>
       ))}
+      <Block breakBefore>
+        <H>Which deity to worship</H>
+        <p className="pdf-sub">Your deities for life</p>
+        {devata.core.map((c, i) => <p key={i}><strong>{c.deity.name}</strong> — for {c.for}. <span className="pdf-small">{c.why} Mantra: </span><span className="pdf-deva">{c.deity.mantra}</span><span className="pdf-small"> · {c.deity.day} · offer {c.deity.offering}</span></p>)}
+        <p className="pdf-sub">Worship now — for your current dasha and transits</p>
+        {devata.now.map((c, i) => <p key={i}><strong>{c.deity.name}</strong> — {c.deity.gives}. <span className="pdf-small">{c.why} Mantra: </span><span className="pdf-deva">{c.deity.mantra}</span></p>)}
+      </Block>
+      <Block>
+        <p className="pdf-sub">Deity for each wish</p>
+        <table className="pdf-table">
+          <thead><tr><th>To get</th><th>Worship</th><th>Mantra and day</th></tr></thead>
+          <tbody>{devata.goals.map((g) => <tr key={g.goal}><td>{g.goal}</td><td>{g.primary.name}{g.chart ? `, and ${g.chart.name} (your chart)` : ""}</td><td><span className="pdf-deva">{g.primary.mantra}</span> — {g.primary.day}</td></tr>)}</tbody>
+        </table>
+      </Block>
+      <Block>
+        <p className="pdf-sub">Deities through the coming years</p>
+        <ul className="pdf-small">{devata.periods.map((x) => <li key={x.when}><strong>{x.when} ({x.maha}–{x.antar}):</strong> {x.deities.map((dd) => dd.name).join(" and ")}</li>)}</ul>
+        {devata.doshas.length > 0 && <><p className="pdf-sub">For your doshas</p><ul className="pdf-small">{devata.doshas.map((x) => <li key={x.why}>{x.why}: {x.deity.name} — {x.deity.mantra}</li>)}</ul></>}
+        <p className="pdf-sub">Daily worship</p>
+        <ul className="pdf-small">{devata.daily.map((x) => <li key={x}>{x}</li>)}</ul>
+      </Block>
+
       <Block breakBefore>
         <H>Gemstones for your life goals</H>
         <p className="pdf-small">Chosen from the planets that govern each goal, and only when friendly for your lagna. Buy natural, untreated stones; energise with the mantra 108 times on the day; test 3–7 days.</p>

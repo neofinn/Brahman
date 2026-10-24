@@ -8,6 +8,7 @@ import { getArticle } from "./learned.ts";
 import { readKundli } from "./reading.ts";
 import { ACTIVITIES } from "./muhurta.ts";
 import { getSiddhi, GUNA_INFO } from "./siddhis.ts";
+import { devataPlan } from "./devata.ts";
 import { AREA_TITLES, formatMonth, predict } from "./predictions.ts";
 import { CRISIS_TEXT, EMERGENCY_TEXT, supportWords } from "./support.ts";
 import type { Step } from "./ritual-common.ts";
@@ -96,6 +97,17 @@ export function speechForCard(card: Card): string[] {
       return ["Here are the siddhis of Sanatan Dharma, sorted by guna. Shri Krishna and Patanjali both teach that siddhis are obstacles on the path to moksha; the true siddhi is devotion and liberation."];
     case "abroad":
       return ["Wherever you are, the puja can be done. When Ganga jal is not available, take clean water and recite", "गङ्गे च यमुने चैव गोदावरि सरस्वति। नर्मदे सिन्धु कावेरि जलेऽस्मिन् सन्निधिं कुरु॥", "When an item is missing, offer akshata in its place, or offer it in your mind. The substitutes are listed below."];
+    case "devata": {
+      const k = computeKundli(zonedToUtc(card.date, card.time, card.place.timeZone), card.place);
+      const plan = devataPlan(k, predict(k), zonedToUtc(card.date, card.time, card.place.timeZone));
+      const [ishta] = plan.core;
+      const nowDeity = plan.now[0];
+      return [
+        `Your ishta devata is ${ishta.deity.name}. Chant`, ishta.deity.mantra,
+        nowDeity ? `For your current period, worship ${nowDeity.deity.name} on ${nowDeity.deity.day.split(/[,;]/)[0]}. It brings ${nowDeity.deity.gives}.` : "",
+        "The deity for each wish is listed below.",
+      ].filter(Boolean);
+    }
     case "milan":
       return ["For Kundli Milan, enter the birth details of the boy and the girl, and I will match all eight kootas."];
     case "muhurta":

@@ -21,6 +21,7 @@ import { ConfluenceView } from "./ConfluenceView";
 import { LoShuGrid } from "./LoShuGrid";
 import { KundliPdfButton } from "./KundliPdf";
 import { LifeGuideView } from "./LifeGuideView";
+import { DevataView } from "./DevataView";
 import type { AreaId } from "@/lib/predictions";
 
 const ABBR: Record<string, string> = {
@@ -36,7 +37,7 @@ export interface BirthInfo {
   gender?: "m" | "f";
 }
 
-type Tab = "guide" | "parashari" | "predictions" | "final" | "life" | "jaimini" | "kp" | "lalkitab" | "bnn" | "numerology";
+type Tab = "guide" | "devata" | "parashari" | "predictions" | "final" | "life" | "jaimini" | "kp" | "lalkitab" | "bnn" | "numerology";
 
 export function KundliReport({ kundli, name, birth, onRitual, initialTab, focus, onRecompute }: {
   kundli: Kundli; name?: string; birth?: BirthInfo; onRitual?: (id: string) => void; initialTab?: Tab; focus?: AreaId; onRecompute?: (time: string) => void;
@@ -61,13 +62,14 @@ export function KundliReport({ kundli, name, birth, onRitual, initialTab, focus,
     <div className="kundli-report">
       {birth && <p style={{ margin: "4px 0 8px" }}><KundliPdfButton kundli={kundli} name={name} birth={birth} /></p>}
       <div className="tabs" role="tablist">
-        {([["guide", "Your life guide"], ["parashari", "Parashari (BPHS)"], ["predictions", "Predictions & remedies"], ["final", "Final observations"], ["life", "Life so far"], ["jaimini", "Jaimini"], ["kp", "KP"], ["lalkitab", "Lal Kitab"], ["bnn", "Bhrigu Nandi Nadi"], ["numerology", "Numerology & Lo Shu"]] as [Tab, string][]).filter(([t]) => birth || !["guide", "final", "life", "jaimini"].includes(t)).map(([t, label]) => (
+        {([["guide", "Your life guide"], ["devata", "Deities to worship"], ["parashari", "Parashari (BPHS)"], ["predictions", "Predictions & remedies"], ["final", "Final observations"], ["life", "Life so far"], ["jaimini", "Jaimini"], ["kp", "KP"], ["lalkitab", "Lal Kitab"], ["bnn", "Bhrigu Nandi Nadi"], ["numerology", "Numerology & Lo Shu"]] as [Tab, string][]).filter(([t]) => birth || !["guide", "devata", "final", "life", "jaimini"].includes(t)).map(([t, label]) => (
           <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>{label}</button>
         ))}
       </div>
       {tab === "parashari" && <Parashari kundli={kundli} name={name} style={style} onStyle={changeStyle} varga={varga} onVarga={setVarga} onRitual={onRitual} />}
       {tab === "predictions" && <PredictionsView kundli={kundli} gender={birth?.gender} focus={focus} onRitual={onRitual} />}
       {tab === "guide" && birth && <LifeGuideView kundli={kundli} birth={birth} />}
+      {tab === "devata" && birth && <DevataView kundli={kundli} birth={birth} onRitual={onRitual} />}
       {tab === "final" && birth && <ConfluenceView kundli={kundli} birth={birth} />}
       {tab === "life" && birth && <LifeView kundli={kundli} birth={birth} onRecompute={onRecompute} />}
       {tab === "jaimini" && birth && <JaiminiView kundli={kundli} birthUtc={zonedToUtc(birth.date, birth.time, birth.place.timeZone)} />}

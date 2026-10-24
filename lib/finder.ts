@@ -24,6 +24,7 @@ export type Card =
   | { type: "prediction"; date: string; time: string; place: Place; name?: string; focus?: AreaId }
   | { type: "milan" }
   | { type: "abroad"; ritualId?: string }
+  | { type: "devata"; date: string; time: string; place: Place; name?: string }
   | { type: "siddhi"; id: string }
   | { type: "siddhiList"; guna?: Guna }
   | { type: "muhurta"; activity: Activity }
@@ -40,7 +41,7 @@ export interface FinderState {
   /** Birth details gathered so far while Brahman asks for the rest. */
   pendingKundli?: BirthDetails;
   /** The prediction asked for while birth details are still being gathered ("general" for the whole future). */
-  pendingFocus?: AreaId | "general";
+  pendingFocus?: AreaId | "general" | "devata";
   /** The last complete birth details, so "when will I marry?" can be answered without asking again. */
   lastBirth?: BirthDetails;
 }
@@ -265,6 +266,7 @@ const MUHURTA_WORDS = ["muhurat", "muhurta", "mahurat", "muhurtham", "shubh din"
 const PREDICT_WORDS = ["future", "bhavishya", "prediction", "predictions", "predict", "forecast", "bhavishyavani", "rajyog", "raj yog", "rajyoga", "raja yoga", "upcoming", "aane wala", "aanewala", "kaisa rahega", "kaisa rahegi", "kaise rahega", "next year", "agla saal", "this year", "is saal", "phaladesh", "my dosha", "mere dosh", "kundli dosh", "kundli dosha"];
 const ABROAD_WORDS = ["abroad", "videsh", "foreign", "usa", "america", "canada", "uk", "london", "australia", "germany", "dubai", "overseas", "no pandit", "without pandit", "pandit nahi", "bina pandit", "no temple"];
 const SUBSTITUTE_WORDS = ["substitute", "substitutes", "alternative", "replacement", "instead of", "not available", "can't find", "cant find", "cannot find", "nahi milta", "nahi milte", "nahi mil raha", "nahi mil rahe", "nahi mila", "nahi milti", "unavailable", "dont have", "don't have", "do not have", "budget", "cheap", "afford", "manasa puja", "mansik puja", "fire safety", "smoke alarm", "apartment"];
+const DEVATA_WORDS = ["which deity", "which god", "which goddess", "kis bhagwan", "kis bhagvan", "kaun se bhagwan", "kaunse bhagwan", "konse bhagwan", "kis devta", "kis devi", "kaun si devi", "ishta devata", "isht dev", "ishta dev", "isht devta", "ishtdev", "ishta deity", "kis ki puja", "kiski puja", "whom should i worship", "deity to worship", "deity for me", "mere bhagwan", "mera isht"];
 const PRAYER_WORDS = ["pray", "prayer", "prarthana", "dua", "bless", "blessing", "blessings", "aashirwad", "ashirwad", "motivate", "scared", "afraid", "darr", "dar lag", "nervous", "anxious", "worried", "tension", "sad", "upset"];
 const WHEN_WORDS = ["kab", "when", "will i", "hoga", "hogi", "milegi", "milega", "chances", "possible", "yog", "yoga"];
 const AREA_WORDS: [AreaId, string[]][] = [
@@ -305,7 +307,13 @@ function areaOf(has: (w: string) => boolean): AreaId | undefined {
   return AREA_WORDS.find(([, words]) => words.some((w) => has(w.trim())))?.[0];
 }
 
-function predictionCards(d: BirthDetails, focus: AreaId | "general"): Card[] {
+function predictionCards(d: BirthDetails, focus: AreaId | "general" | "devata"): Card[] {
+  if (focus === "devata") {
+    return [
+      { type: "text", text: `🙏 From the kundli${d.name ? ` of ${d.name}` : ""} (${d.date}, ${d.time}, ${d.place!.name}): your deities for life, the deity to please in your current dasha, and the deity for each wish — with mantra, day and offering.` },
+      { type: "devata", date: d.date!, time: d.time!, place: d.place!, name: d.name },
+    ];
+  }
   const f = focus === "general" ? undefined : focus;
   const intro = f
     ? `🙏 I have studied the kundli${d.name ? ` of ${d.name}` : ""} (${d.date}, ${d.time}, ${d.place!.name}) for ${f === "foreign" ? "foreign travel and settlement" : f}. The timing comes from the dashas and the transits of Jupiter and Saturn; remedies follow.`
@@ -384,7 +392,14 @@ function answer(text: string, state: FinderState): FinderReply {
     return { cards, state };
   }
 
-  // 1d. Predictions: "my future", "shaadi kab hogi", "career kaisa rahega".
+  // 1d. Which deity to worship, from the kundli.
+  if (DEVATA_WORDS.some(hasWord) && !state.pendingKundli) {
+    const details = mergeDetails(birth.date ? undefined : state.lastBirth, birth);
+    if (details.date && details.time && details.place) return { cards: predictionCards(details, "devata"), state: { lastBirth: details } };
+    return { cards: [{ type: "text", text: askForMissing(details).replace("To prepare your janma kundli", "To find the deities for you from your kundli") }], state: { pendingKundli: details, pendingFocus: "devata" } };
+  }
+
+  // 1e. Predictions: "my future", "shaadi kab hogi", "career kaisa rahega".
   const area = areaOf(hasWord);
   // A worry with a prayer request ("interview tomorrow, will I get the job? pray for me") is for comfort, not a forecast.
   const asksPrayer = PRAYER_WORDS.some(hasWord);
@@ -399,7 +414,7 @@ function answer(text: string, state: FinderState): FinderReply {
     };
   }
 
-  // 1e. Kundli: explicit request, a birth date, or continuing a pending request.
+  // 1f. Kundli: explicit request, a birth date, or continuing a pending request.
   const wantsKundli = KUNDLI_WORDS.some(hasWord) || qTokens.includes("kundli");
   if (state.pendingKundli || wantsKundli || birth.date) {
     const ritualsHit = rank(RITUAL_INDEX, query, qTokens)[0];

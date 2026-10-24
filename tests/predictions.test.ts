@@ -220,3 +220,18 @@ test("life guide, gems for goals, special lagnas and all vargas", async () => {
   assert.equal(VARGAS.length, 20);
   for (const v of VARGAS) assert.equal(vargaChart(k, v.id).positions.length, 9);
 });
+
+test("devata: deities from the kundli, dasha, goals and doshas", async () => {
+  const { devataPlan, DEITIES } = await import("../lib/devata.ts");
+  const birth = zonedToUtc("1990-01-15", "06:30", "Asia/Kolkata");
+  const plan = devataPlan(k, predict(k, {}, NOW), birth);
+  assert.ok(plan.core.length >= 3 && plan.now.length >= 1 && plan.goals.length >= 12 && plan.daily.length >= 3);
+  for (const d of Object.values(DEITIES)) assert.ok(d.mantra && d.day && d.gives, d.id);
+  const { getKriya } = await import("../lib/kriyas.ts");
+  const { getKatha } = await import("../lib/kathas/index.ts");
+  for (const d of Object.values(DEITIES)) { d.rituals.forEach((r) => assert.ok(getKriya(r), r)); d.kathas.forEach((x) => assert.ok(getKatha(x), x)); }
+  const ask = respond("mujhe kis bhagwan ki puja karni chahiye?");
+  assert.equal(ask.state.pendingFocus, "devata");
+  const got = respond("15 Jan 1990, 6:30 am, Delhi", ask.state);
+  assert.ok(got.cards.some((c) => c.type === "devata"));
+});

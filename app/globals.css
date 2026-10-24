@@ -375,3 +375,7 @@ ul.samagri { padding-left: 18px; margin: 0; }
 .pdf-report .pdf-q { border-left: 3px solid var(--good); padding: 4px 10px; margin: 6px 0; background: #fbfaf6; }
 .pdf-report .pdf-q.care { border-left-color: var(--bad); }
 .pdf-report .pdf-q h4 { margin: 0 0 2px; font-size: 14px; color: var(--maroon); }
+@media (max-width: 640px) {
+  .kundli-report .tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+  .kundli-report .tabs button { white-space: nowrap; flex: 0 0 auto; }
+}
