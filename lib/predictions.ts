@@ -668,6 +668,28 @@ export function doubleTransit(k: Kundli, house: number, at: Date, fromMoon = fal
   return jupiterTouches(slowSign("Jupiter", at.getTime()), target) && saturnTouches(slowSign("Saturn", at.getTime()), target);
 }
 
+/** Whether a planet's gemstone suits this chart: only functional benefics (lagna, 5th, 9th lords, yogakaraka) are strengthened. */
+export function gemSafety(k: Kundli, planet: string): { verdict: "best" | "good" | "caution" | "avoid"; reason: string } {
+  if (planet === "Rahu" || planet === "Ketu") return { verdict: "caution", reason: `${planet}'s stone acts strongly and unpredictably — only after an astrologer checks its dasha and placement` };
+  const c = context(k);
+  const houses = c.ruled(planet);
+  const list = houses.map(ord).join(" and ");
+  const lagnaLord = houses.includes(1);
+  if (isYogakaraka(k, planet)) return { verdict: "best", reason: `${planet} is the yogakaraka for your lagna (lord of the ${list})` };
+  // A trikona lord stays benefic even when it also owns a dusthana (e.g. Mars, lord of 5 and 12, for Dhanu lagna).
+  if (houses.some((h) => h === 5 || h === 9) && houses.some((h) => h === 6 || h === 8 || h === 12)) return { verdict: "good", reason: `${planet} rules your ${list} — the trikona lordship makes it a benefic; wear after a trial period` };
+  if (houses.some((h) => h === 6 || h === 8 || h === 12) && !lagnaLord) return { verdict: "avoid", reason: `${planet} rules your ${list} house${houses.length > 1 ? "s" : ""}, including a difficult one — strengthening it can backfire` };
+  if (lagnaLord || houses.some((h) => h === 5 || h === 9)) return { verdict: "best", reason: `${planet} rules your ${list} — a functional benefic for your lagna` };
+  if (houses.includes(3)) return { verdict: "caution", reason: `${planet} rules your ${list}; wear only after a trial period` };
+  return { verdict: "good", reason: `${planet} rules your ${list} — neutral to helpful; wear after a trial period` };
+}
+
+/** The house a slow planet transits at a date, counted from the Moon (default) or the lagna. */
+export function transitHouse(k: Kundli, planet: "Jupiter" | "Saturn" | "Rahu", at: Date, fromMoon = true): number {
+  const ref = fromMoon ? k.grahas.find((g) => g.name === "Moon")!.rashi.index : k.lagna.rashi.index;
+  return ((slowSign(planet, at.getTime()) - ref + 12) % 12) + 1;
+}
+
 /** The maha- and antardasha lords running at a date. */
 export function dashaAt(k: Kundli, at: Date): { maha: string; antar: string } | null {
   return antarAt(k, at.getTime());

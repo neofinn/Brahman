@@ -368,3 +368,10 @@ ul.samagri { padding-left: 18px; margin: 0; }
 .pdf-report p { margin: 4px 0; }
 .pdf-report .north-chart { max-width: 340px; margin: 0 auto; background: #fff; }
 .pdf-report .pdf-disclaimer { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 8px; }
+.card.guide-care { border-left: 3px solid var(--bad); }
+.card.guide-opportunity { border-left: 3px solid var(--good); }
+.pdf-report .pdf-three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.pdf-report .pdf-three .north-chart { max-width: 220px; }
+.pdf-report .pdf-q { border-left: 3px solid var(--good); padding: 4px 10px; margin: 6px 0; background: #fbfaf6; }
+.pdf-report .pdf-q.care { border-left-color: var(--bad); }
+.pdf-report .pdf-q h4 { margin: 0 0 2px; font-size: 14px; color: var(--maroon); }

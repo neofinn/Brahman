@@ -18,6 +18,10 @@ import { formatMonth, predict } from "@/lib/predictions";
 import { getGraha } from "@/lib/grahas";
 import { formatDate, zonedToUtc } from "@/lib/time";
 import { NorthChart } from "./Charts";
+import { VARGAS } from "@/lib/vargas";
+import { lifeGuide } from "@/lib/lifeguide";
+import { gemsForGoals } from "@/lib/gems";
+import { specialLagnas } from "@/lib/lagnas";
 import type { BirthInfo } from "./KundliReport";
 
 const ABBR: Record<string, string> = { Sun: "Su", Moon: "Mo", Mars: "Ma", Mercury: "Me", Jupiter: "Ju", Venus: "Ve", Saturn: "Sa", Rahu: "Ra", Ketu: "Ke" };
@@ -42,6 +46,12 @@ function Report({ kundli, name, birth }: { kundli: Kundli; name?: string; birth:
   const d9 = vargaChart(kundli, "D9");
   const moon = kundli.grahas[1];
   const py = personalYear(birth.date, new Date().getFullYear());
+  const guide = lifeGuide(kundli, p, birthUtc, birth.date);
+  const gems = gemsForGoals(kundli);
+  const lagnas = specialLagnas(kundli, birthUtc, birth.place);
+  const vargaRows: (typeof VARGAS)[] = [];
+  const allVargas = VARGAS.filter((v) => v.id !== "D1" && v.id !== "D9");
+  for (let i = 0; i < allVargas.length; i += 3) vargaRows.push(allVargas.slice(i, i + 3));
   const d1Planets = kundli.grahas.map((g) => ({ label: `${ABBR[g.name]} ${Math.floor(g.rashi.degree)}°`, sign: g.rashi.index }));
   const d9Planets = d9.positions.map((x) => ({ label: ABBR[x.name], sign: x.sign }));
 
@@ -61,7 +71,43 @@ function Report({ kundli, name, birth }: { kundli: Kundli; name?: string; birth:
         </div>
       </Block>
 
+      <Block breakBefore>
+        <H>Your life guide — in plain words</H>
+        <p className="pdf-small">Everything in this report — Parashari, Jaimini, KP, Lal Kitab, transits and numerology — brought together into answers about your life. Ages are shown so you can check the past and plan the future.</p>
+        <p className="pdf-sub">This time of your life</p>
+        {guide.now.map((l) => <p key={l}>{l}</p>)}
+      </Block>
       <Block>
+        <p className="pdf-sub">Your best career</p>
+        <p>{guide.career.text}</p>
+      </Block>
+      {guide.answers.map((a) => (
+        <Block key={a.id}>
+          <div className={`pdf-q${a.kind === "care" ? " care" : ""}`}>
+            <h4>{a.question}</h4>
+            <p><strong>{a.answer}</strong></p>
+            <p className="pdf-small">Why: {a.why} Tip: {a.tip}</p>
+          </div>
+        </Block>
+      ))}
+      <Block breakBefore>
+        <H>Gemstones for your life goals</H>
+        <p className="pdf-small">Chosen from the planets that govern each goal, and only when friendly for your lagna. Buy natural, untreated stones; energise with the mantra 108 times on the day; test 3–7 days.</p>
+        <table className="pdf-table">
+          <thead><tr><th>Goal</th><th>Best gem and how to wear</th><th>Avoid</th></tr></thead>
+          <tbody>
+            {gems.map((g) => (
+              <tr key={g.goal}>
+                <td>{g.goal}</td>
+                <td>{g.recommended ? <><strong>{g.recommended.gem}</strong> {g.recommended.hindi} — {g.recommended.reason}. {g.recommended.finger}, {g.recommended.metal}, {g.recommended.day}, {g.recommended.weight}. Substitute: {g.recommended.substitute}.{g.alternative ? ` Also suits: ${g.alternative.gem}.` : ""}</> : "No gem — mantra, daan and worship instead"}</td>
+                <td>{g.avoid.length ? g.avoid.map((a) => `${a.gem} (${a.planet})`).join(", ") : "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Block>
+
+      <Block breakBefore>
         <H>Birth charts</H>
         <div className="pdf-two">
           <div><NorthChart lagna={kundli.lagna.rashi.index} planets={d1Planets} title="D1 Rashi" subtitle={name} /><p className="pdf-cap">D1 Rashi chart</p></div>
@@ -69,7 +115,32 @@ function Report({ kundli, name, birth }: { kundli: Kundli; name?: string; birth:
         </div>
       </Block>
 
+      {vargaRows.map((row, i) => (
+        <Block key={i}>
+          {i === 0 && <p className="pdf-sub">All divisional charts (D1 to D60)</p>}
+          <div className="pdf-three">
+            {row.map((v) => {
+              const c = vargaChart(kundli, v.id);
+              return (
+                <div key={v.id}>
+                  <NorthChart lagna={c.lagna} planets={c.positions.map((x) => ({ label: ABBR[x.name], sign: x.sign }))} title={`${v.id} ${v.name}`} />
+                  <p className="pdf-cap"><strong>{v.id} {v.name}</strong> — {v.signifies}</p>
+                </div>
+              );
+            })}
+          </div>
+        </Block>
+      ))}
+
       <Block>
+        <H>All the lagnas</H>
+        <table className="pdf-table">
+          <thead><tr><th>Lagna</th><th>Sign</th><th>Shows</th><th>In your chart</th></tr></thead>
+          <tbody>{lagnas.map((l) => <tr key={l.name}><td>{l.name}</td><td>{l.signName}</td><td>{l.meaning}</td><td>{l.reading}</td></tr>)}</tbody>
+        </table>
+      </Block>
+
+      <Block breakBefore>
         <H>Graha positions</H>
         <table className="pdf-table">
           <thead><tr><th>Graha</th><th>Rashi</th><th>Degree</th><th>House</th><th>Nakshatra (pada)</th><th>D9</th></tr></thead>
@@ -82,7 +153,7 @@ function Report({ kundli, name, birth }: { kundli: Kundli; name?: string; birth:
         <p className="pdf-small">Chara karakas: {charaKarakas(kundli).map((c) => `${c.karaka} ${c.graha}`).join(" · ")}</p>
       </Block>
 
-      <Block breakBefore><H>Final observations — confluence of all techniques</H>
+      <Block breakBefore><H>Final observations — how each system votes</H>
         <p><strong>{p.summary}</strong></p>
         <p className="pdf-sub">The present</p>
         <ul>{present.lines.map((l) => <li key={l}>{l}</li>)}</ul>
@@ -205,22 +276,33 @@ function Report({ kundli, name, birth }: { kundli: Kundli; name?: string; birth:
 
 /** html2canvas renders SVG without the page's stylesheet, so copy computed styles onto the chart elements. */
 function inlineSvgStyles(root: HTMLElement) {
+  const view = root.ownerDocument.defaultView ?? window;
   root.querySelectorAll("svg *").forEach((el) => {
-    const cs = getComputedStyle(el);
+    const cs = view.getComputedStyle(el);
     for (const prop of ["fill", "stroke", "stroke-width", "font-size", "font-weight", "font-family"]) el.setAttribute(prop, cs.getPropertyValue(prop));
   });
 }
 
 async function buildPdf(kundli: Kundli, name: string | undefined, birth: BirthInfo): Promise<Blob> {
   const [{ jsPDF }, html2canvas] = await Promise.all([import("jspdf"), import("html2canvas").then((m) => m.default)]);
-  const host = document.createElement("div");
-  host.setAttribute("data-theme", "light");
-  host.style.cssText = "position:fixed;left:-12000px;top:0;width:794px;";
-  document.body.appendChild(host);
+  // Render inside a small isolated iframe: html2canvas clones the whole document for every capture, so a tiny
+  // document keeps it fast.
+  const frame = document.createElement("iframe");
+  frame.setAttribute("aria-hidden", "true");
+  frame.style.cssText = "position:fixed;left:-12000px;top:0;width:860px;height:1200px;border:0;";
+  document.body.appendChild(frame);
+  const doc = frame.contentDocument!;
+  doc.open();
+  doc.write('<!doctype html><html data-theme="light"><head><meta charset="utf-8"></head><body style="margin:0;background:#fff"></body></html>');
+  doc.close();
+  for (const el of Array.from(document.querySelectorAll("style"))) doc.head.appendChild(el.cloneNode(true));
+  const host = doc.createElement("div");
+  host.style.width = "794px";
+  doc.body.appendChild(host);
   const root = createRoot(host);
   root.render(<Report kundli={kundli} name={name} birth={birth} />);
-  await new Promise((r) => setTimeout(r, 400));
-  await document.fonts?.ready;
+  await new Promise((r) => setTimeout(r, 500));
+  await doc.fonts?.ready;
   inlineSvgStyles(host);
 
   const pdf = new jsPDF({ unit: "pt", format: "a4", compress: true });
@@ -230,44 +312,47 @@ async function buildPdf(kundli: Kundli, name: string | undefined, birth: BirthIn
   const usableW = pageW - margin * 2;
   const SCALE = 1.6;
   const ptPerPx = usableW / 794;
-  let y = margin;
-  let firstOnPage = true;
-  for (const block of Array.from(host.querySelectorAll<HTMLElement>(".pdf-block"))) {
-    if (block.classList.contains("page-break") && !firstOnPage) {
-      pdf.addPage();
-      y = margin;
-      firstOnPage = true;
+  // Lay the blocks out into page-sized groups first, then capture once per page (each capture has a fixed cost).
+  const pageHeightPx = (pageH - margin * 2) / ptPerPx;
+  const blocks = Array.from(host.querySelectorAll<HTMLElement>(".pdf-block"));
+  const groups: HTMLElement[][] = [];
+  let current: HTMLElement[] = [];
+  let used = 0;
+  for (const b of blocks) {
+    const h = b.offsetHeight;
+    if (current.length && (b.classList.contains("page-break") || used + h > pageHeightPx)) {
+      groups.push(current);
+      current = [];
+      used = 0;
     }
-    const canvas = await html2canvas(block, { scale: SCALE, backgroundColor: "#ffffff", logging: false, width: 794, windowWidth: 794 });
-    const pxH = canvas.height / SCALE;
-    let hPt = pxH * ptPerPx;
-    if (y + hPt > pageH - margin && hPt <= pageH - margin * 2) {
-      pdf.addPage();
-      y = margin;
+    current.push(b);
+    used += h;
+  }
+  if (current.length) groups.push(current);
+  const report = host.querySelector<HTMLElement>(".pdf-report")!;
+  const pagesEl = groups.map((g) => {
+    const page = doc.createElement("div");
+    page.className = "pdf-report pdf-page";
+    g.forEach((b) => page.appendChild(b));
+    return page;
+  });
+  report.replaceWith(...pagesEl);
+
+  let firstPage = true;
+  for (const page of pagesEl) {
+    const canvas = await html2canvas(page, { scale: SCALE, backgroundColor: "#ffffff", logging: false, width: 794, windowWidth: 794 });
+    // A single block taller than a page is sliced across pages.
+    const slicePx = Math.floor(pageHeightPx * SCALE);
+    for (let offset = 0; offset < canvas.height; offset += slicePx) {
+      if (!firstPage) pdf.addPage();
+      firstPage = false;
+      const h = Math.min(slicePx, canvas.height - offset);
+      const piece = doc.createElement("canvas");
+      piece.width = canvas.width;
+      piece.height = h;
+      piece.getContext("2d")!.drawImage(canvas, 0, offset, canvas.width, h, 0, 0, canvas.width, h);
+      pdf.addImage(piece.toDataURL("image/jpeg", 0.82), "JPEG", margin, margin, usableW, (h / SCALE) * ptPerPx);
     }
-    if (hPt <= pageH - margin - y) {
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.82), "JPEG", margin, y, usableW, hPt);
-      y += hPt + 6;
-    } else {
-      // Taller than a page: slice it.
-      let offset = 0;
-      while (offset < canvas.height) {
-        const roomPt = pageH - margin - y;
-        const slicePx = Math.min(canvas.height - offset, Math.floor((roomPt / ptPerPx) * SCALE));
-        const piece = document.createElement("canvas");
-        piece.width = canvas.width;
-        piece.height = slicePx;
-        piece.getContext("2d")!.drawImage(canvas, 0, offset, canvas.width, slicePx, 0, 0, canvas.width, slicePx);
-        hPt = (slicePx / SCALE) * ptPerPx;
-        pdf.addImage(piece.toDataURL("image/jpeg", 0.82), "JPEG", margin, y, usableW, hPt);
-        offset += slicePx;
-        if (offset < canvas.height) {
-          pdf.addPage();
-          y = margin;
-        } else y += hPt + 6;
-      }
-    }
-    firstOnPage = false;
   }
   const pages = pdf.getNumberOfPages();
   for (let i = 1; i <= pages; i++) {
@@ -277,8 +362,10 @@ async function buildPdf(kundli: Kundli, name: string | undefined, birth: BirthIn
     pdf.text(`Brahman — Janma Kundli Report${name ? ` · ${name}` : ""}`, margin, pageH - 14);
     pdf.text(`${i} / ${pages}`, pageW - margin, pageH - 14, { align: "right" });
   }
-  root.unmount();
-  host.remove();
+  // The blocks were moved into page wrappers, so React's tree no longer matches the DOM: drop the frame and let the
+  // root be collected rather than unmounting it.
+  frame.remove();
+  void root;
   return pdf.output("blob");
 }
 
@@ -321,7 +408,7 @@ export function KundliPdfButton({ kundli, name, birth }: { kundli: Kundli; name?
   return (
     <span className="pdf-button">
       <button type="button" className="btn" onClick={go} disabled={state === "busy"}>
-        {state === "busy" ? "Preparing the report…" : "⬇ Download PDF report"}
+        {state === "busy" ? "Preparing your report (about 20 seconds)…" : "⬇ Download PDF report"}
       </button>
       {state === "done" && <span className="good"> ✓ Report ready</span>}
       {state === "error" && <span className="bad"> {error}</span>}

@@ -193,3 +193,30 @@ test("jaimini, lo shu, life so far and confluence", async () => {
   for (const a of areas) assert.equal(a.votes.length, 4);
   assert.ok(presentConfluence(k, p, j, "1990-01-15", NOW).lines.length >= 3);
 });
+
+test("life guide, gems for goals, special lagnas and all vargas", async () => {
+  const { lifeGuide } = await import("../lib/lifeguide.ts");
+  const { gemsForGoals, GOALS } = await import("../lib/gems.ts");
+  const { specialLagnas } = await import("../lib/lagnas.ts");
+  const { VARGAS, vargaChart } = await import("../lib/vargas.ts");
+  const { gemSafety } = await import("../lib/predictions.ts");
+  const birth = zonedToUtc("1990-01-15", "06:30", "Asia/Kolkata");
+  const g = lifeGuide(k, predict(k, {}, NOW), birth, "1990-01-15", NOW);
+  assert.ok(g.now.length >= 3 && g.career.fields.length >= 1);
+  const ids = g.answers.map((a) => a.id);
+  for (const id of ["first-job", "career-rise", "heartbreak", "health", "wealth-care", "status-care", "investment", "house", "loan", "abroad"]) assert.ok(ids.includes(id), id);
+  for (const a of g.answers) for (const w of a.windows) assert.ok(w.to > w.from && w.from >= birth);
+  // Gems: never recommend a planet that rules only difficult houses.
+  for (const goal of gemsForGoals(k)) {
+    if (goal.recommended) assert.notEqual(gemSafety(k, goal.recommended.planet).verdict, "avoid");
+  }
+  assert.equal(gemsForGoals(k).length, GOALS.length);
+  // Dhanu lagna: Venus rules 6 and 11 (avoid diamond), the Sun rules the 9th (ruby suits), Mars rules 5 and 12 (trikona wins).
+  assert.equal(gemSafety(k, "Venus").verdict, "avoid");
+  assert.equal(gemSafety(k, "Sun").verdict, "best");
+  assert.equal(gemSafety(k, "Mars").verdict, "good");
+  const lagnas = specialLagnas(k, birth, DELHI);
+  for (const n of ["Bhava Lagna", "Hora Lagna", "Ghati Lagna", "Shree Lagna", "Indu Lagna", "Arudha Lagna", "Upapada Lagna", "Karakamsha Lagna"]) assert.ok(lagnas.some((l) => l.name === n), n);
+  assert.equal(VARGAS.length, 20);
+  for (const v of VARGAS) assert.equal(vargaChart(k, v.id).positions.length, 9);
+});

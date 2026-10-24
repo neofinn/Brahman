@@ -1,4 +1,5 @@
-// Divisional charts (shodasha varga) by the rules of Brihat Parashara Hora Shastra, and Jaimini chara karakas.
+// Divisional charts: the shodasha varga by the rules of Brihat Parashara Hora Shastra, plus D5, D6, D8 and D11 by the
+// parivritti method, and Jaimini chara karakas.
 import type { Kundli } from "./jyotish.ts";
 
 export interface Varga {
@@ -13,9 +14,13 @@ export const VARGAS: Varga[] = [
   { id: "D2", name: "Hora", sanskrit: "होरा", signifies: "wealth" },
   { id: "D3", name: "Drekkana", sanskrit: "द्रेष्काण", signifies: "siblings and courage" },
   { id: "D4", name: "Chaturthamsha", sanskrit: "चतुर्थांश", signifies: "fortune, property and home" },
+  { id: "D5", name: "Panchamsha", sanskrit: "पञ्चमांश", signifies: "power, authority and fame (parivritti method)" },
+  { id: "D6", name: "Shashthamsha", sanskrit: "षष्ठांश", signifies: "health, disease and enemies (parivritti method)" },
   { id: "D7", name: "Saptamsha", sanskrit: "सप्तांश", signifies: "children and progeny" },
+  { id: "D8", name: "Ashtamsha", sanskrit: "अष्टमांश", signifies: "sudden events and longevity (parivritti method)" },
   { id: "D9", name: "Navamsha", sanskrit: "नवांश", signifies: "spouse, dharma and the strength of planets" },
   { id: "D10", name: "Dashamsha", sanskrit: "दशांश", signifies: "career and status" },
+  { id: "D11", name: "Rudramsha (Ekadashamsha)", sanskrit: "रुद्रांश", signifies: "gains, income and fulfilment of desires (parivritti method)" },
   { id: "D12", name: "Dwadashamsha", sanskrit: "द्वादशांश", signifies: "parents" },
   { id: "D16", name: "Shodashamsha", sanskrit: "षोडशांश", signifies: "vehicles, comforts and happiness" },
   { id: "D20", name: "Vimshamsha", sanskrit: "विंशांश", signifies: "spiritual progress and worship" },
@@ -47,6 +52,12 @@ export function vargaSign(longitude: number, varga: string): number {
       return mod12(sign + 4 * part(3));
     case "D4": // same, 4th, 7th, 10th
       return mod12(sign + 3 * part(4));
+    // BPHS gives no rule for D5, D6, D8 and D11; they are drawn by the parivritti (cyclic) method — counted on from Mesha.
+    case "D5":
+    case "D6":
+    case "D8":
+    case "D11":
+      return mod12(Math.floor((lon * Number(varga.slice(1))) / 30));
     case "D7": // odd from the sign, even from the 7th
       return mod12((odd ? sign : sign + 6) + part(7));
     case "D9": // continuous from Mesha (fire from Mesha, earth from Makara, air from Tula, water from Karka)
