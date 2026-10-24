@@ -133,3 +133,24 @@ test("kathas: every katha has a Hindi telling that matches the English structure
     assert.ok(kathaSpeech(k.id).every((t) => !/[A-Za-z]/.test(t)), `${k.id} speech`);
   }
 });
+
+test("siddhis: classified, sourced, and no procedures for harmful practices", async () => {
+  const { SIDDHIS, SIDDHI_VERSES } = await import("../lib/siddhis.ts");
+  const { getKriya } = await import("../lib/kriyas.ts");
+  assert.ok(SIDDHIS.length >= 60);
+  assert.equal(new Set(SIDDHIS.map((s) => s.id)).size, SIDDHIS.length);
+  for (const g of ["sattvic", "rajasic", "tamasic"]) assert.ok(SIDDHIS.some((s) => s.guna === g), g);
+  // Krishna's list in Bhagavata 11.15: 8 primary, 10 secondary, 5 lesser.
+  assert.equal(SIDDHIS.filter((s) => s.group === "bhagavata").length, 15);
+  for (const s of SIDDHIS) {
+    assert.ok(s.sources.length && s.meaning, s.id);
+    s.rituals?.forEach((r) => assert.ok(getKriya(r), `${s.id} → ${r}`));
+    if (s.guna === "tamasic" || ["vashikarana", "akarshana", "stambhana", "yakshini-sadhana"].includes(s.id)) {
+      assert.equal(s.path, undefined, `${s.id} must not carry a procedure`);
+      assert.ok(s.instead, `${s.id} offers a sattvic alternative`);
+    }
+  }
+  assert.ok(SIDDHI_VERSES.some((v) => v.source === "Yoga Sutra 4.1"));
+  assert.equal(respond("vashikaran mantra").cards[0].type, "siddhi");
+  assert.equal(respond("tamsik sidhi").cards.at(-1)?.type, "siddhiList");
+});

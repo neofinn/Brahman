@@ -329,3 +329,9 @@ ul.samagri { padding-left: 18px; margin: 0; }
 .katha-hi { font-size: 1.06rem; line-height: 1.85; }
 .jaikara { color: var(--saffron-strong); font-weight: 600; }
 .voice-settings label { display: grid; gap: 6px; max-width: 520px; }
+.guna-badge-sattvic { color: var(--good); }
+.guna-badge-rajasic { color: var(--gold); }
+.guna-badge-tamasic { color: var(--bad); }
+.card.siddhi.guna-tamasic { border-left: 3px solid var(--bad); }
+.card.siddhi.guna-rajasic { border-left: 3px solid var(--gold); }
+.card.siddhi.guna-sattvic { border-left: 3px solid var(--good); }

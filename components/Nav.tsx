@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/kriyas", label: "Puja & Hawan" },
   { href: "/katha", label: "Katha" },
   { href: "/library", label: "Scriptures" },
+  { href: "/siddhis", label: "Siddhis" },
   { href: "/profile", label: "My details" },
 ];
 

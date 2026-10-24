@@ -7,6 +7,7 @@ const FEATURES = [
   { href: "/milan", title: "Kundli Milan", text: "Match two kundlis on all eight kootas (36 gunas) with Nadi, Bhakoot and Mangal dosha checks, exceptions and remedies." },
   { href: "/kriyas", title: "Puja, Hawan & Vidhi", text: "Graha shanti, havan, Vastu shanti, Rudrabhishek, Satyanarayan, Lakshmi puja, Navratri, Sundarkand, Shani shanti and more — perform them step by step." },
   { href: "/katha", title: "Katha Library", text: "Bhagavat, Gita, Ramayana, Sundarkand, Garuda Purana, Shiv Purana, Durga Saptashati, Hanuman Chalisa and 20 kathas — read them or let Brahman tell them aloud." },
+  { href: "/siddhis", title: "Siddhis", text: "Every siddhi in the scriptures — ashta siddhi, nava nidhi, Krishna's eighteen, Patanjali's samyama powers, mantra and tantric siddhis — sattvic, rajasic and tamasic, with sources and warnings." },
   { href: "/library", title: "Scripture Library", text: "Explore the Vedas, Upanishads, Itihasas, Puranas, Darshanas and Agamas, and ask about any text." },
 ];
 

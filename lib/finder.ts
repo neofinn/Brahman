@@ -8,6 +8,7 @@ import { learnedToKriya, registerArticles, type LearnedEntry } from "./learned.t
 import { LIBRARY } from "./library.ts";
 import { parseBirthDetails, type BirthDetails } from "./parse.ts";
 import { detectActivity, type Activity } from "./muhurta.ts";
+import { SIDDHIS, type Guna } from "./siddhis.ts";
 import type { AreaId } from "./predictions.ts";
 import { detectCrisis, detectSituation, getSituation, type Relation } from "./support.ts";
 import type { Mantra } from "./ritual-common.ts";
@@ -23,6 +24,8 @@ export type Card =
   | { type: "prediction"; date: string; time: string; place: Place; name?: string; focus?: AreaId }
   | { type: "milan" }
   | { type: "abroad"; ritualId?: string }
+  | { type: "siddhi"; id: string }
+  | { type: "siddhiList"; guna?: Guna }
   | { type: "muhurta"; activity: Activity }
   | { type: "panchang" }
   | { type: "scripture"; category: string; name: string; description: string }
@@ -87,6 +90,10 @@ const VARIANTS: Record<string, string> = {
   sanskar: "samskara", samskar: "samskara", sanskara: "samskara",
   surya: "surya", suraj: "surya", sury: "surya",
   sankalp: "sankalpa", sankalap: "sankalpa", sankalpam: "sankalpa",
+  sidhi: "siddhi", siddhis: "siddhi", sidhis: "siddhi", siddhiyan: "siddhi", siddhiyaan: "siddhi", siddhiya: "siddhi", sidhiyan: "siddhi",
+  satvik: "sattvic", satvic: "sattvic", saatvik: "sattvic", sattvik: "sattvic",
+  rajsik: "rajasic", rajasik: "rajasic", rajsic: "rajasic", rajas: "rajasic", rajk: "rajasic", rajik: "rajasic",
+  tamsik: "tamasic", tamasik: "tamasic", tamsic: "tamasic", tamas: "tamasic",
   kahani: "katha", kahaani: "katha", kahanee: "katha", story: "katha", stories: "katha", kathaa: "katha",
 };
 
@@ -203,6 +210,8 @@ const MANTRA_KEYWORDS: Record<keyof typeof MANTRAS, [string, string[]]> = {
 const MANTRA_INDEX = (Object.keys(MANTRA_KEYWORDS) as (keyof typeof MANTRAS)[]).map((k) =>
   entry({ title: MANTRA_KEYWORDS[k][0], mantra: MANTRAS[k] }, MANTRA_KEYWORDS[k][1]),
 );
+
+const SIDDHI_INDEX = SIDDHIS.map((x) => entry(x.id, [x.name.split(/[(—]/)[0], ...x.keywords]));
 
 const KATHA_INDEX = KATHAS.map((k) => entry(k.id, [k.title.split(/[—(]/)[0], ...k.keywords]));
 
@@ -329,12 +338,33 @@ function answer(text: string, state: FinderState): FinderReply {
   const spaced = ` ${transliterate(lower).replace(/[^a-z0-9\s]+/g, " ").replace(/\s+/g, " ")} `;
   const hasWord = (w: string) => spaced.includes(` ${w} `);
 
-  // 1a. Kundli milan.
+  // 1a. Siddhis: "ashta siddhi", "tamasic siddhis", "vashikaran", "karna pishachini".
+  const siddhiWord = qTokens.includes("siddhi");
+  const siddhiHit = rank(SIDDHI_INDEX, query, qTokens)[0];
+  const ritualTop = rank(RITUAL_INDEX, query, qTokens)[0];
+  if (siddhiWord || (siddhiHit && siddhiHit.score >= 6 && siddhiHit.score > (ritualTop?.score ?? 0))) {
+    const guna = (["sattvic", "rajasic", "tamasic"] as const).find((g) => qTokens.includes(g));
+    const general = ["ashta", "asht", "aath", "eight", "8", "all", "sab", "every", "list", "types", "prakar"].some((w) => qTokens.includes(w));
+    if (siddhiHit && siddhiHit.score >= 6 && !guna && !(general && siddhiWord)) {
+      return { cards: [{ type: "siddhi", id: siddhiHit.value }], state };
+    }
+    if (siddhiWord || guna) {
+      return {
+        cards: [
+          { type: "text", text: "🙏 Here are the siddhis of Sanatan Dharma, sorted by guna, with their scriptural sources. Shri Krishna and Patanjali both teach that siddhis are obstacles on the path to moksha — the true siddhi is devotion and liberation." },
+          { type: "siddhiList", ...(guna ? { guna } : {}) },
+        ],
+        state,
+      };
+    }
+  }
+
+  // 1b. Kundli milan.
   if (MILAN_WORDS.some(hasWord) || (hasWord("match") && (hasWord("kundli") || hasWord("kundali") || hasWord("horoscope")))) {
     return { cards: [{ type: "text", text: "🙏 For Kundli Milan, enter the birth details of the boy and the girl. I will check all eight kootas (36 gunas), Nadi, Bhakoot and Mangal dosha, with remedies." }, { type: "milan" }], state: {} };
   }
 
-  // 1b. A muhurta for an activity ("griha pravesh ka muhurat", "shubh date for marriage").
+  // 1c. A muhurta for an activity ("griha pravesh ka muhurat", "shubh date for marriage").
   const activity = detectActivity(spaced);
   if (MUHURTA_WORDS.some(hasWord) && (activity || hasWord("date") || hasWord("kab") || hasWord("when"))) {
     const a = activity ?? "puja";

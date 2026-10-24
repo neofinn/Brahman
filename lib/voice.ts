@@ -7,6 +7,7 @@ import { getKriya } from "./kriyas.ts";
 import { getArticle } from "./learned.ts";
 import { readKundli } from "./reading.ts";
 import { ACTIVITIES } from "./muhurta.ts";
+import { getSiddhi, GUNA_INFO } from "./siddhis.ts";
 import { AREA_TITLES, formatMonth, predict } from "./predictions.ts";
 import { CRISIS_TEXT, EMERGENCY_TEXT, supportWords } from "./support.ts";
 import type { Step } from "./ritual-common.ts";
@@ -86,6 +87,13 @@ export function speechForCard(card: Card): string[] {
       if (first) lines.push(`Your first remedy: ${first.purpose === "pacify" ? "pacify" : "strengthen"} ${getGraha(first.graha).sanskrit} with this mantra`, first.mantra.devanagari, `on ${first.day}s, and give ${first.daan} in charity.`);
       return lines;
     }
+    case "siddhi": {
+      const sd = getSiddhi(card.id);
+      if (!sd) return [];
+      return [`${sd.name}, a ${GUNA_INFO[sd.guna].title.toLowerCase()} siddhi.`, sd.meaning, sd.path ?? "", sd.caution ?? "", sd.instead ?? ""].filter(Boolean);
+    }
+    case "siddhiList":
+      return ["Here are the siddhis of Sanatan Dharma, sorted by guna. Shri Krishna and Patanjali both teach that siddhis are obstacles on the path to moksha; the true siddhi is devotion and liberation."];
     case "abroad":
       return ["Wherever you are, the puja can be done. When Ganga jal is not available, take clean water and recite", "गङ्गे च यमुने चैव गोदावरि सरस्वति। नर्मदे सिन्धु कावेरि जलेऽस्मिन् सन्निधिं कुरु॥", "When an item is missing, offer akshata in its place, or offer it in your mind. The substitutes are listed below."];
     case "milan":

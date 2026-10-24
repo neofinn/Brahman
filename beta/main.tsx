@@ -9,6 +9,7 @@ import { Chat } from "@/app/chat/Chat";
 import { PanchangView } from "@/app/panchang/PanchangView";
 import { KundliView } from "@/app/kundli/KundliView";
 import { MilanView } from "@/app/milan/MilanView";
+import { SiddhisView } from "@/app/siddhis/SiddhisView";
 import KriyasPage from "@/app/kriyas/page";
 import KathaLibrary from "@/app/katha/page";
 import LibraryPage from "@/app/library/page";
@@ -76,6 +77,8 @@ function Route() {
       return <KundliView />;
     case "milan":
       return <MilanView />;
+    case "siddhis":
+      return <SiddhisView />;
     case "kriyas":
       return id ? <KriyaPage id={id} /> : <KriyasPage />;
     case "katha":

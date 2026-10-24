@@ -38,6 +38,7 @@ hawan/havan, pooja/puja, laxmi/lakshmi, kundali/kundli…), and Indian date and 
 | **Milan** (`/milan`) | Ashtakoota kundli matching for two birth charts. |
 | **Puja & Hawan** (`/kriyas`) | 26 guides (including the four path guides): general havan, Graha Shanti, Vastu Shanti, Mahamrityunjaya, Mangal dosh, Kaal Sarp, Shani shanti, daily and shodashopachara puja, Ganesha, Rudrabhishek, Lakshmi puja, Navratri, Hanuman/Sundarkand, Satyanarayan, Sandhya, Griha Pravesh, tarpan/shraddha, Ekadashi, Janmashtami, Karwa Chauth and the 16 samskaras. |
 | **Katha** (`/katha`) | 30 entries:<br>• **Granths:** Bhagavad Gita (18 adhyayas, a key verse each), Shrimad Bhagavat (12 skandhas), Ramcharitmanas and Valmiki Ramayana (7 kandas), Sundarkand (episode by episode), Garuda Purana, Mahabharata (18 parvas), Shiv Mahapuran (7 samhitas), Durga Saptashati.<br>• **Full text:** Hanuman Chalisa, all 40 chaupais with meaning, recitable in full.<br>• **Kathas:** Dhruva, Prahlad and Narasimha, Gajendra Moksha, Samudra Manthan, Vamana, Krishna Janma, Govardhan, Sudama, Ajamila, Nachiketa, Harishchandra, Shravan Kumar, Ganga Avataran, Markandeya.<br>• **Vrat kathas:** Savitri–Satyavan, Shivaratri, Ganesh Chaturthi, Ekadashi, Karwa Chauth, Hartalika Teej.<br>• **Path guides:** Gita path, Bhagavat Saptah, Akhand Ramayan, Sundarkand and Garuda Purana path. |
+| **Siddhis** (`/siddhis`) | 64 siddhis sorted by guna: the ashta siddhi and nava nidhi, the 18 siddhis of Bhagavata Purana 11.15, the samyama siddhis of the Yoga Sutra, mantra siddhi and purascharana, Hatha, Swara and Siddha powers, the shatkarma, and the sadhanas of spirits — each with sources and the tradition's cautions. Rajasic and tamasic practices that control or harm others are described without procedures, with a sattvic alternative. |
 | **Scriptures** (`/library`) | A map of the canon (Vedas, Upanishads, Itihasa, Puranas, Darshanas, Dharmashastra, Agamas, Vedangas). |
 
 Everything — panchang, kundli, readings and search — runs on the user's device, so birth details never leave it.
@@ -120,6 +121,7 @@ lib/
   predictions.ts      Predictions: yogas, doshas, life areas, timing windows, transits, dasha forecast, remedy plan
   milan.ts            Kundli Milan (Ashtakoota, 36 gunas)
   muhurta.ts          Muhurta finder for common activities
+  siddhis.ts          Siddhis by guna with sources, paths, cautions and sattvic alternatives
   abroad.ts           Samagri substitutes, manasa puja and hawan fire safety for families abroad
   jyotish.ts          Sidereal positions, panchang, kundli, Vimshottari dasha
   time.ts             Places, gazetteer and time-zone helpers

@@ -17,6 +17,9 @@ import { PanchangPanel } from "@/app/panchang/PanchangView";
 import { MilanTool } from "@/app/milan/MilanView";
 import { MuhurtaFinder } from "@/components/MuhurtaFinder";
 import { AbroadBlock } from "@/components/AbroadBlock";
+import { SiddhiCard } from "@/components/SiddhiCard";
+import { SiddhiLibrary } from "@/app/siddhis/SiddhisView";
+import { getSiddhi } from "@/lib/siddhis";
 import { useAiAvailable } from "@/components/useAi";
 import { respond, setLearnedKnowledge, STARTER_SUGGESTIONS, type Card, type FinderState } from "@/lib/finder";
 import { computeKundli } from "@/lib/jyotish";
@@ -99,6 +102,12 @@ function CardView({ card, voice, onRitual, onSend, onKatha }: { card: Card; voic
       return <PredictionCard card={card} onRitual={onRitual} />;
     case "milan":
       return <MilanTool onRitual={onRitual} />;
+    case "siddhi": {
+      const sd = getSiddhi(card.id);
+      return sd ? <SiddhiCard s={sd} onRitual={onRitual} /> : null;
+    }
+    case "siddhiList":
+      return <SiddhiLibrary initialGuna={card.guna} onRitual={onRitual} />;
     case "abroad":
       return <AbroadBlock kriya={card.ritualId ? getKriya(card.ritualId) : undefined} open />;
     case "muhurta":
