@@ -54,8 +54,9 @@ export function KundliView() {
         <h1>Janma Kundli</h1>
         <p className="lede">
           Enter your birth details and search your birthplace. Brahman draws your chart in North or South Indian style and reads it
-          in four systems — Parashari (Brihat Parashara Hora Shastra, with all 16 divisional charts), KP, Bhrigu Nandi Nadi and
-          Chaldean numerology. Everything is computed on your device.
+          in every major system — Parashari (Brihat Parashara Hora Shastra, all 16 divisional charts), Jaimini, KP, Lal Kitab,
+          Bhrigu Nandi Nadi, Chaldean numerology and Lo Shu — with predictions, your life so far, final observations from all of
+          them together, and a downloadable PDF report. Everything is computed on your device.
         </p>
 
         <form className="form-row" onSubmit={compute}>
@@ -85,7 +86,17 @@ export function KundliView() {
 
         {kundli && (
           <>
-            <KundliReport kundli={kundli} name={name} birth={computed ?? undefined} />
+            <KundliReport
+              kundli={kundli}
+              name={name}
+              birth={computed ?? undefined}
+              onRecompute={(t) => {
+                if (!computed) return;
+                setTime(t);
+                setKundli(computeKundli(zonedToUtc(computed.date, t, computed.place.timeZone), computed.place));
+                setComputed({ ...computed, time: t });
+              }}
+            />
             {ai && (
               <p><button className="btn secondary" onClick={askAi}>✨ Ask AI for a conversational reading</button></p>
             )}

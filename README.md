@@ -34,7 +34,7 @@ hawan/havan, pooja/puja, laxmi/lakshmi, kundali/kundli…), and Indian date and 
 | --- | --- |
 | **Ask Brahman** (`/chat`) | The finder described above. |
 | **Panchang** (`/panchang`) | Vara, tithi, nakshatra, yoga, karana with end times; amanta/purnimanta masa with adhik masa detection; Vikram and Shaka samvat; sunrise, sunset, moonrise; Brahma and Abhijit muhurta, Rahu Kaal, Yamaganda, Gulika; monthly vratas linked to their guides; and a **muhurta finder** for common activities. |
-| **Kundli** (`/kundli`) | Search any birthplace (10,000+ places offline; Open-Meteo geocoding online), then read the chart in four systems:<br>• **Parashari (BPHS):** all 16 divisional charts (D1–D60), chara karakas and karakamsha, vargottama, the full reading, remedies, and Vimshottari maha and antardashas.<br>• **Predictions & remedies:** yogas, doshas, life areas with timing windows, the five-year forecast and the remedy plan described above.<br>• **KP:** Krishnamurti ayanamsa, Placidus cusps, sign/star/sub/sub-sub lords, four-level house significators, and ruling planets.<br>• **Bhrigu Nandi Nadi:** Jupiter (native), Saturn (career) and spouse-karaka connections, plus Jupiter/Saturn transit triggers.<br>• **Chaldean numerology:** name, birth and destiny numbers.<br>Charts are drawn in **North Indian or South Indian** style. |
+| **Kundli** (`/kundli`) | Search any birthplace (10,000+ places offline; Open-Meteo geocoding online), then read the chart in four systems:<br>• **Parashari (BPHS):** all 16 divisional charts (D1–D60), chara karakas and karakamsha, vargottama, the full reading, remedies, and Vimshottari maha and antardashas.<br>• **Predictions & remedies:** yogas, doshas, life areas with timing windows, the five-year forecast and the remedy plan described above.<br>• **Final observations:** every life area judged separately by Parashari, Jaimini, KP and Lal Kitab, and the present by Vimshottari, chara dasha, transits and the numerology personal year — agreement shown as strong promise … strong caution.<br>• **Life so far:** every dasha period since birth with age, Sade Sati and Jupiter/Saturn returns, to match against the past; add dated events (marriage, child, job, move abroad…) and Brahman tests birth times ±90 minutes against them (birth-time rectification) and can recompute the chart.<br>• **Jaimini:** chara karakas, rashi drishti, arudha padas and upapada, argala, karakamsha and ishta devata, Jaimini raja yogas, chara dasha (K. N. Rao).<br>• **Lal Kitab:** the Mesha-fixed chart, pakka ghar, planet-in-house effects and upay, rin (ancestral debts), sleeping houses.<br>• **Lo Shu grid** with planes, missing/repeated numbers and personal year.<br>• **⬇ Download PDF report:** everything above in one A4 report, generated on the device.<br>• **KP:** Krishnamurti ayanamsa, Placidus cusps, sign/star/sub/sub-sub lords, four-level house significators, and ruling planets.<br>• **Bhrigu Nandi Nadi:** Jupiter (native), Saturn (career) and spouse-karaka connections, plus Jupiter/Saturn transit triggers.<br>• **Chaldean numerology:** name, birth and destiny numbers.<br>Charts are drawn in **North Indian or South Indian** style. |
 | **Milan** (`/milan`) | Ashtakoota kundli matching for two birth charts. |
 | **Puja & Hawan** (`/kriyas`) | 26 guides (including the four path guides): general havan, Graha Shanti, Vastu Shanti, Mahamrityunjaya, Mangal dosh, Kaal Sarp, Shani shanti, daily and shodashopachara puja, Ganesha, Rudrabhishek, Lakshmi puja, Navratri, Hanuman/Sundarkand, Satyanarayan, Sandhya, Griha Pravesh, tarpan/shraddha, Ekadashi, Janmashtami, Karwa Chauth and the 16 samskaras. |
 | **Katha** (`/katha`) | 30 entries:<br>• **Granths:** Bhagavad Gita (18 adhyayas, a key verse each), Shrimad Bhagavat (12 skandhas), Ramcharitmanas and Valmiki Ramayana (7 kandas), Sundarkand (episode by episode), Garuda Purana, Mahabharata (18 parvas), Shiv Mahapuran (7 samhitas), Durga Saptashati.<br>• **Full text:** Hanuman Chalisa, all 40 chaupais with meaning, recitable in full.<br>• **Kathas:** Dhruva, Prahlad and Narasimha, Gajendra Moksha, Samudra Manthan, Vamana, Krishna Janma, Govardhan, Sudama, Ajamila, Nachiketa, Harishchandra, Shravan Kumar, Ganga Avataran, Markandeya.<br>• **Vrat kathas:** Savitri–Satyavan, Shivaratri, Ganesh Chaturthi, Ekadashi, Karwa Chauth, Hartalika Teej.<br>• **Path guides:** Gita path, Bhagavat Saptah, Akhand Ramayan, Sundarkand and Garuda Purana path. |
@@ -72,7 +72,7 @@ To keep this under control:
 
 Users never need a key. Without one, the app works fully from its built-in knowledge, just without learning.
 
-## Beta (0.1.0-beta.4)
+## Beta (0.1.0-beta.5)
 
 `npm run build:beta` bundles the browser side of the app into one self-contained page (`dist-beta/index.html`, about 1.7 MB). It includes:
 - the finder, puja and hawan guides with personal sankalpa and substitutes for abroad
@@ -121,6 +121,11 @@ lib/
   predictions.ts      Predictions: yogas, doshas, life areas, timing windows, transits, dasha forecast, remedy plan
   milan.ts            Kundli Milan (Ashtakoota, 36 gunas)
   muhurta.ts          Muhurta finder for common activities
+  jaimini.ts          Jaimini: karakas, rashi drishti, arudhas, argala, ishta devata, raja yogas, chara dasha
+  lalkitab.ts         Lal Kitab: pakka ghar, aspects, planet-in-house effects and upay, rin, sleeping houses
+  loshu.ts            Lo Shu grid and personal year
+  lifeline.ts         Life so far (past dasha chapters) and birth-time rectification from life events
+  confluence.ts       Final observations: agreement of all systems per life area and for the present
   siddhis.ts          Siddhis by guna with sources, paths, cautions and sattvic alternatives
   abroad.ts           Samagri substitutes, manasa puja and hawan fire safety for families abroad
   jyotish.ts          Sidereal positions, panchang, kundli, Vimshottari dasha
@@ -158,6 +163,11 @@ tests/                node:test suites
   scripture; full texts are included only where they are short and well established (Hanuman Chalisa).
 - Predictions apply textbook rules (functional benefics/malefics by lagna, dignity, combustion, aspects, Vimshottari
   dasha, Jupiter–Saturn double transit, gochar from the Moon). They are deliberately worded as tendencies with remedies.
+- Lal Kitab effects and remedies follow commonly published tables (pakka ghar, aspects, debts and sleeping houses verified
+  against several sources; individual remedies are not all checked one by one) — the app says to confirm major remedies
+  with a practitioner. The chart is always computed with Lahiri ayanamsa (KP uses the Krishnamurti ayanamsa).
+- Birth-time rectification scores Vimshottari dasha links and the Jupiter–Saturn double transit for each event; it is a
+  guide that needs 3–5 well-dated events, not a certainty.
 - Kundli Milan follows the most widely published North Indian tables. Gana and Vashya vary between traditions (the
   choice is documented in `lib/milan.ts`); Nadi and Bhakoot exceptions are reported without restoring points.
 - Muhurtas use common Muhurta Chintamani rules; marriage and griha pravesh muhurtas should still be confirmed by a

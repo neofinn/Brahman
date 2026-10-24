@@ -14,6 +14,12 @@ import { formatDate, zonedToUtc, type Place } from "@/lib/time";
 import { Chart, type ChartStyle } from "./Charts";
 import { GrahaCard } from "./GrahaCard";
 import { PredictionsView } from "./PredictionsView";
+import { JaiminiView } from "./JaiminiView";
+import { LalKitabView } from "./LalKitabView";
+import { LifeView } from "./LifeView";
+import { ConfluenceView } from "./ConfluenceView";
+import { LoShuGrid } from "./LoShuGrid";
+import { KundliPdfButton } from "./KundliPdf";
 import type { AreaId } from "@/lib/predictions";
 
 const ABBR: Record<string, string> = {
@@ -29,10 +35,10 @@ export interface BirthInfo {
   gender?: "m" | "f";
 }
 
-type Tab = "parashari" | "predictions" | "kp" | "bnn" | "numerology";
+type Tab = "parashari" | "predictions" | "final" | "life" | "jaimini" | "kp" | "lalkitab" | "bnn" | "numerology";
 
-export function KundliReport({ kundli, name, birth, onRitual, initialTab, focus }: {
-  kundli: Kundli; name?: string; birth?: BirthInfo; onRitual?: (id: string) => void; initialTab?: Tab; focus?: AreaId;
+export function KundliReport({ kundli, name, birth, onRitual, initialTab, focus, onRecompute }: {
+  kundli: Kundli; name?: string; birth?: BirthInfo; onRitual?: (id: string) => void; initialTab?: Tab; focus?: AreaId; onRecompute?: (time: string) => void;
 }) {
   const [tab, setTab] = useState<Tab>(initialTab ?? "parashari");
   const [style, setStyle] = useState<ChartStyle>("north");
@@ -52,13 +58,18 @@ export function KundliReport({ kundli, name, birth, onRitual, initialTab, focus 
 
   return (
     <div className="kundli-report">
+      {birth && <p style={{ margin: "4px 0 8px" }}><KundliPdfButton kundli={kundli} name={name} birth={birth} /></p>}
       <div className="tabs" role="tablist">
-        {([["parashari", "Parashari (BPHS)"], ["predictions", "Predictions & remedies"], ["kp", "KP"], ["bnn", "Bhrigu Nandi Nadi"], ["numerology", "Numerology"]] as [Tab, string][]).map(([t, label]) => (
+        {([["parashari", "Parashari (BPHS)"], ["predictions", "Predictions & remedies"], ["final", "Final observations"], ["life", "Life so far"], ["jaimini", "Jaimini"], ["kp", "KP"], ["lalkitab", "Lal Kitab"], ["bnn", "Bhrigu Nandi Nadi"], ["numerology", "Numerology & Lo Shu"]] as [Tab, string][]).filter(([t]) => birth || !["final", "life", "jaimini"].includes(t)).map(([t, label]) => (
           <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>{label}</button>
         ))}
       </div>
       {tab === "parashari" && <Parashari kundli={kundli} name={name} style={style} onStyle={changeStyle} varga={varga} onVarga={setVarga} onRitual={onRitual} />}
       {tab === "predictions" && <PredictionsView kundli={kundli} gender={birth?.gender} focus={focus} onRitual={onRitual} />}
+      {tab === "final" && birth && <ConfluenceView kundli={kundli} birth={birth} />}
+      {tab === "life" && birth && <LifeView kundli={kundli} birth={birth} onRecompute={onRecompute} />}
+      {tab === "jaimini" && birth && <JaiminiView kundli={kundli} birthUtc={zonedToUtc(birth.date, birth.time, birth.place.timeZone)} />}
+      {tab === "lalkitab" && <LalKitabView kundli={kundli} />}
       {tab === "kp" && (birth ? <KpView birth={birth} /> : <p className="sub">KP needs the exact birth time and place.</p>)}
       {tab === "bnn" && <BnnView kundli={kundli} gender={birth?.gender} />}
       {tab === "numerology" && (birth ? <NumerologyView date={birth.date} name={name} /> : null)}
@@ -366,6 +377,7 @@ function NumerologyView({ date, name }: { date: string; name?: string }) {
         <h3>Birth number: {n.birth.number} ({n.birth.planet})</h3>
         <p>From the day of birth: {n.birth.traits}. {planetLine(n.birth.planet)}.</p>
       </div>
+      <LoShuGrid date={date} />
       <div className="reading-section">
         <h3>Destiny number: {n.destiny.compound} → {n.destiny.number} ({n.destiny.planet})</h3>
         <p>From the full date of birth: {n.destiny.traits}. {planetLine(n.destiny.planet)}.</p>

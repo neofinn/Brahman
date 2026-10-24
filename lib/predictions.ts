@@ -632,15 +632,16 @@ function adviceFor(rating: Rating, antar: string, houses: number[]): string {
   return `Go slowly: avoid big risks, loans and quarrels. Daily ${antar} mantra japa and its daan soften this period; matters of ${focus} need care.`;
 }
 
-export function forecast(k: Kundli, now = new Date(), years = 5, ingresses = transitIngresses(k, now, years)): Period[] {
+/** Antardasha periods overlapping [from, to], each rated and described, with the slow-planet ingresses inside them. */
+export function periodsBetween(k: Kundli, from: Date, to: Date, ingresses: Ingress[] = []): Period[] {
   const c = context(k);
-  const end = now.getTime() + years * YEAR_MS;
+  const end = to.getTime();
   const out: Period[] = [];
   for (const maha of k.dashas) {
-    if (maha.end.getTime() <= now.getTime() || maha.start.getTime() >= end) continue;
+    if (maha.end.getTime() <= from.getTime() || maha.start.getTime() >= end) continue;
     for (const a of antardashas(maha)) {
-      if (a.end.getTime() <= now.getTime() || a.start.getTime() >= end) continue;
-      const start = new Date(Math.max(a.start.getTime(), now.getTime()));
+      if (a.end.getTime() <= from.getTime() || a.start.getTime() >= end) continue;
+      const start = new Date(Math.max(a.start.getTime(), from.getTime()));
       const mid = new Date((start.getTime() + Math.min(a.end.getTime(), end)) / 2);
       const rating = rate(ratePeriod(c, maha.lord, a.lord, mid), 3, 0.75, -0.75);
       const { themes, houses } = periodThemes(c, a.lord);
@@ -648,6 +649,28 @@ export function forecast(k: Kundli, now = new Date(), years = 5, ingresses = tra
     }
   }
   return out;
+}
+
+export function forecast(k: Kundli, now = new Date(), years = 5, ingresses = transitIngresses(k, now, years)): Period[] {
+  return periodsBetween(k, now, new Date(now.getTime() + years * YEAR_MS), ingresses);
+}
+
+/** The lords, occupants and karakas of a set of houses — the planets whose periods can bring their events. */
+export function significators(k: Kundli, houses: number[], karakas: string[]): Set<string> {
+  const c = context(k);
+  return new Set([...houses.map(c.lordOf), ...k.grahas.filter((g) => houses.includes(g.house)).map((g) => g.name), ...karakas]);
+}
+
+/** Whether Jupiter and Saturn both influence the sign of `house` from the lagna (or from the Moon) at a date. */
+export function doubleTransit(k: Kundli, house: number, at: Date, fromMoon = false): boolean {
+  const ref = fromMoon ? k.grahas.find((g) => g.name === "Moon")!.rashi.index : k.lagna.rashi.index;
+  const target = (ref + house - 1) % 12;
+  return jupiterTouches(slowSign("Jupiter", at.getTime()), target) && saturnTouches(slowSign("Saturn", at.getTime()), target);
+}
+
+/** The maha- and antardasha lords running at a date. */
+export function dashaAt(k: Kundli, at: Date): { maha: string; antar: string } | null {
+  return antarAt(k, at.getTime());
 }
 
 // ---------------------------------------------------------------------------

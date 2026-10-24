@@ -154,3 +154,42 @@ test("siddhis: classified, sourced, and no procedures for harmful practices", as
   assert.equal(respond("vashikaran mantra").cards[0].type, "siddhi");
   assert.equal(respond("tamsik sidhi").cards.at(-1)?.type, "siddhiList");
 });
+
+test("jaimini, lo shu, life so far and confluence", async () => {
+  const { readJaimini, rashiAspects, arudha } = await import("../lib/jaimini.ts");
+  const { loShu, personalYear } = await import("../lib/loshu.ts");
+  const { pastChapters, rectify, matchEvent } = await import("../lib/lifeline.ts");
+  const { confluence, presentConfluence } = await import("../lib/confluence.ts");
+  const { kpChart } = await import("../lib/kp.ts");
+  const { PAKKA_GHAR } = await import("../lib/lalkitab.ts");
+  const birth = zonedToUtc("1990-01-15", "06:30", "Asia/Kolkata");
+  // Rashi drishti: movable → fixed except the next sign; fixed → movable except the previous; duals → duals.
+  assert.deepEqual(rashiAspects(0), [4, 7, 10]);
+  assert.deepEqual(rashiAspects(1), [3, 6, 9]);
+  assert.deepEqual(rashiAspects(2), [5, 8, 11]);
+  // An arudha is never in the 1st or 7th from its house.
+  for (let s = 0; s < 12; s++) { const a = arudha(k, s); assert.ok(a !== s && a !== (s + 6) % 12); }
+  const j = readJaimini(k, birth, NOW);
+  assert.equal(j.karakas.length, 7);
+  assert.ok(j.points.length >= 4 && j.ishtaDevata.devata);
+  assert.ok(j.currentChara && j.charaDasha[0].start.getTime() === birth.getTime());
+  for (const p of j.charaDasha) assert.ok(p.years >= 1 && p.years <= 12);
+  // Lo Shu for 15-01-1990: digits 1,5,1,1,9,9,0 with conductor 8 (and driver 6 for a two-digit day).
+  const ls = loShu("1990-01-15");
+  assert.equal(ls.counts[1], 3);
+  assert.equal(ls.counts[9], 2);
+  assert.equal(ls.conductor, 8);
+  assert.ok(ls.missing.some((m) => m.n === 2));
+  assert.equal(personalYear("1990-01-15", 2026), 8);
+  const chapters = pastChapters(k, birth, NOW);
+  assert.ok(chapters.length > 20 && chapters[0].ageFrom === 0);
+  assert.ok(chapters.some((c) => c.markers.length));
+  assert.ok(matchEvent(k, { type: "marriage", date: "2016-02" }));
+  const r = rectify("06:30", (hm) => zonedToUtc("1990-01-15", hm, "Asia/Kolkata"), DELHI, [{ type: "career", date: "2012-07" }]);
+  assert.equal(r.candidates.length, 5);
+  const p = predict(k, {}, NOW);
+  const areas = confluence(k, p, kpChart(birth, DELHI.latitude, DELHI.longitude), { pakka: PAKKA_GHAR });
+  assert.equal(areas.length, 8);
+  for (const a of areas) assert.equal(a.votes.length, 4);
+  assert.ok(presentConfluence(k, p, j, "1990-01-15", NOW).lines.length >= 3);
+});
