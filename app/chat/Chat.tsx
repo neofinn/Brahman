@@ -114,7 +114,7 @@ function CardView({ card, voice, onRitual, onSend, onKatha }: { card: Card; voic
     case "milan":
       return <MilanTool onRitual={onRitual} />;
     case "reports":
-      return <ReportStore />;
+      return <ReportStore free />;
     case "siddhi": {
       const sd = getSiddhi(card.id);
       return sd ? <SiddhiCard s={sd} onRitual={onRitual} /> : null;

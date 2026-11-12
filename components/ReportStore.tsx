@@ -81,8 +81,10 @@ function PersonFields({ legend, value, onChange, gender = true }: { legend: stri
 /**
  * The report store: every paid report with its price, bought through Razorpay and generated on the device.
  * With `kundli` and `birth` it is prefilled (inside a kundli); otherwise it asks for birth details.
+ * `free` (inside the Brahman app, and in the single-file beta) makes every report a free download; only the
+ * website's /reports sales page charges.
  */
-export function ReportStore({ kundli, birth, name: givenName }: { kundli?: Kundli; birth?: BirthInfo; name?: string }) {
+export function ReportStore({ kundli, birth, name: givenName, free = false }: { kundli?: Kundli; birth?: BirthInfo; name?: string; free?: boolean }) {
   const [mode, setMode] = useState<Mode>("loading");
   const [person, setPerson] = useState<Person>(() => (birth ? { name: givenName ?? "", date: birth.date, time: birth.time, place: birth.place, gender: birth.gender ?? "" } : blank()));
   const [partner, setPartner] = useState<Person>(blank);
@@ -93,7 +95,7 @@ export function ReportStore({ kundli, birth, name: givenName }: { kundli?: Kundl
 
   useEffect(() => {
     setOwned(loadPurchases());
-    if (isStaticBuild()) return setMode("static");
+    if (free || isStaticBuild()) return setMode("static");
     fetch("/api/pay/config").then((r) => r.json()).then((j: { mode: Mode }) => setMode(j.mode)).catch(() => setMode("off"));
   }, []);
   useEffect(() => {
@@ -125,7 +127,7 @@ export function ReportStore({ kundli, birth, name: givenName }: { kundli?: Kundl
     const key = `${r.id}:${subject}`;
     setBusy(r.id);
     try {
-      if (r.price === 0 || owned[key]) {
+      if (gratis || r.price === 0 || owned[key]) {
         await generate(r);
         setMessage({ id: r.id, text: "✓ Your report is downloading.", ok: true });
         return;
@@ -167,6 +169,7 @@ export function ReportStore({ kundli, birth, name: givenName }: { kundli?: Kundl
     }
   };
 
+  const gratis = free || mode === "static";
   const needsPartner = true;
   const card = (r: ReportDef) => {
     const subject = r.kind === "milan" ? subjects.two : subjects.one;
@@ -179,13 +182,13 @@ export function ReportStore({ kundli, birth, name: givenName }: { kundli?: Kundl
         <p className="deva sub" style={{ marginTop: 0 }}>{r.hindi}</p>
         <p>{r.tagline}</p>
         <ul className="factors">{r.includes.map((x) => <li key={x}>{x}</li>)}</ul>
-        <p className="report-price">{r.price === 0 ? "Free" : rupees(r.price)} {r.mrp && <s className="sub">{rupees(r.mrp)}</s>}</p>
-        {r.price === 0 || has ? (
-          <button type="button" className="btn" disabled={busy !== null} onClick={() => buy(r)}>{busy === r.id ? "Preparing…" : has ? "⬇ Download again" : "⬇ Download free"}</button>
+        <p className="report-price">{gratis || r.price === 0 ? "Free" : rupees(r.price)} {!gratis && r.mrp && <s className="sub">{rupees(r.mrp)}</s>}</p>
+        {gratis || r.price === 0 || has ? (
+          <button type="button" className="btn" disabled={busy !== null} onClick={() => buy(r)}>{busy === r.id ? "Preparing…" : has && !gratis ? "⬇ Download again" : "⬇ Download free"}</button>
         ) : canPay ? (
           <button type="button" className="btn" disabled={busy !== null} onClick={() => buy(r)}>{busy === r.id ? "Processing…" : `Buy & download — ${rupees(r.price)}`}</button>
         ) : (
-          <button type="button" className="btn secondary" disabled>{mode === "static" ? "Available on the Brahman website" : mode === "loading" ? "…" : "Coming soon"}</button>
+          <button type="button" className="btn secondary" disabled>{mode === "loading" ? "…" : "Coming soon"}</button>
         )}
         {message?.id === r.id && <p className={message.ok ? "good" : "bad"}>{message.text}</p>}
       </div>
@@ -206,7 +209,7 @@ export function ReportStore({ kundli, birth, name: givenName }: { kundli?: Kundl
       )}
       {kundli && birth && (
         <div id="store-details">
-          <p className="sub">For {givenName || "this chart"} · {birth.date}, {birth.time}, {birth.place.name}. For Kundli Milan, use the reports page.</p>
+          <p className="sub">For {givenName || "this chart"} · {birth.date}, {birth.time}, {birth.place.name}. For the Kundli Milan report, open Reports in the menu.</p>
         </div>
       )}
       {mode === "test" && <p className="sub" style={{ color: "var(--gold)" }}>Test mode: purchases complete without charging. Turn REPORTS_TEST_MODE off before going live.</p>}
@@ -216,8 +219,9 @@ export function ReportStore({ kundli, birth, name: givenName }: { kundli?: Kundl
         {REPORTS.filter((r) => !(kundli && birth && r.kind === "milan")).map(card)}
       </div>
       <p className="sub">
-        Payments are processed securely by Razorpay (UPI, cards, netbanking, wallets). A purchased report can be downloaded
-        again on the same device. Jyotisha describes tendencies, not fate.
+        {gratis
+          ? "Every report is free in the Brahman app. Jyotisha describes tendencies, not fate."
+          : "Payments are processed securely by Razorpay (UPI, cards, netbanking, wallets). A purchased report can be downloaded again on the same device. Jyotisha describes tendencies, not fate."}
       </p>
     </div>
   );

@@ -70,7 +70,7 @@ export function KundliReport({ kundli, name, birth, onRitual, initialTab, focus,
       {tab === "parashari" && <Parashari kundli={kundli} name={name} style={style} onStyle={changeStyle} varga={varga} onVarga={setVarga} onRitual={onRitual} />}
       {tab === "predictions" && <PredictionsView kundli={kundli} gender={birth?.gender} focus={focus} onRitual={onRitual} />}
       {tab === "guide" && birth && <LifeGuideView kundli={kundli} birth={birth} />}
-      {tab === "reports" && birth && <ReportStore kundli={kundli} birth={birth} name={name} />}
+      {tab === "reports" && birth && <ReportStore kundli={kundli} birth={birth} name={name} free />}
       {tab === "devata" && birth && <DevataView kundli={kundli} birth={birth} onRitual={onRitual} />}
       {tab === "final" && birth && <ConfluenceView kundli={kundli} birth={birth} />}
       {tab === "life" && birth && <LifeView kundli={kundli} birth={birth} onRecompute={onRecompute} />}

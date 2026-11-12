@@ -4,7 +4,7 @@ import { ReportStore } from "@/components/ReportStore";
 import { REPORTS } from "@/lib/reports";
 
 const FAQ: [string, string][] = [
-  ["How do I get my report?", "Enter your date, time and place of birth, choose a report and pay. The PDF is prepared on your device in about 20 seconds and downloads immediately."],
+  ["How do I get my report?", "Enter your date, time and place of birth and choose a report (on the website, pay with Razorpay). The PDF is prepared on your device in about 20 seconds and downloads immediately."],
   ["Which systems are used?", "Parashari (Brihat Parashara Hora Shastra) with Lahiri ayanamsa, Jaimini, KP, Lal Kitab, Bhrigu Nandi Nadi, Chaldean numerology and Lo Shu. The complete report combines all of them."],
   ["I don't know my exact birth time.", "Give your best estimate. The Life So Far report lets you check the chart against your past, and the Brahman app can test your birth time against events you remember."],
   ["Can I download it again?", "Yes — on the same device, a purchased report shows “Download again” for the same birth details."],
