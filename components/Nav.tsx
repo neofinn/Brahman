@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/panchang", label: "Panchang" },
   { href: "/kundli", label: "Kundli" },
   { href: "/milan", label: "Milan" },
+  { href: "/reports", label: "Reports" },
   { href: "/kriyas", label: "Puja & Hawan" },
   { href: "/katha", label: "Katha" },
   { href: "/library", label: "Scriptures" },

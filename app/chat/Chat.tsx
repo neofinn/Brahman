@@ -17,6 +17,7 @@ import { PanchangPanel } from "@/app/panchang/PanchangView";
 import { MilanTool } from "@/app/milan/MilanView";
 import { MuhurtaFinder } from "@/components/MuhurtaFinder";
 import { AbroadBlock } from "@/components/AbroadBlock";
+import { ReportStore } from "@/components/ReportStore";
 import { SiddhiCard } from "@/components/SiddhiCard";
 import { SiddhiLibrary } from "@/app/siddhis/SiddhisView";
 import { getSiddhi } from "@/lib/siddhis";
@@ -112,6 +113,8 @@ function CardView({ card, voice, onRitual, onSend, onKatha }: { card: Card; voic
       return <DevataCard card={card} onRitual={onRitual} />;
     case "milan":
       return <MilanTool onRitual={onRitual} />;
+    case "reports":
+      return <ReportStore />;
     case "siddhi": {
       const sd = getSiddhi(card.id);
       return sd ? <SiddhiCard s={sd} onRitual={onRitual} /> : null;

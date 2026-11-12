@@ -108,6 +108,8 @@ export function speechForCard(card: Card): string[] {
         "The deity for each wish is listed below.",
       ].filter(Boolean);
     }
+    case "reports":
+      return ["Brahman prepares detailed PDF reports from your kundli. Enter your birth details and choose a report."];
     case "milan":
       return ["For Kundli Milan, enter the birth details of the boy and the girl, and I will match all eight kootas."];
     case "muhurta":

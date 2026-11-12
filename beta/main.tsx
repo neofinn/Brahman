@@ -10,6 +10,7 @@ import { PanchangView } from "@/app/panchang/PanchangView";
 import { KundliView } from "@/app/kundli/KundliView";
 import { MilanView } from "@/app/milan/MilanView";
 import { SiddhisView } from "@/app/siddhis/SiddhisView";
+import { ReportsView } from "@/app/reports/ReportsView";
 import KriyasPage from "@/app/kriyas/page";
 import KathaLibrary from "@/app/katha/page";
 import LibraryPage from "@/app/library/page";
@@ -77,6 +78,8 @@ function Route() {
       return <KundliView />;
     case "milan":
       return <MilanView />;
+    case "reports":
+      return <ReportsView />;
     case "siddhis":
       return <SiddhisView />;
     case "kriyas":

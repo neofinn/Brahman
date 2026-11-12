@@ -23,6 +23,7 @@ export type Card =
   | { type: "kundli"; date: string; time: string; place: Place; name?: string }
   | { type: "prediction"; date: string; time: string; place: Place; name?: string; focus?: AreaId }
   | { type: "milan" }
+  | { type: "reports" }
   | { type: "abroad"; ritualId?: string }
   | { type: "devata"; date: string; time: string; place: Place; name?: string }
   | { type: "siddhi"; id: string }
@@ -266,6 +267,7 @@ const MUHURTA_WORDS = ["muhurat", "muhurta", "mahurat", "muhurtham", "shubh din"
 const PREDICT_WORDS = ["future", "bhavishya", "prediction", "predictions", "predict", "forecast", "bhavishyavani", "rajyog", "raj yog", "rajyoga", "raja yoga", "upcoming", "aane wala", "aanewala", "kaisa rahega", "kaisa rahegi", "kaise rahega", "next year", "agla saal", "this year", "is saal", "phaladesh", "my dosha", "mere dosh", "kundli dosh", "kundli dosha"];
 const ABROAD_WORDS = ["abroad", "videsh", "foreign", "usa", "america", "canada", "uk", "london", "australia", "germany", "dubai", "overseas", "no pandit", "without pandit", "pandit nahi", "bina pandit", "no temple"];
 const SUBSTITUTE_WORDS = ["substitute", "substitutes", "alternative", "replacement", "instead of", "not available", "can't find", "cant find", "cannot find", "nahi milta", "nahi milte", "nahi mil raha", "nahi mil rahe", "nahi mila", "nahi milti", "unavailable", "dont have", "don't have", "do not have", "budget", "cheap", "afford", "manasa puja", "mansik puja", "fire safety", "smoke alarm", "apartment"];
+const REPORT_WORDS = ["report", "reports", "pdf", "pdf report", "kundli report", "career report", "dhan report", "gemstone report", "astrology report", "vedic report", "buy report", "report chahiye", "report banao"];
 const DEVATA_WORDS = ["which deity", "which god", "which goddess", "kis bhagwan", "kis bhagvan", "kaun se bhagwan", "kaunse bhagwan", "konse bhagwan", "kis devta", "kis devi", "kaun si devi", "ishta devata", "isht dev", "ishta dev", "isht devta", "ishtdev", "ishta deity", "kis ki puja", "kiski puja", "whom should i worship", "deity to worship", "deity for me", "mere bhagwan", "mera isht"];
 const PRAYER_WORDS = ["pray", "prayer", "prarthana", "dua", "bless", "blessing", "blessings", "aashirwad", "ashirwad", "motivate", "scared", "afraid", "darr", "dar lag", "nervous", "anxious", "worried", "tension", "sad", "upset"];
 const WHEN_WORDS = ["kab", "when", "will i", "hoga", "hogi", "milegi", "milega", "chances", "possible", "yog", "yoga"];
@@ -390,6 +392,11 @@ function answer(text: string, state: FinderState): FinderReply {
     ];
     if (ritualId) cards.push({ type: "ritual", id: ritualId });
     return { cards, state };
+  }
+
+  // 1d-0. Paid PDF reports.
+  if (REPORT_WORDS.some(hasWord) && !state.pendingKundli) {
+    return { cards: [{ type: "text", text: "🙏 Brahman prepares detailed PDF reports from your kundli — complete Vedic kundli, career, dhan, marriage, gemstone, health, dosha, Lal Kitab, numerology and kundli milan. Enter your birth details and choose a report." }, { type: "reports" }], state };
   }
 
   // 1d. Which deity to worship, from the kundli.

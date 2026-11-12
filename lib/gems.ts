@@ -51,6 +51,7 @@ export const GOALS: GoalDef[] = [
 ];
 
 export interface GoalGem {
+  id: string;
   goal: string;
   recommended?: GemInfo & { reason: string };
   alternative?: GemInfo & { reason: string };
@@ -69,6 +70,7 @@ export function gemsForGoals(k: Kundli): GoalGem[] {
     const pick = (i: number) => (usable[i] ? { ...GEMS[usable[i].p], reason: usable[i].s.reason } : undefined);
     const recommended = pick(0);
     return {
+      id: g.id,
       goal: g.goal,
       recommended,
       alternative: pick(1),
