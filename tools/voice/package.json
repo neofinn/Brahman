@@ -1,0 +1,11 @@
+{
+  "name": "brahman-offline-voice",
+  "private": true,
+  "type": "module",
+  "description": "Records Brahman's mantras offline with the open Kokoro-82M Hindi male voice. Not part of the app bundle.",
+  "dependencies": {
+    "espeak-ng": "1.0.2",
+    "kokoro-q8-shards": "1.0.0",
+    "onnxruntime-node": "1.21.0"
+  }
+}
